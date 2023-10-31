@@ -1,0 +1,4 @@
+pushd step
+cargo build
+popd
+make all
