@@ -4,6 +4,8 @@ TARGET = pedal
 LIBDIR = -L /Users/gmt/pedal/step/target/thumbv7em-none-eabihf/debug/
 LIBS = -lstep
 
+LDFLAGS += -u _printf_float
+
 # Sources
 CPP_SOURCES = pedal.cpp
 
