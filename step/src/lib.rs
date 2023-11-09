@@ -17,7 +17,7 @@ pub extern "C" fn rust_function() {
 #[no_mangle]
 //pub extern "C" fn rust_function2(in_ptr: *const f32, out_ptr: *mut f32, len: usize) {
 // TODO out_ptr type seems wrong, mut+const swapped?
-pub extern "C" fn rust_function2(in_ptr: *const *const f32, out_ptr: *const *mut f32, len: usize) {
+pub extern "C" fn rust_copy_in_to_out(in_ptr: *const *const f32, out_ptr: *const *mut f32, len: usize) {
   //println!("usize {}", sizeof(usize));
   let ilen = len as isize;
 
