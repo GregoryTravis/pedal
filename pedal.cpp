@@ -10,6 +10,7 @@ extern "C" {
   void rust_process_audio(const float* const* in_ptr, float **out_ptr, size_t len);
   typedef void *PatchPtr;
   PatchPtr get_patch();
+  float use_patch(PatchPtr);
   size_t get_size();
   void rust_setup();
 }
@@ -55,6 +56,8 @@ int main(void)
         hw.PrintLine("PatchPtr size %d", get_size());
         PatchPtr patchPtr = get_patch();
         hw.PrintLine("PatchPtr %p", patchPtr);
+        float pf = use_patch(patchPtr);
+        hw.PrintLine("PatchPtr foo %f", pf);
 
 	while(1) {
           System::Delay(500);

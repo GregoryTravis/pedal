@@ -45,6 +45,11 @@ pub fn get_patch() -> Box<Patch> {
   Box::new(Patch { yep: 30.3 })
 }
 
+#[no_mangle]
+pub fn use_patch(patch: Box<Patch>) -> f32 {
+  patch.foo(100.1)
+}
+
 impl Patch {
   pub fn foo(&self, x: f32) -> f32 {
       return x + 1.2;
