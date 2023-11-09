@@ -7,8 +7,8 @@ using namespace daisysp;
 DaisySeed hw;
 
 extern "C" {
-  void rust_process_audio(const float* const* in_ptr, float **out_ptr, size_t len);
   typedef void *PatchPtr;
+  void rust_process_audio(PatchPtr patch, const float* const* in_ptr, float **out_ptr, size_t len);
   PatchPtr get_patch();
   float use_patch(PatchPtr);
   size_t get_size();
@@ -27,7 +27,8 @@ void copyInToOut(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, siz
 
 void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size)
 {
-  rust_process_audio(in, out, size);
+  PatchPtr patchPtr = get_patch();
+  rust_process_audio(patchPtr, in, out, size);
   //copyInToOut(in, out, size);
 
   inl = in[0][0];

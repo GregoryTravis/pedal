@@ -50,51 +50,55 @@ pub fn use_patch(patch: Box<Patch>) -> f32 {
   patch.foo(100.1)
 }
 
-impl Patch {
-  pub fn foo(&self, x: f32) -> f32 {
-      return x + 1.2;
-  }
-}
-
-#[no_mangle]
-// TODO out_ptr type seems wrong, mut+const swapped?
-pub extern "C" fn rust_process_audio(in_ptr: *const *const f32, out_ptr: *const *mut f32, len: usize) {
-  let ilen = len as isize;
-
-  let left_input_slice = unsafe { slice::from_raw_parts(*(in_ptr.wrapping_add(0)), len) };
-  let right_input_slice = unsafe { slice::from_raw_parts(*(in_ptr.wrapping_add(1)), len) };
-  let left_output_slice = unsafe { slice::from_raw_parts_mut(*(out_ptr.wrapping_add(0)), len) };
-  let right_output_slice = unsafe { slice::from_raw_parts_mut(*(out_ptr.wrapping_add(1)), len) };
-
-  //copy_in_to_out(left_input_slice, right_input_slice, left_output_slice, right_output_slice, len);
-  filter(left_input_slice, right_input_slice, left_output_slice, right_output_slice, len);
+pub fn rust_process_audio(patch: Box<Patch>, in_ptr: *const *const f32, out_ptr: *const *mut f32, len: usize) {
+  patch.rust_process_audio(in_ptr, out_ptr, len);
 }
 
 static mut STATEL: f32 = 0.0;
 static mut STATER: f32 = 0.0;
 
-fn copy_in_to_out(left_input_slice: &[f32], right_input_slice: &[f32],
-        left_output_slice: &mut [f32], right_output_slice: &mut [f32],
-        size: usize) {
-    for i in 0..size-1 {
-        left_output_slice[i] = left_input_slice[i];
-        right_output_slice[i] = right_input_slice[i];
-    }
-}
+impl Patch {
+  pub fn foo(&self, x: f32) -> f32 {
+      return x + 1.2;
+  }
 
-fn filter(left_input_slice: &[f32], right_input_slice: &[f32],
-        left_output_slice: &mut [f32], right_output_slice: &mut [f32],
-        size: usize) {
-    let mut sttl : f32;
-    let mut sttr : f32;
-    unsafe { sttl = STATEL; }
-    unsafe { sttr = STATER; }
-    for i in 0..size {
-        left_output_slice[i] = (left_input_slice[i] - sttl) / 2.0;
-        sttl = left_input_slice[i];
-        right_output_slice[i] = (right_input_slice[i] - sttr) / 2.0;
-        sttr = right_input_slice[i];
-    }
-    unsafe { STATEL = sttl; }
-    unsafe { STATER = sttr; }
+  #[no_mangle]
+  // TODO out_ptr type seems wrong, mut+const swapped?
+  pub fn rust_process_audio(&self, in_ptr: *const *const f32, out_ptr: *const *mut f32, len: usize) {
+    let ilen = len as isize;
+
+    let left_input_slice = unsafe { slice::from_raw_parts(*(in_ptr.wrapping_add(0)), len) };
+    let right_input_slice = unsafe { slice::from_raw_parts(*(in_ptr.wrapping_add(1)), len) };
+    let left_output_slice = unsafe { slice::from_raw_parts_mut(*(out_ptr.wrapping_add(0)), len) };
+    let right_output_slice = unsafe { slice::from_raw_parts_mut(*(out_ptr.wrapping_add(1)), len) };
+
+    //self.copy_in_to_out(left_input_slice, right_input_slice, left_output_slice, right_output_slice, len);
+    self.filter(left_input_slice, right_input_slice, left_output_slice, right_output_slice, len);
+  }
+
+  fn copy_in_to_out(&self, left_input_slice: &[f32], right_input_slice: &[f32],
+          left_output_slice: &mut [f32], right_output_slice: &mut [f32],
+          size: usize) {
+      for i in 0..size-1 {
+          left_output_slice[i] = left_input_slice[i];
+          right_output_slice[i] = right_input_slice[i];
+      }
+  }
+
+  fn filter(&self, left_input_slice: &[f32], right_input_slice: &[f32],
+          left_output_slice: &mut [f32], right_output_slice: &mut [f32],
+          size: usize) {
+      let mut sttl : f32;
+      let mut sttr : f32;
+      unsafe { sttl = STATEL; }
+      unsafe { sttr = STATER; }
+      for i in 0..size {
+          left_output_slice[i] = (left_input_slice[i] - sttl) / 2.0;
+          sttl = left_input_slice[i];
+          right_output_slice[i] = (right_input_slice[i] - sttr) / 2.0;
+          sttr = right_input_slice[i];
+      }
+      unsafe { STATEL = sttl; }
+      unsafe { STATER = sttr; }
+  }
 }
