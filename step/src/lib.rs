@@ -32,7 +32,8 @@ pub fn rust_setup() {
 
 // TODO pub needed?
 pub struct Patch {
-  yep: f32,
+  statel: f32,
+  stater: f32,
 }
 
 #[no_mangle]
@@ -42,7 +43,7 @@ pub fn get_size() -> usize {
 
 #[no_mangle]
 pub fn get_patch() -> Box<Patch> {
-  Box::new(Patch { yep: 30.3 })
+  Box::new(Patch { statel: 0.0, stater: 0.0 })
 }
 
 #[no_mangle]
@@ -50,12 +51,9 @@ pub fn use_patch(patch: Box<Patch>) -> f32 {
   patch.foo(100.1)
 }
 
-pub fn rust_process_audio(patch: Box<Patch>, in_ptr: *const *const f32, out_ptr: *const *mut f32, len: usize) {
-  patch.rust_process_audio(in_ptr, out_ptr, len);
+pub fn rust_process_audio(mut patch: Box<Patch>, in_ptr: *const *const f32, out_ptr: *const *mut f32, len: usize) {
+  (&mut patch).rust_process_audio(in_ptr, out_ptr, len);
 }
-
-static mut STATEL: f32 = 0.0;
-static mut STATER: f32 = 0.0;
 
 impl Patch {
   pub fn foo(&self, x: f32) -> f32 {
@@ -64,7 +62,7 @@ impl Patch {
 
   #[no_mangle]
   // TODO out_ptr type seems wrong, mut+const swapped?
-  pub fn rust_process_audio(&self, in_ptr: *const *const f32, out_ptr: *const *mut f32, len: usize) {
+  pub fn rust_process_audio(&mut self, in_ptr: *const *const f32, out_ptr: *const *mut f32, len: usize) {
     let ilen = len as isize;
 
     let left_input_slice = unsafe { slice::from_raw_parts(*(in_ptr.wrapping_add(0)), len) };
@@ -85,20 +83,14 @@ impl Patch {
       }
   }
 
-  fn filter(&self, left_input_slice: &[f32], right_input_slice: &[f32],
+  fn filter(&mut self, left_input_slice: &[f32], right_input_slice: &[f32],
           left_output_slice: &mut [f32], right_output_slice: &mut [f32],
           size: usize) {
-      let mut sttl : f32;
-      let mut sttr : f32;
-      unsafe { sttl = STATEL; }
-      unsafe { sttr = STATER; }
       for i in 0..size {
-          left_output_slice[i] = (left_input_slice[i] - sttl) / 2.0;
-          sttl = left_input_slice[i];
-          right_output_slice[i] = (right_input_slice[i] - sttr) / 2.0;
-          sttr = right_input_slice[i];
+          left_output_slice[i] = (left_input_slice[i] - self.statel) / 2.0;
+          self.statel = left_input_slice[i];
+          right_output_slice[i] = (right_input_slice[i] - self.stater) / 2.0;
+          self.stater = right_input_slice[i];
       }
-      unsafe { STATEL = sttl; }
-      unsafe { STATER = sttr; }
   }
 }
