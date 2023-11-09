@@ -7,7 +7,7 @@ using namespace daisysp;
 DaisySeed hw;
 
 extern "C" {
-    void rust_copy_in_to_out(const float* const* in_ptr, float **out_ptr, size_t len);
+    void rust_process_audio(const float* const* in_ptr, float **out_ptr, size_t len);
 }
 
 float inl, inr, outl, outr;
@@ -22,7 +22,7 @@ void copyInToOut(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, siz
 
 void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size)
 {
-  rust_copy_in_to_out(in, out, size);
+  rust_process_audio(in, out, size);
   //copyInToOut(in, out, size);
 
   inl = in[0][0];
