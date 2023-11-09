@@ -15,6 +15,8 @@ extern "C" {
   void rust_setup();
 }
 
+static PatchPtr thePatchPtr;
+
 float inl, inr, outl, outr;
 int frames=0;
 
@@ -27,8 +29,7 @@ void copyInToOut(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, siz
 
 void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size)
 {
-  PatchPtr patchPtr = get_patch();
-  rust_process_audio(patchPtr, in, out, size);
+  rust_process_audio(thePatchPtr, in, out, size);
   //copyInToOut(in, out, size);
 
   inl = in[0][0];
@@ -55,9 +56,9 @@ int main(void)
         rust_setup();
 
         hw.PrintLine("PatchPtr size %d", get_size());
-        PatchPtr patchPtr = get_patch();
-        hw.PrintLine("PatchPtr %p", patchPtr);
-        float pf = use_patch(patchPtr);
+        thePatchPtr = get_patch();
+        hw.PrintLine("PatchPtr %p", thePatchPtr);
+        float pf = use_patch(thePatchPtr);
         hw.PrintLine("PatchPtr foo %f", pf);
 
 	while(1) {
