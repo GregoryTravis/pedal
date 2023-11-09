@@ -3,11 +3,52 @@
 #![allow(dead_code)]
 #![allow(unused)]
 
+extern crate alloc;
+
+use core::mem;
 use core::slice;
+use alloc::boxed::Box;
+use alloc_cortex_m::CortexMHeap;
 
 #[panic_handler]
 fn panic(_info: &core::panic::PanicInfo) -> ! {
     loop {}
+}
+
+#[global_allocator]
+static ALLOCATOR: CortexMHeap = CortexMHeap::empty();
+
+const HEAP_START: usize = 0x24020000;
+const HEAP_SIZE: usize = (512 - 128) * 1024; // 384KB
+
+pub fn init_allocator(heap_start: usize, heap_size: usize) {
+    unsafe { ALLOCATOR.init(heap_start, heap_size) }
+}
+
+#[no_mangle]
+pub fn rust_setup() {
+  init_allocator(HEAP_START, HEAP_SIZE);
+}
+
+// TODO pub needed?
+pub struct Patch {
+  yep: f32,
+}
+
+#[no_mangle]
+pub fn get_size() -> usize {
+    return core::mem::size_of::<Box<Patch>>();
+}
+
+#[no_mangle]
+pub fn get_patch() -> Box<Patch> {
+  Box::new(Patch { yep: 30.3 })
+}
+
+impl Patch {
+  pub fn foo(&self, x: f32) -> f32 {
+      return x + 1.2;
+  }
 }
 
 #[no_mangle]

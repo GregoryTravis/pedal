@@ -7,7 +7,11 @@ using namespace daisysp;
 DaisySeed hw;
 
 extern "C" {
-    void rust_process_audio(const float* const* in_ptr, float **out_ptr, size_t len);
+  void rust_process_audio(const float* const* in_ptr, float **out_ptr, size_t len);
+  typedef void *PatchPtr;
+  PatchPtr get_patch();
+  size_t get_size();
+  void rust_setup();
 }
 
 float inl, inr, outl, outr;
@@ -44,6 +48,14 @@ int main(void)
 	hw.SetAudioBlockSize(4); // number of samples handled per callback
 	hw.SetAudioSampleRate(SaiHandle::Config::SampleRate::SAI_48KHZ);
 	hw.StartAudio(AudioCallback);
+
+        // TODO move this earlier
+        rust_setup();
+
+        hw.PrintLine("PatchPtr size %d", get_size());
+        PatchPtr patchPtr = get_patch();
+        hw.PrintLine("PatchPtr %p", patchPtr);
+
 	while(1) {
           System::Delay(500);
           hw.PrintLine("dl %f %f %f %f %d", inl, inr, outl, outr, frames);
