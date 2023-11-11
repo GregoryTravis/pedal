@@ -41,6 +41,15 @@ pub fn get_size() -> usize {
     return core::mem::size_of::<Box<Patch>>();
 }
 
+extern "C" {
+  pub fn cpp_main() -> i32;
+}
+
+#[no_mangle]
+pub fn main() -> i32 {
+  unsafe { cpp_main() }
+}
+
 #[no_mangle]
 pub fn get_patch() -> Box<Patch> {
   Box::new(Patch { statel: 0.0, stater: 0.0 })

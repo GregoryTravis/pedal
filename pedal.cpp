@@ -44,7 +44,7 @@ void initLogging() {
   hw.PrintLine("Pedal!");
 }
 
-int main(void)
+extern "C" int cpp_main(void)
 {
 	hw.Init();
         initLogging();
