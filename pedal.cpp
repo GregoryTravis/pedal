@@ -46,14 +46,14 @@ void initLogging() {
 
 extern "C" int cpp_main(void)
 {
+        // TODO move this earlier
+        rust_setup();
+
 	hw.Init();
         initLogging();
 	hw.SetAudioBlockSize(4); // number of samples handled per callback
 	hw.SetAudioSampleRate(SaiHandle::Config::SampleRate::SAI_48KHZ);
 	hw.StartAudio(AudioCallback);
-
-        // TODO move this earlier
-        rust_setup();
 
         hw.PrintLine("PatchPtr size %d", get_size());
         thePatchPtr = get_patch();
@@ -62,8 +62,8 @@ extern "C" int cpp_main(void)
         hw.PrintLine("PatchPtr foo %f", pf);
 
 	while(1) {
-          System::Delay(500);
           hw.PrintLine("dl %f %f %f %f %d", inl, inr, outl, outr, frames);
+          System::Delay(500);
         }
 	//while(1) {}
 }

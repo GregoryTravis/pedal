@@ -60,7 +60,7 @@ pub fn use_patch(patch: Box<Patch>) -> f32 {
   patch.foo(100.1)
 }
 
-pub fn rust_process_audio(mut patch: Box<Patch>, in_ptr: *const *const f32, out_ptr: *const *mut f32, len: usize) {
+pub extern "C" fn rust_process_audio(mut patch: Box<Patch>, in_ptr: *const *const f32, out_ptr: *const *mut f32, len: usize) {
   patch.rust_process_audio(in_ptr, out_ptr, len);
 }
 
