@@ -1,3 +1,9 @@
+# We always make clean the c++ part because (1) the libDaisy makefile builds
+# the exe and it doesn't rebuild when the rust library changes, and (2) it's
+# very fast. TODO: change the libDaisy makefile to allow static libraries (in
+# addition to .c, .cpp, and .s) to be included as dependencies.
+make clean
+
 pushd step
 cargo build
 popd

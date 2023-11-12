@@ -1,1 +1,1 @@
-(./cln && ./bld && ./psh) 2>&1 | tee out
+(./bld && ./psh) 2>&1 | tee out
