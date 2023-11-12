@@ -4,7 +4,4 @@
 # addition to .c, .cpp, and .s) to be included as dependencies.
 make clean
 
-pushd step
-cargo build
-popd
-make all
+(pushd step; cargo build; r=$?; popd; exit $r) && make all

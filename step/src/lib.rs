@@ -5,6 +5,8 @@
 
 extern crate alloc;
 
+pub mod filter;
+
 use core::mem;
 use core::slice;
 use alloc::boxed::Box;
@@ -34,6 +36,7 @@ pub fn rust_setup() {
 pub struct Patch {
   statel: f32,
   stater: f32,
+  hpf: crate::filter::high_pass::HighPassFilter,
 }
 
 #[no_mangle]
@@ -52,7 +55,7 @@ pub fn main() -> i32 {
 
 #[no_mangle]
 pub fn get_patch() -> Box<Patch> {
-  Box::new(Patch { statel: 0.0, stater: 0.0 })
+  Box::new(Patch { statel: 0.0, stater: 0.0, hpf: crate::filter::high_pass::HighPassFilter { a: 12 } })
 }
 
 #[no_mangle]
