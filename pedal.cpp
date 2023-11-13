@@ -1,8 +1,6 @@
 #include "daisy_seed.h"
-#include "daisysp.h"
 
 using namespace daisy;
-using namespace daisysp;
 
 DaisySeed hw;
 
@@ -42,6 +40,12 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
 void initLogging() {
   hw.StartLog(true);
   hw.PrintLine("Pedal!");
+}
+
+template <typename... VA>
+static void PrintLine(const char* format, VA... va)
+{
+    hw.PrintLine(format, va...);
 }
 
 extern "C" int cpp_main(void)

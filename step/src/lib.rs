@@ -49,6 +49,9 @@ pub fn get_size() -> usize {
 
 extern "C" {
   pub fn cpp_main() -> i32;
+  #[link_name = "\u{1}__Z9PrintLinePKcz"]
+  //pub fn PrintLine(format: *const ::std::os::raw::c_char, ...);
+  pub fn PrintLine(format: *const core::ffi::c_char, ...);
 }
 
 #[no_mangle]
