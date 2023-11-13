@@ -11,6 +11,7 @@ use core::mem;
 use core::slice;
 
 use alloc::boxed::Box;
+//use alloc::format;
 use alloc_cortex_m::CortexMHeap;
 
 use crate::filter::high_pass::*;
@@ -77,9 +78,10 @@ pub extern "C" fn rust_process_audio(mut patch: Box<Patch>, in_ptr: *const *cons
   patch.rust_process_audio(in_ptr, out_ptr, len);
 }
 
-pub extern "C" fn rust_patch_main(mut patch: Box<Patch>) {
-  patch.main();
-}
+//#[no_mangle]
+//pub extern "C" fn rust_patch_main(mut patch: Box<Patch>) {
+  //patch.main();
+//}
 
 impl Patch {
   pub fn foo(&self, x: f32) -> f32 {
@@ -121,11 +123,12 @@ impl Patch {
   }
 
   fn main(&mut self) {
-    loop {
+      //let _foo = format!("hey {} yeah {}", 12, 2.3);
+    //loop {
       //PrintLine("helleau");
       //PrintLine("dl %f %f %f %f %d", inl, inr, outl, outr, frames);
       //Delay(500);
-    }
+    //}
 	//loop {}
   }
 }
