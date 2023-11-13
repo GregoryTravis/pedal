@@ -51,8 +51,12 @@ extern "C" {
   pub fn cpp_main() -> i32;
   #[link_name = "\u{1}__Z9PrintLinePKcz"]
   //pub fn PrintLine(format: *const ::std::os::raw::c_char, ...);
-  pub fn PrintLine(format: *const core::ffi::c_char, ...);
+  pub fn Delay(delay_ms: u32);
 }
+
+//libc::c_char
+//let c_str = CString::new(format).unwrap();
+//let c_world: *const c_char = c_str.as_ptr() as *const c_char;
 
 #[no_mangle]
 pub fn main() -> i32 {
@@ -71,6 +75,10 @@ pub fn use_patch(patch: Box<Patch>) -> f32 {
 
 pub extern "C" fn rust_process_audio(mut patch: Box<Patch>, in_ptr: *const *const f32, out_ptr: *const *mut f32, len: usize) {
   patch.rust_process_audio(in_ptr, out_ptr, len);
+}
+
+pub extern "C" fn rust_patch_main(mut patch: Box<Patch>) {
+  patch.main();
 }
 
 impl Patch {
@@ -110,5 +118,14 @@ impl Patch {
           right_output_slice[i] = (right_input_slice[i] - self.hpf_right.state) / 2.0;
           self.hpf_right.state = right_input_slice[i];
       }
+  }
+
+  fn main(&mut self) {
+    loop {
+      //PrintLine("helleau");
+      //PrintLine("dl %f %f %f %f %d", inl, inr, outl, outr, frames);
+      //Delay(500);
+    }
+	//loop {}
   }
 }
