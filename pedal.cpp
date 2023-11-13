@@ -7,6 +7,7 @@ DaisySeed hw;
 extern "C" {
   typedef void *PatchPtr;
   void rust_process_audio(PatchPtr patch, const float* const* in_ptr, float **out_ptr, size_t len);
+  void patch_main(PatchPtr patch);
   //void rust_patch_main(PatchPtr patch);
   PatchPtr get_patch();
   float use_patch(PatchPtr);
@@ -49,7 +50,11 @@ static void PrintLine(const char* format, VA... va)
     hw.PrintLine(format, va...);
 }
 
-void Delay(uint32_t delay_ms) {
+extern "C" void ping() {
+  hw.PrintLine("ping");
+}
+
+extern "C" void UnsafeDelay(uint32_t delay_ms) {
   System::Delay(500);
 }
 
@@ -70,7 +75,7 @@ extern "C" int cpp_main(void)
         float pf = use_patch(thePatchPtr);
         hw.PrintLine("PatchPtr foo %f", pf);
 
-        //rust_patch_main(thePatchPtr);
+        patch_main(thePatchPtr);
 
         while(1) {
           hw.PrintLine("dl %f %f %f %f %d", inl, inr, outl, outr, frames);

@@ -50,9 +50,14 @@ pub fn get_size() -> usize {
 
 extern "C" {
   pub fn cpp_main() -> i32;
-  #[link_name = "\u{1}__Z9PrintLinePKcz"]
+  pub fn ping();
+  //#[link_name = "\u{1}__Z9PrintLinePKcz"]
   //pub fn PrintLine(format: *const ::std::os::raw::c_char, ...);
-  pub fn Delay(delay_ms: u32);
+  pub fn UnsafeDelay(delay_ms: u32);
+}
+
+pub fn delay(delay_ms: u32) {
+  unsafe { UnsafeDelay(delay_ms); }
 }
 
 //libc::c_char
@@ -72,10 +77,6 @@ pub fn get_patch() -> Box<Patch> {
 #[no_mangle]
 pub fn use_patch(patch: Box<Patch>) -> f32 {
   patch.foo(100.1)
-}
-
-pub extern "C" fn rust_process_audio(mut patch: Box<Patch>, in_ptr: *const *const f32, out_ptr: *const *mut f32, len: usize) {
-  patch.rust_process_audio(in_ptr, out_ptr, len);
 }
 
 //#[no_mangle]
@@ -122,13 +123,15 @@ impl Patch {
       }
   }
 
-  fn main(&mut self) {
+  #[no_mangle]
+  pub fn patch_main(&mut self) {
       //let _foo = format!("hey {} yeah {}", 12, 2.3);
-    //loop {
+    loop {
       //PrintLine("helleau");
       //PrintLine("dl %f %f %f %f %d", inl, inr, outl, outr, frames);
-      //Delay(500);
-    //}
+      unsafe { ping(); }
+      delay(500);
+    }
 	//loop {}
   }
 }
