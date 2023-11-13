@@ -36,10 +36,10 @@ pub fn rust_setup() {
 }
 
 // TODO pub needed?
+// TODO it's mono so don't do both channels
 pub struct Patch {
-  statel: f32,
-  stater: f32,
-  hpf: HighPassFilter,
+  hpf_left: HighPassFilter,
+  hpf_right: HighPassFilter,
 }
 
 #[no_mangle]
@@ -58,7 +58,7 @@ pub fn main() -> i32 {
 
 #[no_mangle]
 pub fn get_patch() -> Box<Patch> {
-  Box::new(Patch { statel: 0.0, stater: 0.0, hpf: HighPassFilter { a: 12 } })
+  Box::new(Patch { hpf_left: HighPassFilter::new(), hpf_right: HighPassFilter::new() })
 }
 
 #[no_mangle]
@@ -102,10 +102,10 @@ impl Patch {
           left_output_slice: &mut [f32], right_output_slice: &mut [f32],
           size: usize) {
       for i in 0..size {
-          left_output_slice[i] = (left_input_slice[i] - self.statel) / 2.0;
-          self.statel = left_input_slice[i];
-          right_output_slice[i] = (right_input_slice[i] - self.stater) / 2.0;
-          self.stater = right_input_slice[i];
+          left_output_slice[i] = (left_input_slice[i] - self.hpf_left.state) / 2.0;
+          self.hpf_left.state = left_input_slice[i];
+          right_output_slice[i] = (right_input_slice[i] - self.hpf_right.state) / 2.0;
+          self.hpf_right.state = right_input_slice[i];
       }
   }
 }
