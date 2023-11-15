@@ -68,13 +68,14 @@ extern "C" int cpp_main(void)
         initLogging();
 	hw.SetAudioBlockSize(4); // number of samples handled per callback
 	hw.SetAudioSampleRate(SaiHandle::Config::SampleRate::SAI_48KHZ);
-	hw.StartAudio(AudioCallback);
 
         hw.PrintLine("PatchPtr size %d", get_size());
         thePatchPtr = get_patch();
         hw.PrintLine("PatchPtr %p", thePatchPtr);
         float pf = use_patch(thePatchPtr);
         hw.PrintLine("PatchPtr foo %f", pf);
+
+	hw.StartAudio(AudioCallback);
 
         //patch_main(thePatchPtr);
 
