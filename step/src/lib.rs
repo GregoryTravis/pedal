@@ -179,7 +179,7 @@ impl Patch {
   #[no_mangle]
   pub fn patch_main(&mut self) {
     glup!("glup hey {} yeah {}", 12, 2.3);
-    //format!("rdl {} {} {} {} {}", self.inl, self.inr, self.outl, self.outr, self.framesize);
+    //glup!("rdl {} {} {} {} {}", self.inl, self.inr, self.outl, self.outr, self.framesize);
     //glup!("a", "b");
 
     let foo = format!("hey {} yeah {}", 12, 2.3);
