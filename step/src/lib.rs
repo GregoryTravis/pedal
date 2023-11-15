@@ -42,6 +42,11 @@ pub fn rust_setup() {
 pub struct Patch {
   hpf_left: HighPassFilter,
   hpf_right: HighPassFilter,
+  inl: f32,
+  inr: f32,
+  outl: f32,
+  outr: f32,
+  framesize: usize,
 }
 
 #[no_mangle]
@@ -72,7 +77,15 @@ pub fn main() -> i32 {
 
 #[no_mangle]
 pub fn get_patch() -> Box<Patch> {
-  Box::new(Patch { hpf_left: HighPassFilter::new(), hpf_right: HighPassFilter::new() })
+  Box::new(Patch {
+      hpf_left: HighPassFilter::new(),
+      hpf_right: HighPassFilter::new(),
+      inl: 0.0,
+      inr: 0.0,
+      outl: 0.0,
+      outr: 0.0,
+      framesize: 0,
+  })
 }
 
 #[no_mangle]
@@ -135,6 +148,12 @@ impl Patch {
 
     //self.copy_in_to_out(left_input_slice, right_input_slice, left_output_slice, right_output_slice, len);
     self.filter(left_input_slice, right_input_slice, left_output_slice, right_output_slice, len);
+
+    self.inl = left_input_slice[0];
+    self.inr = right_input_slice[0];
+    self.outl = left_output_slice[0];
+    self.outr = right_output_slice[0];
+    self.framesize = len;
   }
 
   fn copy_in_to_out(&self, left_input_slice: &[f32], right_input_slice: &[f32],
@@ -160,6 +179,7 @@ impl Patch {
   #[no_mangle]
   pub fn patch_main(&mut self) {
     glup!("glup hey {} yeah {}", 12, 2.3);
+    //format!("rdl {} {} {} {} {}", self.inl, self.inr, self.outl, self.outr, self.framesize);
     //glup!("a", "b");
 
     let foo = format!("hey {} yeah {}", 12, 2.3);
