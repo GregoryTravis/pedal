@@ -11,7 +11,8 @@ use core::mem;
 use core::slice;
 
 use alloc::boxed::Box;
-//use alloc::format;
+use alloc::ffi::CString;
+use alloc::format;
 use alloc_cortex_m::CortexMHeap;
 
 use crate::filter::high_pass::*;
@@ -52,7 +53,7 @@ extern "C" {
   pub fn cpp_main() -> i32;
   pub fn ping();
   //#[link_name = "\u{1}__Z9PrintLinePKcz"]
-  //pub fn PrintLine(format: *const ::std::os::raw::c_char, ...);
+  pub fn PrintLine(format: *const core::ffi::c_char);
   pub fn UnsafeDelay(delay_ms: u32);
 }
 
@@ -130,13 +131,19 @@ impl Patch {
 
   #[no_mangle]
   pub fn patch_main(&mut self) {
-      //let _foo = format!("hey {} yeah {}", 12, 2.3);
+    let foo = format!("hey {} yeah {}", 12, 2.3);
+    let c_str = CString::new(foo).unwrap();
+    let c_world: *const core::ffi::c_char = c_str.as_ptr() as *const core::ffi::c_char;
+    unsafe { PrintLine(c_world); }
+
+    /*
     loop {
       //PrintLine("helleau");
       //PrintLine("dl %f %f %f %f %d", inl, inr, outl, outr, frames);
       unsafe { ping(); }
       delay(500);
     }
+    */
 	//loop {}
   }
 }

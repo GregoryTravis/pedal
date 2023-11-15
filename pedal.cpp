@@ -45,10 +45,9 @@ void initLogging() {
   hw.PrintLine("Pedal!");
 }
 
-template <typename... VA>
-static void PrintLine(const char* format, VA... va)
+extern "C" void PrintLine(const char* format)
 {
-    hw.PrintLine(format, va...);
+    hw.PrintLine(format);
 }
 
 extern "C" void ping() {
@@ -77,7 +76,7 @@ extern "C" int cpp_main(void)
 
 	hw.StartAudio(AudioCallback);
 
-        //patch_main(thePatchPtr);
+        patch_main(thePatchPtr);
 
         while(1) {
           hw.PrintLine("dl %f %f %f %f %d", inl, inr, outl, outr, frames);
