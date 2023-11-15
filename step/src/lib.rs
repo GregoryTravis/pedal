@@ -90,6 +90,34 @@ pub extern "C" fn rust_process_audio_stub(patch: &mut Patch, in_ptr: *const *con
   patch.rust_process_audio(in_ptr, out_ptr, len);
 }
 
+/*
+macro_rules! glup {
+
+    ( $v:expr,* ) => {
+        format!( $v* )
+    };
+    /*
+    ( $buf:ident $($var:ident $typ:ty),* ) => {
+        $(
+            ext_type!( $buf $var $typ );
+        )*
+    };
+    */
+}
+*/
+
+fn gleep(s: alloc::string::String) {
+    let c_str = CString::new(s).unwrap();
+    let c_world: *const core::ffi::c_char = c_str.as_ptr() as *const core::ffi::c_char;
+    unsafe { PrintLine(c_world); }
+}
+
+macro_rules! glup {
+    ($($args:expr),*) => {{
+        gleep(format!($($args),*))
+    }};
+}
+
 impl Patch {
   pub fn foo(&self, x: f32) -> f32 {
       return x + 1.2;
@@ -131,6 +159,9 @@ impl Patch {
 
   #[no_mangle]
   pub fn patch_main(&mut self) {
+    glup!("glup hey {} yeah {}", 12, 2.3);
+    //glup!("a", "b");
+
     let foo = format!("hey {} yeah {}", 12, 2.3);
     let c_str = CString::new(foo).unwrap();
     let c_world: *const core::ffi::c_char = c_str.as_ptr() as *const core::ffi::c_char;
