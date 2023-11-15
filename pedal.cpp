@@ -6,6 +6,7 @@ DaisySeed hw;
 
 extern "C" {
   typedef void *PatchPtr;
+  void rust_process_audio_stub(PatchPtr patch, const float* const* in_ptr, float **out_ptr, size_t len);
   void rust_process_audio(PatchPtr patch, const float* const* in_ptr, float **out_ptr, size_t len);
   void patch_main(PatchPtr patch);
   //void rust_patch_main(PatchPtr patch);
@@ -29,7 +30,7 @@ void copyInToOut(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, siz
 
 void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size)
 {
-  rust_process_audio(thePatchPtr, in, out, size);
+  rust_process_audio_stub(thePatchPtr, in, out, size);
   //copyInToOut(in, out, size);
 
   inl = in[0][0];
@@ -75,7 +76,7 @@ extern "C" int cpp_main(void)
         float pf = use_patch(thePatchPtr);
         hw.PrintLine("PatchPtr foo %f", pf);
 
-        patch_main(thePatchPtr);
+        //patch_main(thePatchPtr);
 
         while(1) {
           hw.PrintLine("dl %f %f %f %f %d", inl, inr, outl, outr, frames);

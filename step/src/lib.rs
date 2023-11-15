@@ -84,6 +84,11 @@ pub fn use_patch(patch: Box<Patch>) -> f32 {
   //patch.main();
 //}
 
+#[no_mangle]
+pub extern "C" fn rust_process_audio_stub(patch: &mut Patch, in_ptr: *const *const f32, out_ptr: *const *mut f32, len: usize) {
+  patch.rust_process_audio(in_ptr, out_ptr, len);
+}
+
 impl Patch {
   pub fn foo(&self, x: f32) -> f32 {
       return x + 1.2;
