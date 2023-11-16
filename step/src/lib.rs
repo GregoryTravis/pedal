@@ -12,7 +12,7 @@ use core::slice;
 
 use alloc::boxed::Box;
 use alloc::ffi::CString;
-use alloc::format;
+//use alloc::format;
 use alloc_cortex_m::CortexMHeap;
 
 use crate::filter::high_pass::*;
@@ -86,9 +86,9 @@ impl Spewable for f32 {
 
 impl Spewable for &str {
     fn do_spew(&self) {
-      let c_str = CString::new(*self).unwrap();
-      let c_world: *const core::ffi::c_char = c_str.as_ptr() as *const core::ffi::c_char;
-      unsafe { spew_string_c(c_world); }
+      //let c_str = CString::new(*self).unwrap();
+      //let c_world: *const core::ffi::c_char = c_str.as_ptr() as *const core::ffi::c_char;
+      //unsafe { spew_string_c(c_world); }
     }
 }
 
@@ -212,6 +212,7 @@ macro_rules! glup {
 }
 */
 
+/*
 fn gleep(s: alloc::string::String) {
     let c_str = CString::new(s).unwrap();
     let c_world: *const core::ffi::c_char = c_str.as_ptr() as *const core::ffi::c_char;
@@ -223,6 +224,7 @@ macro_rules! glup {
         gleep(format!($($args),*))
     }};
 }
+*/
 
 impl Patch {
   pub fn foo(&self, x: f32) -> f32 {
@@ -271,18 +273,18 @@ impl Patch {
 
   #[no_mangle]
   pub fn patch_main(&mut self) {
-    // lala();
-    // lolo();
-    // lala();
+    lala();
+    lolo();
+    lala();
 
     //glup!("glup hey {} yeah {}", 12, 2.3);
     //glup!("rdl {} {} {} {} {}", self.inl, self.inr, self.outl, self.outr, self.framesize);
     //glup!("a", "b");
 
-    let foo = format!("hey {} yeah {}", 12, 2.3);
-    let c_str = CString::new(foo).unwrap();
-    let c_world: *const core::ffi::c_char = c_str.as_ptr() as *const core::ffi::c_char;
-    unsafe { PrintLine(c_world); }
+    // let foo = format!("hey {} yeah {}", 12, 2.3);
+    // let c_str = CString::new(foo).unwrap();
+    // let c_world: *const core::ffi::c_char = c_str.as_ptr() as *const core::ffi::c_char;
+    // unsafe { PrintLine(c_world); }
 
     /*
     loop {

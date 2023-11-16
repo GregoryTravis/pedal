@@ -1,7 +1,7 @@
 # Project Name
 TARGET = pedal
 
-APP_TYPE = BOOT_SRAM
+#APP_TYPE = BOOT_SRAM
 
 LIBDIR = -L /Users/gmt/pedal/step/target/thumbv7em-none-eabihf/debug
 LIBS = -lstep

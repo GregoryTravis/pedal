@@ -25,7 +25,7 @@ extern "C" void spew_float_c(float x) {
 }
 
 extern "C" void spew_string_c(char *s) {
-  //hw.PrintLine("%s", s);
+  hw.PrintLine("%s", s);
 }
 
 static PatchPtr thePatchPtr;
