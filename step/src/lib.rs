@@ -23,18 +23,10 @@ fn panic(_info: &core::panic::PanicInfo) -> ! {
 }
 
 #[global_allocator]
-static ALLOCATOR: CortexMHeap = CortexMHeap::empty();
-
-const HEAP_START: usize = 0x24020000;
-const HEAP_SIZE: usize = (512 - 128) * 1024; // 384KB
-
-pub fn init_allocator(heap_start: usize, heap_size: usize) {
-    unsafe { ALLOCATOR.init(heap_start, heap_size) }
-}
+static ALLOCATOR: emballoc::Allocator<32768> = emballoc::Allocator::new();
 
 #[no_mangle]
 pub fn rust_setup() {
-  init_allocator(HEAP_START, HEAP_SIZE);
 }
 
 // TODO pub needed?
@@ -86,9 +78,9 @@ impl Spewable for f32 {
 
 impl Spewable for &str {
     fn do_spew(&self) {
-      // let c_str = CString::new(*self).unwrap();
-      // let c_world: *const core::ffi::c_char = c_str.as_ptr() as *const core::ffi::c_char;
-      // unsafe { spew_string_c(c_world); }
+      let c_str = CString::new(*self).unwrap();
+      let c_world: *const core::ffi::c_char = c_str.as_ptr() as *const core::ffi::c_char;
+      unsafe { spew_string_c(c_world); }
     }
 }
 
@@ -110,6 +102,7 @@ macro_rules! glep {
 fn lolo() {
   glep!(4.5, 6);
   glep!(4.5, 6);
+  glep!("hEy");
   glep!(44, "hoo");
   glep!(4.5, 6);
   glep!(4.5, 6);
@@ -273,7 +266,7 @@ impl Patch {
 
   #[no_mangle]
   pub fn patch_main(&mut self) {
-    glep!("a");
+    //glep!("a");
     lala();
     lolo();
     lala();
