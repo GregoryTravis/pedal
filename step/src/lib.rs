@@ -57,6 +57,7 @@ extern "C" {
   pub fn spew_float_c(x: f32);
   pub fn spew_string_c(s: *const core::ffi::c_char);
   pub fn spew_newline_c();
+  pub fn spew_space_c();
 }
 
 struct Sheep {}
@@ -98,13 +99,13 @@ fn lala() {
   let s = "hey";
   i.do_spew();
   f.do_spew();
-  s.do_spew();
+  //s.do_spew();
 }
 
 macro_rules! glep {
     ($($args:expr),*) => {{
         $($args.do_spew();
-          //unsafe { " ".do_spew(); }
+          unsafe { spew_space_c(); }
           )*
         unsafe { spew_newline_c(); }
     }};
@@ -113,7 +114,7 @@ macro_rules! glep {
 fn lolo() {
   glep!(4.5, 6);
   glep!(4.5, 6);
-  glep!("hEy");
+  //glep!("hEy");
   for _ in 0..50 {
     //glep!(44, "hoo");
   }
@@ -293,15 +294,13 @@ impl Patch {
     // let c_world: *const core::ffi::c_char = c_str.as_ptr() as *const core::ffi::c_char;
     // unsafe { PrintLine(c_world); }
 
-    /*
     loop {
       //PrintLine("helleau");
       //PrintLine("dl %f %f %f %f %d", inl, inr, outl, outr, frames);
       //unsafe { ping(); }
-      glep!("dl", self.inl, self.inr, self.outl, self.outr, self.framesize);
+      glep!(self.inl, self.inr, self.outl, self.outr, self.framesize);
       delay(500);
     }
-    */
 	//loop {}
   }
 }
