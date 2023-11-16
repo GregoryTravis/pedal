@@ -53,8 +53,10 @@ extern "C" {
   pub fn PrintLine(format: *const core::ffi::c_char);
   pub fn UnsafeDelay(delay_ms: u32);
   pub fn spew_int_c(x: i32);
+  pub fn spew_size_t_c(x: usize);
   pub fn spew_float_c(x: f32);
   pub fn spew_string_c(s: *const core::ffi::c_char);
+  pub fn spew_newline_c();
 }
 
 struct Sheep {}
@@ -70,6 +72,12 @@ impl Spewable for i32 {
     }
 }
 
+impl Spewable for usize {
+    fn do_spew(&self) {
+      unsafe { spew_size_t_c(*self); }
+    }
+}
+
 impl Spewable for f32 {
     fn do_spew(&self) {
       unsafe { spew_float_c(*self); }
@@ -78,9 +86,9 @@ impl Spewable for f32 {
 
 impl Spewable for &str {
     fn do_spew(&self) {
-      let c_str = CString::new(*self).unwrap();
-      let c_world: *const core::ffi::c_char = c_str.as_ptr() as *const core::ffi::c_char;
-      unsafe { spew_string_c(c_world); }
+      // let c_str = CString::new(*self).unwrap();
+      // let c_world: *const core::ffi::c_char = c_str.as_ptr() as *const core::ffi::c_char;
+      // unsafe { spew_string_c(c_world); }
     }
 }
 
@@ -95,7 +103,10 @@ fn lala() {
 
 macro_rules! glep {
     ($($args:expr),*) => {{
-        $($args.do_spew();)*
+        $($args.do_spew();
+          //unsafe { " ".do_spew(); }
+          )*
+        unsafe { spew_newline_c(); }
     }};
 }
 
@@ -103,7 +114,9 @@ fn lolo() {
   glep!(4.5, 6);
   glep!(4.5, 6);
   glep!("hEy");
-  glep!(44, "hoo");
+  for _ in 0..50 {
+    //glep!(44, "hoo");
+  }
   glep!(4.5, 6);
   glep!(4.5, 6);
   glep!(4.5, 6);
@@ -284,7 +297,8 @@ impl Patch {
     loop {
       //PrintLine("helleau");
       //PrintLine("dl %f %f %f %f %d", inl, inr, outl, outr, frames);
-      unsafe { ping(); }
+      //unsafe { ping(); }
+      glep!("dl", self.inl, self.inr, self.outl, self.outr, self.framesize);
       delay(500);
     }
     */
