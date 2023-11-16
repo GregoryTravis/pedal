@@ -65,16 +65,60 @@ extern "C" {
   pub fn spew_string_c(s: *const core::ffi::c_char);
 }
 
-/*
+struct Sheep {}
+struct Sheep2 {}
+
+pub trait Spewable {
+    fn do_spew(&self);
+}
+
+impl Spewable for i32 {
+    fn do_spew(&self) {
+      unsafe { spew_int_c(*self); }
+    }
+}
+
+impl Spewable for f32 {
+    fn do_spew(&self) {
+      unsafe { spew_float_c(*self); }
+    }
+}
+
+impl Spewable for &str {
+    fn do_spew(&self) {
+      let c_str = CString::new(*self).unwrap();
+      let c_world: *const core::ffi::c_char = c_str.as_ptr() as *const core::ffi::c_char;
+      unsafe { spew_string_c(c_world); }
+    }
+}
+
 fn lala() {
   let i: i32 = 12;
   let f: f32 = 13.0;
   let s = "hey";
-  spew(i);
-  spew(f);
-  spew(s);
+  i.do_spew();
+  f.do_spew();
+  s.do_spew();
 }
-*/
+
+macro_rules! glep {
+    ($($args:expr),*) => {{
+        $($args.do_spew();)*
+    }};
+}
+
+fn lolo() {
+  glep!(4.5, 6);
+  glep!(4.5, 6);
+  glep!(44, "hoo");
+  glep!(4.5, 6);
+  glep!(4.5, 6);
+  glep!(4.5, 6);
+}
+
+// pub fn spew(x: &impl Spewable) {
+//   x.do_spew();
+// }
 
 /*
 fn spew(x: i32) {
@@ -108,14 +152,6 @@ macro_rules! my_vec {
             MyVec { data }
         }
     };
-}
-*/
-
-/*
-macro_rules! glep {
-    ($($args:expr),*) => {{
-        $(spew($args));
-    }};
 }
 */
 
@@ -235,7 +271,10 @@ impl Patch {
 
   #[no_mangle]
   pub fn patch_main(&mut self) {
-    //lala();
+    // lala();
+    // lolo();
+    // lala();
+
     //glup!("glup hey {} yeah {}", 12, 2.3);
     //glup!("rdl {} {} {} {} {}", self.inl, self.inr, self.outl, self.outr, self.framesize);
     //glup!("a", "b");
