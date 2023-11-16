@@ -86,9 +86,9 @@ impl Spewable for f32 {
 
 impl Spewable for &str {
     fn do_spew(&self) {
-      //let c_str = CString::new(*self).unwrap();
-      //let c_world: *const core::ffi::c_char = c_str.as_ptr() as *const core::ffi::c_char;
-      //unsafe { spew_string_c(c_world); }
+      // let c_str = CString::new(*self).unwrap();
+      // let c_world: *const core::ffi::c_char = c_str.as_ptr() as *const core::ffi::c_char;
+      // unsafe { spew_string_c(c_world); }
     }
 }
 
@@ -273,6 +273,7 @@ impl Patch {
 
   #[no_mangle]
   pub fn patch_main(&mut self) {
+    glep!("a");
     lala();
     lolo();
     lala();
