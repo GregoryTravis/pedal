@@ -60,7 +60,64 @@ extern "C" {
   //#[link_name = "\u{1}__Z9PrintLinePKcz"]
   pub fn PrintLine(format: *const core::ffi::c_char);
   pub fn UnsafeDelay(delay_ms: u32);
+  pub fn spew_int_c(x: i32);
+  pub fn spew_float_c(x: f32);
+  pub fn spew_string_c(s: *const core::ffi::c_char);
 }
+
+/*
+fn lala() {
+  let i: i32 = 12;
+  let f: f32 = 13.0;
+  let s = "hey";
+  spew(i);
+  spew(f);
+  spew(s);
+}
+*/
+
+/*
+fn spew(x: i32) {
+  spew_int(x);
+}
+
+fn spew(x: f32) {
+  spew_int(x);
+}
+
+fn spew(s: alloc::string::String) {
+  let c_str = CString::new(s).unwrap();
+  let c_world: *const core::ffi::c_char = c_str.as_ptr() as *const core::ffi::c_char;
+  unsafe { spew_string_c(c_world); }
+}
+*/
+
+/*
+macro_rules! my_vec {
+    ( $( $x:expr ),* ) => {
+        {
+            let mut data: [f32; SIZE] = [0.0; SIZE];
+            let mut index = 0;
+            $(
+                #[allow(unused_assignments)]
+                {
+                    data[index] = $x;
+                    index = index + 1;
+                }
+            )*
+            MyVec { data }
+        }
+    };
+}
+*/
+
+/*
+macro_rules! glep {
+    ($($args:expr),*) => {{
+        $(spew($args));
+    }};
+}
+*/
 
 pub fn delay(delay_ms: u32) {
   unsafe { UnsafeDelay(delay_ms); }
@@ -178,7 +235,8 @@ impl Patch {
 
   #[no_mangle]
   pub fn patch_main(&mut self) {
-    glup!("glup hey {} yeah {}", 12, 2.3);
+    //lala();
+    //glup!("glup hey {} yeah {}", 12, 2.3);
     //glup!("rdl {} {} {} {} {}", self.inl, self.inr, self.outl, self.outr, self.framesize);
     //glup!("a", "b");
 

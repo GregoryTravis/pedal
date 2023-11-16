@@ -16,6 +16,18 @@ extern "C" {
   void rust_setup();
 }
 
+void spew_int_c(int x) {
+  hw.PrintLine("%d", x);
+}
+
+void spew_float_c(float x) {
+  hw.PrintLine("%f", x);
+}
+
+void spew_string_c(char *s) {
+  hw.PrintLine("%s", s);
+}
+
 static PatchPtr thePatchPtr;
 
 float inl, inr, outl, outr;
