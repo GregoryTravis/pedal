@@ -12,6 +12,8 @@ use core::slice;
 
 use alloc::boxed::Box;
 use alloc::ffi::CString;
+use core::alloc::GlobalAlloc;
+use core::alloc::Layout;
 //use alloc::format;
 use alloc_cortex_m::CortexMHeap;
 
@@ -21,6 +23,8 @@ use crate::filter::high_pass::*;
 fn panic(_info: &core::panic::PanicInfo) -> ! {
     loop {}
 }
+
+//static YEPPERS: emballoc::Allocator<32768> = emballoc::Allocator::new();
 
 #[global_allocator]
 static ALLOCATOR: emballoc::Allocator<32768> = emballoc::Allocator::new();
@@ -52,6 +56,7 @@ extern "C" {
   //#[link_name = "\u{1}__Z9PrintLinePKcz"]
   pub fn PrintLine(format: *const core::ffi::c_char);
   pub fn UnsafeDelay(delay_ms: u32);
+  pub fn spew_ptr_c(p: *const core::ffi::c_void);
   pub fn spew_int_c(x: i32);
   pub fn spew_size_t_c(x: usize);
   pub fn spew_float_c(x: f32);
@@ -87,9 +92,9 @@ impl Spewable for f32 {
 
 impl Spewable for &str {
     fn do_spew(&self) {
-      // let c_str = CString::new(*self).unwrap();
-      // let c_world: *const core::ffi::c_char = c_str.as_ptr() as *const core::ffi::c_char;
-      // unsafe { spew_string_c(c_world); }
+      let c_str = CString::new(*self).unwrap();
+      let c_world: *const core::ffi::c_char = c_str.as_ptr() as *const core::ffi::c_char;
+      unsafe { spew_string_c(c_world); }
     }
 }
 
@@ -176,21 +181,54 @@ pub fn main() -> i32 {
 }
 
 #[no_mangle]
-pub fn get_patch() -> Box<Patch> {
-  Box::new(Patch {
+pub fn get_patch(g: usize) -> Box<Patch> {
+  let b = Box::new(Patch {
       hpf_left: HighPassFilter::new(),
       hpf_right: HighPassFilter::new(),
       inl: 0.0,
       inr: 0.0,
       outl: 0.0,
       outr: 0.0,
-      framesize: 0,
-  })
+      framesize: g+3,
+  });
+  let b2 = Box::new(Patch {
+      hpf_left: HighPassFilter::new(),
+      hpf_right: HighPassFilter::new(),
+      inl: 0.0,
+      inr: 0.0,
+      outl: 0.0,
+      outr: 0.0,
+      framesize: g+5,
+  });
+  let b3 = Box::new(Patch {
+      hpf_left: HighPassFilter::new(),
+      hpf_right: HighPassFilter::new(),
+      inl: 0.0,
+      inr: 0.0,
+      outl: 0.0,
+      outr: 0.0,
+      framesize: g+7,
+  });
+  unsafe {
+    spew_int_c(123456);
+    let ptr: *const Patch = &*b;
+    let ptr2: *const Patch = &*b2;
+    let ptr3: *const Patch = &*b3;
+    let pemb = &ALLOCATOR as *const _ as *const core::ffi::c_void;
+    spew_size_t_c(core::mem::size_of::<*const Patch>());
+    spew_ptr_c(ptr as *const core::ffi::c_void);
+    spew_ptr_c(ptr2 as *const core::ffi::c_void);
+    spew_ptr_c(ptr3 as *const core::ffi::c_void);
+    spew_ptr_c(pemb);
+  }
+  b
 }
 
 #[no_mangle]
-pub fn use_patch(patch: Box<Patch>) -> f32 {
-  patch.foo(100.1)
+//pub fn use_patch(patch: Box<Patch>) -> f32 {
+pub fn use_patch(patch: &mut Patch) -> f32 {
+  //patch.foo(100.1)
+  4.5
 }
 
 //#[no_mangle]
@@ -255,7 +293,7 @@ impl Patch {
     self.inr = right_input_slice[0];
     self.outl = left_output_slice[0];
     self.outr = right_output_slice[0];
-    self.framesize = len;
+    //self.framesize = len;
   }
 
   fn copy_in_to_out(&self, left_input_slice: &[f32], right_input_slice: &[f32],
@@ -280,10 +318,12 @@ impl Patch {
 
   #[no_mangle]
   pub fn patch_main(&mut self) {
+    //unsafe { YEPPERS.alloc(Layout::from_size_align(4, 4).expect("asdf")); }
+    //"a".do_spew();
     //glep!("a");
-    lala();
-    lolo();
-    lala();
+    // lala();
+    // lolo();
+    // lala();
 
     //glup!("glup hey {} yeah {}", 12, 2.3);
     //glup!("rdl {} {} {} {} {}", self.inl, self.inr, self.outl, self.outr, self.framesize);
@@ -294,13 +334,15 @@ impl Patch {
     // let c_world: *const core::ffi::c_char = c_str.as_ptr() as *const core::ffi::c_char;
     // unsafe { PrintLine(c_world); }
 
+    /*
     loop {
       //PrintLine("helleau");
       //PrintLine("dl %f %f %f %f %d", inl, inr, outl, outr, frames);
       //unsafe { ping(); }
-      glep!(self.inl, self.inr, self.outl, self.outr, self.framesize);
+      glep!("asdfa sdfa dsf asd fa dfaf", self.inl, self.inr, self.outl, self.outr, self.framesize);
       delay(500);
     }
+    */
 	//loop {}
   }
 }
