@@ -58,6 +58,11 @@ extern "C" {
   pub fn spew_string_c(s: *const core::ffi::c_char);
   pub fn spew_newline_c();
   pub fn spew_space_c();
+  pub fn show_load_unsafe();
+}
+
+pub fn show_load() {
+  unsafe { show_load_unsafe(); }
 }
 
 struct Sheep {}
@@ -299,6 +304,7 @@ impl Patch {
       //PrintLine("dl %f %f %f %f %d", inl, inr, outl, outr, frames);
       //unsafe { ping(); }
       glep!("dl adf afdjadfjasdadfaaf asfd", self.inl, self.inr, self.outl, self.outr, self.framesize);
+      show_load();
       delay(500);
     }
 	//loop {}

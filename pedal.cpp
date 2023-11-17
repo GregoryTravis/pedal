@@ -86,6 +86,13 @@ extern "C" void UnsafeDelay(uint32_t delay_ms) {
   System::Delay(500);
 }
 
+extern "C" void show_load_unsafe() {
+  const float avgLoad = cpuLoadMeter.GetAvgCpuLoad();
+  const float maxLoad = cpuLoadMeter.GetMaxCpuLoad();
+  const float minLoad = cpuLoadMeter.GetMinCpuLoad();
+  hw.PrintLine("load max: " FLT_FMT3 " min " FLT_FMT3 " avg " FLT_FMT3 "\n", FLT_VAR3(maxLoad * 100.0f), FLT_VAR3(minLoad * 100.0f), FLT_VAR3(avgLoad * 100.0f));
+}
+
 extern "C" int cpp_main(void)
 {
         // TODO move this earlier
@@ -106,17 +113,12 @@ extern "C" int cpp_main(void)
 
 	hw.StartAudio(AudioCallback);
 
-        //patch_main(thePatchPtr);
+        patch_main(thePatchPtr);
 
         while(1) {
           hw.PrintLine("dl %f %f %f %f %d", inl, inr, outl, outr, frames);
 
-          // get the current load (smoothed value and peak values)
-          const float avgLoad = cpuLoadMeter.GetAvgCpuLoad();
-          const float maxLoad = cpuLoadMeter.GetMaxCpuLoad();
-          const float minLoad = cpuLoadMeter.GetMinCpuLoad();
-          // print it to the serial connection (as percentages)
-          hw.PrintLine("load max: " FLT_FMT3 " min " FLT_FMT3 " avg " FLT_FMT3 "\n", FLT_VAR3(maxLoad * 100.0f), FLT_VAR3(minLoad * 100.0f), FLT_VAR3(avgLoad * 100.0f));
+          show_load_unsafe();
 
           System::Delay(500);
         }
