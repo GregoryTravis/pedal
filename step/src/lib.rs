@@ -87,9 +87,9 @@ impl Spewable for f32 {
 
 impl Spewable for &str {
     fn do_spew(&self) {
-      // let c_str = CString::new(*self).unwrap();
-      // let c_world: *const core::ffi::c_char = c_str.as_ptr() as *const core::ffi::c_char;
-      // unsafe { spew_string_c(c_world); }
+      let c_str = CString::new(*self).unwrap();
+      let c_world: *const core::ffi::c_char = c_str.as_ptr() as *const core::ffi::c_char;
+      unsafe { spew_string_c(c_world); }
     }
 }
 
@@ -189,7 +189,7 @@ pub fn get_patch() -> Box<Patch> {
 }
 
 #[no_mangle]
-pub fn use_patch(patch: Box<Patch>) -> f32 {
+pub fn use_patch(patch: &mut Patch) -> f32 {
   patch.foo(100.1)
 }
 
@@ -298,7 +298,7 @@ impl Patch {
       //PrintLine("helleau");
       //PrintLine("dl %f %f %f %f %d", inl, inr, outl, outr, frames);
       //unsafe { ping(); }
-      glep!(self.inl, self.inr, self.outl, self.outr, self.framesize);
+      glep!("dl adf afdjadfjasdadfaaf asfd", self.inl, self.inr, self.outl, self.outr, self.framesize);
       delay(500);
     }
 	//loop {}
