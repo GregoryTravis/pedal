@@ -1,0 +1,4 @@
+pushd patch
+cargo clean
+popd
+make clean
