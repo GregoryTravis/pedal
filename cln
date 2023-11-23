@@ -1,4 +1,0 @@
-pushd step
-cargo clean
-popd
-make clean
