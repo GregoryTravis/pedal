@@ -1,0 +1,13 @@
+[package]
+name = "high_pass"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "high_pass"
+crate-type = ["staticlib"] # Creates static lib
+
+[dependencies]
+alloc-cortex-m = { version = "0.4.4"}
+libc = "0.2"
+emballoc = "0.2.0"
