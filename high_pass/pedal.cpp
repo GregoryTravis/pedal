@@ -32,7 +32,7 @@ void initLogging() {
 }
 
 extern "C" void UnsafeDelay(uint32_t delay_ms) {
-  System::Delay(500);
+  System::Delay(delay_ms);
 }
 
 extern "C" int cpp_main(void)
