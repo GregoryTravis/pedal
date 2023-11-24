@@ -9,8 +9,6 @@ using namespace daisy;
 extern "C" {
   void rust_process_audio_stub(const float* const* in_ptr, float **out_ptr, size_t len);
   void patch_main();
-  //void rust_patch_main(PatchPtr patch);
-  size_t get_size();
 }
 
 void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size)

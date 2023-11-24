@@ -51,11 +51,6 @@ pub struct Patch {
   framesize: usize,
 }
 
-#[no_mangle]
-pub fn get_size() -> usize {
-    return core::mem::size_of::<Box<Patch>>();
-}
-
 extern "C" {
   pub fn cpp_main() -> i32;
   pub fn UnsafeDelay(delay_ms: u32);
