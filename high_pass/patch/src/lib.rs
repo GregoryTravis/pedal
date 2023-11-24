@@ -55,8 +55,6 @@ pub fn get_size() -> usize {
 extern "C" {
   pub fn cpp_main() -> i32;
   pub fn ping();
-  //#[link_name = "\u{1}__Z9PrintLinePKcz"]
-  pub fn PrintLine(format: *const core::ffi::c_char);
   pub fn UnsafeDelay(delay_ms: u32);
   pub fn spew_int_c(x: i32);
   pub fn spew_size_t_c(x: usize);
@@ -64,11 +62,11 @@ extern "C" {
   pub fn spew_string_c(s: *const core::ffi::c_char);
   pub fn spew_newline_c();
   pub fn spew_space_c();
-  pub fn show_load_unsafe();
+  pub fn load_spew();
 }
 
 pub fn show_load() {
-  unsafe { show_load_unsafe(); }
+  unsafe { load_spew(); }
 }
 
 struct Sheep {}

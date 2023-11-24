@@ -49,11 +49,6 @@ void initLogging() {
   hw.PrintLine("Pedal!");
 }
 
-extern "C" void PrintLine(const char* format)
-{
-    hw.PrintLine(format);
-}
-
 extern "C" void ping() {
   hw.PrintLine("ping");
 }

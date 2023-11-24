@@ -3,7 +3,7 @@
 #include "spew.h"
 
 #if CPU_LOAD
-extern CpuLoadMeter cpuLoadMeter;
+CpuLoadMeter cpuLoadMeter;
 
 void load_init() {
   cpuLoadMeter.Init(hw.AudioSampleRate(), hw.AudioBlockSize());
