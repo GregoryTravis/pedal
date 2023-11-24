@@ -54,7 +54,6 @@ pub fn get_size() -> usize {
 
 extern "C" {
   pub fn cpp_main() -> i32;
-  pub fn ping();
   pub fn UnsafeDelay(delay_ms: u32);
   pub fn spew_int_c(x: i32);
   pub fn spew_size_t_c(x: usize);
