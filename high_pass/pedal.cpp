@@ -9,7 +9,6 @@ using namespace daisy;
 extern "C" {
   typedef void *PatchPtr;
   void rust_process_audio_stub(PatchPtr patch, const float* const* in_ptr, float **out_ptr, size_t len);
-  void rust_process_audio(PatchPtr patch, const float* const* in_ptr, float **out_ptr, size_t len);
   void patch_main(PatchPtr patch);
   //void rust_patch_main(PatchPtr patch);
   PatchPtr get_patch();
