@@ -14,7 +14,6 @@ extern "C" {
   PatchPtr get_patch();
   float use_patch(PatchPtr);
   size_t get_size();
-  void rust_setup();
 }
 
 static PatchPtr thePatchPtr;
@@ -37,8 +36,6 @@ extern "C" void UnsafeDelay(uint32_t delay_ms) {
 
 extern "C" int cpp_main(void)
 {
-  rust_setup();
-
 	hw.Init();
   initLogging();
 	hw.SetAudioBlockSize(4); // number of samples handled per callback

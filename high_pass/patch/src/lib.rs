@@ -31,10 +31,6 @@ fn panic(_info: &core::panic::PanicInfo) -> ! {
 #[global_allocator]
 static ALLOCATOR: emballoc::Allocator<32768> = emballoc::Allocator::new();
 
-#[no_mangle]
-pub fn rust_setup() {
-}
-
 // TODO pub needed?
 // TODO it's mono so don't do both channels
 pub struct Patch {
