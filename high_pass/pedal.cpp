@@ -1,10 +1,10 @@
 #include "daisy_seed.h"
 
+#include "hw.h"
+#include "load.h"
 #include "spew.h"
 
 using namespace daisy;
-
-CpuLoadMeter cpuLoadMeter;
 
 extern "C" {
   typedef void *PatchPtr;
@@ -32,7 +32,7 @@ void copyInToOut(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, siz
 
 void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size)
 {
-  cpuLoadMeter.OnBlockStart();
+  load_before();
   rust_process_audio_stub(thePatchPtr, in, out, size);
   //copyInToOut(in, out, size);
 
@@ -41,7 +41,7 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
   outl = out[0][0];
   outr = out[1][0];
   frames++;
-  cpuLoadMeter.OnBlockEnd();
+  load_after();
 }
 
 void initLogging() {
@@ -62,13 +62,6 @@ extern "C" void UnsafeDelay(uint32_t delay_ms) {
   System::Delay(500);
 }
 
-extern "C" void show_load_unsafe() {
-  const float avgLoad = cpuLoadMeter.GetAvgCpuLoad();
-  const float maxLoad = cpuLoadMeter.GetMaxCpuLoad();
-  const float minLoad = cpuLoadMeter.GetMinCpuLoad();
-  hw.PrintLine("load max: " FLT_FMT3 " min " FLT_FMT3 " avg " FLT_FMT3 "\n", FLT_VAR3(maxLoad * 100.0f), FLT_VAR3(minLoad * 100.0f), FLT_VAR3(avgLoad * 100.0f));
-}
-
 extern "C" int cpp_main(void)
 {
         // TODO move this earlier
@@ -85,7 +78,7 @@ extern "C" int cpp_main(void)
         float pf = use_patch(thePatchPtr);
         hw.PrintLine("PatchPtr foo %f", pf);
 
-    cpuLoadMeter.Init(hw.AudioSampleRate(), hw.AudioBlockSize());
+        load_init();
 
 	hw.StartAudio(AudioCallback);
 
@@ -94,7 +87,7 @@ extern "C" int cpp_main(void)
         while(1) {
           hw.PrintLine("dl %f %f %f %f %d", inl, inr, outl, outr, frames);
 
-          show_load_unsafe();
+          load_spew();
 
           System::Delay(500);
         }
