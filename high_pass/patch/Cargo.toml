@@ -8,6 +8,7 @@ name = "high_pass"
 crate-type = ["staticlib"] # Creates static lib
 
 [dependencies]
+cortex-m = "0.7.7"
 alloc-cortex-m = { version = "0.4.4"}
 libc = "0.2"
 emballoc = "0.2.0"

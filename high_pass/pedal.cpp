@@ -7,21 +7,16 @@
 using namespace daisy;
 
 extern "C" {
-  typedef void *PatchPtr;
-  void rust_process_audio_stub(PatchPtr patch, const float* const* in_ptr, float **out_ptr, size_t len);
-  void patch_main(PatchPtr patch);
+  void rust_process_audio_stub(const float* const* in_ptr, float **out_ptr, size_t len);
+  void patch_main();
   //void rust_patch_main(PatchPtr patch);
-  PatchPtr get_patch();
-  float use_patch(PatchPtr);
   size_t get_size();
 }
-
-static PatchPtr thePatchPtr;
 
 void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size)
 {
   load_before();
-  rust_process_audio_stub(thePatchPtr, in, out, size);
+  rust_process_audio_stub(in, out, size);
   load_after();
 }
 
@@ -41,16 +36,10 @@ extern "C" int cpp_main(void)
 	hw.SetAudioBlockSize(4); // number of samples handled per callback
 	hw.SetAudioSampleRate(SaiHandle::Config::SampleRate::SAI_48KHZ);
 
-  hw.PrintLine("PatchPtr size %d", get_size());
-  thePatchPtr = get_patch();
-  hw.PrintLine("PatchPtr %p", thePatchPtr);
-  float pf = use_patch(thePatchPtr);
-  hw.PrintLine("PatchPtr foo %f", pf);
-
   load_init();
 
 	hw.StartAudio(AudioCallback);
 
-  patch_main(thePatchPtr);
+  patch_main();
   while(1) {} // Just in case we fall through
 }

@@ -21,6 +21,14 @@ use alloc_cortex_m::CortexMHeap;
 
 use dsp::filter::high_pass::*;
 
+use core::cell::RefCell;
+use cortex_m::interrupt::{self, Mutex};
+
+use core::ops::DerefMut;
+
+static THE_PATCH: Mutex<RefCell<Option<Patch>>> =
+    Mutex::new(RefCell::new(None));
+
 /*
 #[panic_handler]
 fn panic(_info: &core::panic::PanicInfo) -> ! {
@@ -97,15 +105,6 @@ impl Spewable for &str {
     }
 }
 
-fn lala() {
-  let i: i32 = 12;
-  let f: f32 = 13.0;
-  let s = "hey";
-  i.do_spew();
-  f.do_spew();
-  //s.do_spew();
-}
-
 macro_rules! glep {
     ($($args:expr),*) => {{
         $($args.do_spew();
@@ -113,18 +112,6 @@ macro_rules! glep {
           )*
         unsafe { spew_newline_c(); }
     }};
-}
-
-fn lolo() {
-  glep!(4.5, 6);
-  glep!(4.5, 6);
-  //glep!("hEy");
-  for _ in 0..50 {
-    //glep!(44, "hoo");
-  }
-  glep!(4.5, 6);
-  glep!(4.5, 6);
-  glep!(4.5, 6);
 }
 
 // pub fn spew(x: &impl Spewable) {
@@ -176,12 +163,14 @@ pub fn delay(delay_ms: u32) {
 
 #[no_mangle]
 pub fn main() -> i32 {
+  // The audio handler must be installed AFTER this line.
+  // TODO is this use of get_patch() an unnecessary copy?
+  interrupt::free(|cs| THE_PATCH.borrow(cs).replace(Some(get_patch())));
   unsafe { cpp_main() }
 }
 
-#[no_mangle]
-pub fn get_patch() -> Box<Patch> {
-  Box::new(Patch {
+fn get_patch() -> Patch {
+  Patch {
       hpf_left: HighPassFilter::new(),
       hpf_right: HighPassFilter::new(),
       inl: 0.0,
@@ -189,12 +178,7 @@ pub fn get_patch() -> Box<Patch> {
       outl: 0.0,
       outr: 0.0,
       framesize: 0,
-  })
-}
-
-#[no_mangle]
-pub fn use_patch(patch: &mut Patch) -> f32 {
-  patch.foo(100.1)
+  }
 }
 
 //#[no_mangle]
@@ -203,8 +187,38 @@ pub fn use_patch(patch: &mut Patch) -> f32 {
 //}
 
 #[no_mangle]
-pub extern "C" fn rust_process_audio_stub(patch: &mut Patch, in_ptr: *const *const f32, out_ptr: *const *mut f32, len: usize) {
-  patch.rust_process_audio(in_ptr, out_ptr, len);
+pub extern "C" fn rust_process_audio_stub(in_ptr: *const *const f32, out_ptr: *const *mut f32, len: usize) {
+  interrupt::free(|cs| {
+    if let Some(ref mut patch) = THE_PATCH.borrow(cs).borrow_mut().deref_mut().as_mut() {
+      patch.rust_process_audio(in_ptr, out_ptr, len);
+    }
+  });
+}
+
+#[no_mangle]
+pub fn patch_main() {
+  loop {
+    let mut inl: f32 = 0.0;
+    let mut inr: f32 = 0.0;
+    let mut outl: f32 = 0.0;
+    let mut outr: f32 = 0.0;
+    let mut framesize : usize = 0;
+
+    interrupt::free(|cs| {
+      if let Some(ref mut patch) = THE_PATCH.borrow(cs).borrow_mut().deref_mut().as_mut() {
+          inl = patch.inl;
+          inr = patch.inr;
+          outl = patch.outl;
+          outr = patch.outr;
+          framesize = patch.framesize;
+      }
+    });
+
+    glep!("dl adf afdjadfjasdadfaaf asfd", inl, inr, outl, outr, framesize);
+    show_load();
+    delay(500);
+  }
+  loop {} // Just to be safe -- TODO: necessary?
 }
 
 /*
@@ -238,10 +252,6 @@ macro_rules! glup {
 */
 
 impl Patch {
-  pub fn foo(&self, x: f32) -> f32 {
-      return x + 1.2;
-  }
-
   #[no_mangle]
   // TODO out_ptr type seems wrong, mut+const swapped?
   pub fn rust_process_audio(&mut self, in_ptr: *const *const f32, out_ptr: *const *mut f32, len: usize) {
@@ -280,32 +290,5 @@ impl Patch {
           right_output_slice[i] = (right_input_slice[i] - self.hpf_right.state) / 2.0;
           self.hpf_right.state = right_input_slice[i];
       }
-  }
-
-  #[no_mangle]
-  pub fn patch_main(&mut self) {
-    //glep!("a");
-    lala();
-    lolo();
-    lala();
-
-    //glup!("glup hey {} yeah {}", 12, 2.3);
-    //glup!("rdl {} {} {} {} {}", self.inl, self.inr, self.outl, self.outr, self.framesize);
-    //glup!("a", "b");
-
-    // let foo = format!("hey {} yeah {}", 12, 2.3);
-    // let c_str = CString::new(foo).unwrap();
-    // let c_world: *const core::ffi::c_char = c_str.as_ptr() as *const core::ffi::c_char;
-    // unsafe { PrintLine(c_world); }
-
-    loop {
-      //PrintLine("helleau");
-      //PrintLine("dl %f %f %f %f %d", inl, inr, outl, outr, frames);
-      //unsafe { ping(); }
-      glep!("dl adf afdjadfjasdadfaaf asfd", self.inl, self.inr, self.outl, self.outr, self.framesize);
-      show_load();
-      delay(500);
-    }
-	//loop {}
   }
 }
