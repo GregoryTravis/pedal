@@ -9,7 +9,7 @@ LIBS = -lhigh_pass -ldsp
 LDFLAGS += -u _printf_float
 
 # Sources
-CPP_SOURCES = pedal.cpp
+CPP_SOURCES = pedal.cpp spew.cpp hw.cpp
 
 # Library Locations
 LIBDAISY_DIR = ../../DaisyExamples/libDaisy
