@@ -140,11 +140,7 @@ impl Patch {
   fn filter(&mut self, left_input_slice: &[f32], right_input_slice: &[f32],
           left_output_slice: &mut [f32], right_output_slice: &mut [f32],
           size: usize) {
-      for i in 0..size {
-          left_output_slice[i] = (left_input_slice[i] - self.hpf_left.state) / 2.0;
-          self.hpf_left.state = left_input_slice[i];
-          right_output_slice[i] = (right_input_slice[i] - self.hpf_right.state) / 2.0;
-          self.hpf_right.state = right_input_slice[i];
-      }
+      self.hpf_left.filter(left_input_slice, left_output_slice, size);
+      self.hpf_right.filter(right_input_slice, right_output_slice, size);
   }
 }
