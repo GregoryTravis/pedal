@@ -11,7 +11,6 @@ extern crate alloc;
 use crate::dsp::*;
 #[path = "../../../dsp/src/lib.rs"] mod dsp;
 
-#[macro_use]
 use crate::dsp::spew::*;
 
 use core::mem;

@@ -1,7 +1,6 @@
 #![no_std]
 pub mod filter;
 
-#[macro_use]
 pub mod spew;
 
 #[panic_handler]

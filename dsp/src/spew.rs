@@ -1,4 +1,3 @@
-#[macro_use]
 use alloc::ffi::CString;
 
 extern "C" {
