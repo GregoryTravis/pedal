@@ -62,12 +62,11 @@ pub fn delay(delay_ms: u32) {
   unsafe { UnsafeDelay(delay_ms); }
 }
 
-#[no_mangle]
-pub fn main() -> i32 {
+pub fn gogogo(box_patch: Box<dyn Patch>) -> i32 {
   // The audio handler must be installed AFTER this line.
   // TODO is this use of get_patch() an unnecessary copy?
   let rig = Rig {
-    patch: get_patch::<Box<dyn Patch>>(),
+    patch: box_patch,
     inl: 0.0,
     inr: 0.0,
     outl: 0.0,
@@ -78,11 +77,13 @@ pub fn main() -> i32 {
   unsafe { cpp_main() }
 }
 
-fn get_patch<P>() -> Box<dyn Patch> {
-  Box::new(MyPatch {
+#[no_mangle]
+pub fn main() -> i32{
+  let box_patch = Box::new(MyPatch {
       hpf_left: HighPassFilter::new(),
       hpf_right: HighPassFilter::new(),
-  })
+  });
+  gogogo(box_patch)
 }
 
 #[no_mangle]
