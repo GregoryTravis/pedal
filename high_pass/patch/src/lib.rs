@@ -8,6 +8,7 @@ extern crate alloc;
 use crate::dsp::*;
 #[path = "../../../dsp/src/lib.rs"] mod dsp;
 
+use crate::dsp::load::*;
 use crate::dsp::spew::*;
 
 use core::mem;
@@ -45,11 +46,6 @@ pub struct Patch {
 extern "C" {
   pub fn cpp_main() -> i32;
   pub fn UnsafeDelay(delay_ms: u32);
-  pub fn load_spew();
-}
-
-pub fn show_load() {
-  unsafe { load_spew(); }
 }
 
 pub fn delay(delay_ms: u32) {
