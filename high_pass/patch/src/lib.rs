@@ -76,7 +76,20 @@ fn get_patch() -> Patch {
 pub extern "C" fn rust_process_audio_stub(in_ptr: *const *const f32, out_ptr: *const *mut f32, len: usize) {
   interrupt::free(|cs| {
     if let Some(ref mut patch) = THE_PATCH.borrow(cs).borrow_mut().deref_mut().as_mut() {
-      patch.rust_process_audio(in_ptr, out_ptr, len);
+      let ilen = len as isize;
+
+      let left_input_slice = unsafe { slice::from_raw_parts(*(in_ptr.wrapping_add(0)), len) };
+      let right_input_slice = unsafe { slice::from_raw_parts(*(in_ptr.wrapping_add(1)), len) };
+      let left_output_slice = unsafe { slice::from_raw_parts_mut(*(out_ptr.wrapping_add(0)), len) };
+      let right_output_slice = unsafe { slice::from_raw_parts_mut(*(out_ptr.wrapping_add(1)), len) };
+
+      patch.rust_process_audio(left_input_slice, right_input_slice, left_output_slice, right_output_slice, len);
+
+      patch.inl = left_input_slice[0];
+      patch.inr = right_input_slice[0];
+      patch.outl = left_output_slice[0];
+      patch.outr = right_output_slice[0];
+      patch.framesize = len;
     }
   });
 }
@@ -108,28 +121,9 @@ pub fn patch_main() {
 }
 
 impl Patch {
-  #[no_mangle]
-  // TODO out_ptr type seems wrong, mut+const swapped?
-  pub fn rust_process_audio(&mut self, in_ptr: *const *const f32, out_ptr: *const *mut f32, len: usize) {
-    let ilen = len as isize;
-
-    let left_input_slice = unsafe { slice::from_raw_parts(*(in_ptr.wrapping_add(0)), len) };
-    let right_input_slice = unsafe { slice::from_raw_parts(*(in_ptr.wrapping_add(1)), len) };
-    let left_output_slice = unsafe { slice::from_raw_parts_mut(*(out_ptr.wrapping_add(0)), len) };
-    let right_output_slice = unsafe { slice::from_raw_parts_mut(*(out_ptr.wrapping_add(1)), len) };
-
-    self.filter(left_input_slice, right_input_slice, left_output_slice, right_output_slice, len);
-
-    self.inl = left_input_slice[0];
-    self.inr = right_input_slice[0];
-    self.outl = left_output_slice[0];
-    self.outr = right_output_slice[0];
-    self.framesize = len;
-  }
-
-  fn filter(&mut self, left_input_slice: &[f32], right_input_slice: &[f32],
-          left_output_slice: &mut [f32], right_output_slice: &mut [f32],
-          size: usize) {
+  fn rust_process_audio(&mut self, left_input_slice: &[f32], right_input_slice: &[f32],
+            left_output_slice: &mut [f32], right_output_slice: &mut [f32],
+            size: usize) {
       self.hpf_left.filter(left_input_slice, left_output_slice, size);
       self.hpf_right.filter(right_input_slice, right_output_slice, size);
   }
