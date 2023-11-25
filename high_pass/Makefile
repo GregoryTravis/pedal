@@ -8,6 +8,9 @@ LIBS = -lhigh_pass -ldsp
 
 LDFLAGS += -u _printf_float
 
+clean_exes:
+	rm build/high_pass.{bin,hex,map,elf}
+
 # Sources
 CPP_SOURCES = pedal.cpp spew.cpp hw.cpp load.cpp
 
