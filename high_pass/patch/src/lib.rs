@@ -118,7 +118,6 @@ impl Patch {
     let left_output_slice = unsafe { slice::from_raw_parts_mut(*(out_ptr.wrapping_add(0)), len) };
     let right_output_slice = unsafe { slice::from_raw_parts_mut(*(out_ptr.wrapping_add(1)), len) };
 
-    //self.copy_in_to_out(left_input_slice, right_input_slice, left_output_slice, right_output_slice, len);
     self.filter(left_input_slice, right_input_slice, left_output_slice, right_output_slice, len);
 
     self.inl = left_input_slice[0];
@@ -126,15 +125,6 @@ impl Patch {
     self.outl = left_output_slice[0];
     self.outr = right_output_slice[0];
     self.framesize = len;
-  }
-
-  fn copy_in_to_out(&self, left_input_slice: &[f32], right_input_slice: &[f32],
-          left_output_slice: &mut [f32], right_output_slice: &mut [f32],
-          size: usize) {
-      for i in 0..size-1 {
-          left_output_slice[i] = left_input_slice[i];
-          right_output_slice[i] = right_input_slice[i];
-      }
   }
 
   fn filter(&mut self, left_input_slice: &[f32], right_input_slice: &[f32],
