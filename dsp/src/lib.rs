@@ -2,6 +2,7 @@
 
 pub mod filter;
 pub mod load;
+pub mod rig;
 pub mod spew;
 
 #[panic_handler]
