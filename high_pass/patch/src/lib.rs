@@ -25,11 +25,15 @@ use cortex_m::interrupt::{self, Mutex};
 
 use core::ops::DerefMut;
 
-static THE_PATCH: Mutex<RefCell<Option<Box<dyn Patch>>>> =
+static THE_PATCH: Mutex<RefCell<Option<Rig>>> =
     Mutex::new(RefCell::new(None));
 
 #[global_allocator]
 static ALLOCATOR: emballoc::Allocator<32768> = emballoc::Allocator::new();
+
+pub struct Rig {
+  patch: Box<dyn Patch>,
+}
 
 pub trait Patch: Send {
   fn rust_process_audio(&mut self, left_input_slice: &[f32], right_input_slice: &[f32],
@@ -64,7 +68,7 @@ pub fn delay(delay_ms: u32) {
 pub fn main() -> i32 {
   // The audio handler must be installed AFTER this line.
   // TODO is this use of get_patch() an unnecessary copy?
-  interrupt::free(|cs| THE_PATCH.borrow(cs).replace(Some(Box::new(get_patch()))));
+  interrupt::free(|cs| THE_PATCH.borrow(cs).replace(Some(Rig { patch: Box::new(get_patch()) })));
   unsafe { cpp_main() }
 }
 
@@ -85,7 +89,7 @@ fn get_patch() -> MyPatch {
 #[no_mangle]
 pub extern "C" fn rust_process_audio_stub(in_ptr: *const *const f32, out_ptr: *const *mut f32, len: usize) {
   interrupt::free(|cs| {
-    if let Some(ref mut patch) = THE_PATCH.borrow(cs).borrow_mut().deref_mut().as_mut() {
+    if let Some(ref mut rig) = THE_PATCH.borrow(cs).borrow_mut().deref_mut().as_mut() {
       let ilen = len as isize;
 
       let left_input_slice = unsafe { slice::from_raw_parts(*(in_ptr.wrapping_add(0)), len) };
@@ -93,7 +97,7 @@ pub extern "C" fn rust_process_audio_stub(in_ptr: *const *const f32, out_ptr: *c
       let left_output_slice = unsafe { slice::from_raw_parts_mut(*(out_ptr.wrapping_add(0)), len) };
       let right_output_slice = unsafe { slice::from_raw_parts_mut(*(out_ptr.wrapping_add(1)), len) };
 
-      patch.rust_process_audio(left_input_slice, right_input_slice, left_output_slice, right_output_slice, len);
+      rig.patch.rust_process_audio(left_input_slice, right_input_slice, left_output_slice, right_output_slice, len);
 
       /*
       patch.inl = left_input_slice[0];
