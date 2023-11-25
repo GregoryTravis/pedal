@@ -29,13 +29,6 @@ use core::ops::DerefMut;
 static THE_PATCH: Mutex<RefCell<Option<Patch>>> =
     Mutex::new(RefCell::new(None));
 
-/*
-#[panic_handler]
-fn panic(_info: &core::panic::PanicInfo) -> ! {
-    loop {}
-}
-*/
-
 #[global_allocator]
 static ALLOCATOR: emballoc::Allocator<32768> = emballoc::Allocator::new();
 
@@ -66,9 +59,6 @@ extern "C" {
 pub fn show_load() {
   unsafe { load_spew(); }
 }
-
-struct Sheep {}
-struct Sheep2 {}
 
 pub trait Spewable {
     fn do_spew(&self);
@@ -109,52 +99,9 @@ macro_rules! glep {
     }};
 }
 
-// pub fn spew(x: &impl Spewable) {
-//   x.do_spew();
-// }
-
-/*
-fn spew(x: i32) {
-  spew_int(x);
-}
-
-fn spew(x: f32) {
-  spew_int(x);
-}
-
-fn spew(s: alloc::string::String) {
-  let c_str = CString::new(s).unwrap();
-  let c_world: *const core::ffi::c_char = c_str.as_ptr() as *const core::ffi::c_char;
-  unsafe { spew_string_c(c_world); }
-}
-*/
-
-/*
-macro_rules! my_vec {
-    ( $( $x:expr ),* ) => {
-        {
-            let mut data: [f32; SIZE] = [0.0; SIZE];
-            let mut index = 0;
-            $(
-                #[allow(unused_assignments)]
-                {
-                    data[index] = $x;
-                    index = index + 1;
-                }
-            )*
-            MyVec { data }
-        }
-    };
-}
-*/
-
 pub fn delay(delay_ms: u32) {
   unsafe { UnsafeDelay(delay_ms); }
 }
-
-//libc::c_char
-//let c_str = CString::new(format).unwrap();
-//let c_world: *const c_char = c_str.as_ptr() as *const c_char;
 
 #[no_mangle]
 pub fn main() -> i32 {
@@ -175,11 +122,6 @@ fn get_patch() -> Patch {
       framesize: 0,
   }
 }
-
-//#[no_mangle]
-//pub extern "C" fn rust_patch_main(mut patch: Box<Patch>) {
-  //patch.main();
-//}
 
 #[no_mangle]
 pub extern "C" fn rust_process_audio_stub(in_ptr: *const *const f32, out_ptr: *const *mut f32, len: usize) {
@@ -215,36 +157,6 @@ pub fn patch_main() {
   }
   loop {} // Just to be safe -- TODO: necessary?
 }
-
-/*
-macro_rules! glup {
-
-    ( $v:expr,* ) => {
-        format!( $v* )
-    };
-    /*
-    ( $buf:ident $($var:ident $typ:ty),* ) => {
-        $(
-            ext_type!( $buf $var $typ );
-        )*
-    };
-    */
-}
-*/
-
-/*
-fn gleep(s: alloc::string::String) {
-    let c_str = CString::new(s).unwrap();
-    let c_world: *const core::ffi::c_char = c_str.as_ptr() as *const core::ffi::c_char;
-    unsafe { PrintLine(c_world); }
-}
-
-macro_rules! glup {
-    ($($args:expr),*) => {{
-        gleep(format!($($args),*))
-    }};
-}
-*/
 
 impl Patch {
   #[no_mangle]
