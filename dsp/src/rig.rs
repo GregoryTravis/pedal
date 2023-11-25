@@ -6,9 +6,7 @@ use core::slice;
 use cortex_m::interrupt::{self, Mutex};
 
 use crate::dsp::load::*;
-#[macro_use]
 use crate::dsp::spew::*;
-#[macro_use]
 use crate::spew::*;
 
 use crate::glep;
