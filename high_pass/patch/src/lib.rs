@@ -33,6 +33,11 @@ static ALLOCATOR: emballoc::Allocator<32768> = emballoc::Allocator::new();
 
 pub struct Rig {
   patch: Box<dyn Patch>,
+  inl: f32,
+  inr: f32,
+  outl: f32,
+  outr: f32,
+  framesize: usize,
 }
 
 pub trait Patch: Send {
@@ -46,13 +51,6 @@ pub trait Patch: Send {
 pub struct MyPatch {
   hpf_left: HighPassFilter,
   hpf_right: HighPassFilter,
-  /*
-  inl: f32,
-  inr: f32,
-  outl: f32,
-  outr: f32,
-  framesize: usize,
-  */
 }
 
 extern "C" {
@@ -68,7 +66,15 @@ pub fn delay(delay_ms: u32) {
 pub fn main() -> i32 {
   // The audio handler must be installed AFTER this line.
   // TODO is this use of get_patch() an unnecessary copy?
-  interrupt::free(|cs| THE_PATCH.borrow(cs).replace(Some(Rig { patch: Box::new(get_patch()) })));
+  let rig = Rig {
+    patch: Box::new(get_patch()),
+    inl: 0.0,
+    inr: 0.0,
+    outl: 0.0,
+    outr: 0.0,
+    framesize: 0,
+  };
+  interrupt::free(|cs| THE_PATCH.borrow(cs).replace(Some(rig)));
   unsafe { cpp_main() }
 }
 
@@ -76,13 +82,6 @@ fn get_patch() -> MyPatch {
   MyPatch {
       hpf_left: HighPassFilter::new(),
       hpf_right: HighPassFilter::new(),
-      /*
-      inl: 0.0,
-      inr: 0.0,
-      outl: 0.0,
-      outr: 0.0,
-      framesize: 0,
-      */
   }
 }
 
@@ -99,13 +98,11 @@ pub extern "C" fn rust_process_audio_stub(in_ptr: *const *const f32, out_ptr: *c
 
       rig.patch.rust_process_audio(left_input_slice, right_input_slice, left_output_slice, right_output_slice, len);
 
-      /*
-      patch.inl = left_input_slice[0];
-      patch.inr = right_input_slice[0];
-      patch.outl = left_output_slice[0];
-      patch.outr = right_output_slice[0];
-      patch.framesize = len;
-      */
+      rig.inl = left_input_slice[0];
+      rig.inr = right_input_slice[0];
+      rig.outl = left_output_slice[0];
+      rig.outr = right_output_slice[0];
+      rig.framesize = len;
     }
   });
 }
@@ -119,19 +116,17 @@ pub fn patch_main() {
     let mut outr: f32 = 0.0;
     let mut framesize : usize = 0;
 
-    /*
     interrupt::free(|cs| {
-      if let Some(ref mut patch) = THE_PATCH.borrow(cs).borrow_mut().deref_mut().as_mut() {
-          inl = patch.inl;
-          inr = patch.inr;
-          outl = patch.outl;
-          outr = patch.outr;
-          framesize = patch.framesize;
+      if let Some(ref mut rig) = THE_PATCH.borrow(cs).borrow_mut().deref_mut().as_mut() {
+          inl = rig.inl;
+          inr = rig.inr;
+          outl = rig.outl;
+          outr = rig.outr;
+          framesize = rig.framesize;
       }
     });
 
     glep!("dl adf afdjadfjasdadfaaf asfd", inl, inr, outl, outr, framesize);
-    */
 
     show_load();
     delay(500);
