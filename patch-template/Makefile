@@ -8,8 +8,11 @@ LIBS = -l$PEDAL_PATCH_NAME -ldsp
 
 LDFLAGS += -u _printf_float
 
+clean_exes:
+	rm -f build/$PEDAL_PATCH_NAME.{bin,hex,map,elf}
+
 # Sources
-CPP_SOURCES = pedal.cpp
+CPP_SOURCES = pedal.cpp spew.cpp hw.cpp load.cpp
 
 # Library Locations
 LIBDAISY_DIR = ../../DaisyExamples/libDaisy

@@ -1,71 +1,21 @@
 #include "daisy_seed.h"
-//#include "daisysp.h"
+
+#include "hw.h"
+#include "load.h"
+#include "spew.h"
 
 using namespace daisy;
 
-DaisySeed hw;
-CpuLoadMeter cpuLoadMeter;
-
 extern "C" {
-  typedef void *PatchPtr;
-  void rust_process_audio_stub(PatchPtr patch, const float* const* in_ptr, float **out_ptr, size_t len);
-  void rust_process_audio(PatchPtr patch, const float* const* in_ptr, float **out_ptr, size_t len);
-  void patch_main(PatchPtr patch);
-  //void rust_patch_main(PatchPtr patch);
-  PatchPtr get_patch();
-  float use_patch(PatchPtr);
-  size_t get_size();
-  void rust_setup();
-}
-
-extern "C" void spew_int_c(int x) {
-  hw.Print("%d", x);
-}
-
-extern "C" void spew_size_t_c(size_t x) {
-  hw.Print("%d", x);
-}
-
-extern "C" void spew_float_c(float x) {
-  hw.Print("%f", x);
-}
-
-extern "C" void spew_string_c(char *s) {
-  hw.Print("%s", s);
-}
-
-extern "C" void spew_space_c() {
-  hw.Print(" ");
-}
-
-extern "C" void spew_newline_c() {
-  hw.PrintLine("");
-}
-
-static PatchPtr thePatchPtr;
-
-float inl, inr, outl, outr;
-int frames=0;
-
-void copyInToOut(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size) {
-  for (size_t i = 0; i < size; i++) {
-          out[0][i] = in[1][i];
-          out[1][i] = in[0][i];
-  }
+  void rust_process_audio_stub(const float* const* in_ptr, float **out_ptr, size_t len);
+  void patch_main();
 }
 
 void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size)
 {
-  cpuLoadMeter.OnBlockStart();
-  rust_process_audio_stub(thePatchPtr, in, out, size);
-  //copyInToOut(in, out, size);
-
-  inl = in[0][0];
-  inr = in[1][0];
-  outl = out[0][0];
-  outr = out[1][0];
-  frames++;
-  cpuLoadMeter.OnBlockEnd();
+  load_before();
+  rust_process_audio_stub(in, out, size);
+  load_after();
 }
 
 void initLogging() {
@@ -73,54 +23,21 @@ void initLogging() {
   hw.PrintLine("Pedal!");
 }
 
-extern "C" void PrintLine(const char* format)
-{
-    hw.PrintLine(format);
-}
-
-extern "C" void ping() {
-  hw.PrintLine("ping");
-}
-
 extern "C" void UnsafeDelay(uint32_t delay_ms) {
-  System::Delay(500);
-}
-
-extern "C" void show_load_unsafe() {
-  const float avgLoad = cpuLoadMeter.GetAvgCpuLoad();
-  const float maxLoad = cpuLoadMeter.GetMaxCpuLoad();
-  const float minLoad = cpuLoadMeter.GetMinCpuLoad();
-  hw.PrintLine("load max: " FLT_FMT3 " min " FLT_FMT3 " avg " FLT_FMT3 "\n", FLT_VAR3(maxLoad * 100.0f), FLT_VAR3(minLoad * 100.0f), FLT_VAR3(avgLoad * 100.0f));
+  System::Delay(delay_ms);
 }
 
 extern "C" int cpp_main(void)
 {
-        // TODO move this earlier
-        rust_setup();
-
 	hw.Init();
-        initLogging();
+  initLogging();
 	hw.SetAudioBlockSize(4); // number of samples handled per callback
 	hw.SetAudioSampleRate(SaiHandle::Config::SampleRate::SAI_48KHZ);
 
-        hw.PrintLine("PatchPtr size %d", get_size());
-        thePatchPtr = get_patch();
-        hw.PrintLine("PatchPtr %p", thePatchPtr);
-        float pf = use_patch(thePatchPtr);
-        hw.PrintLine("PatchPtr foo %f", pf);
-
-    cpuLoadMeter.Init(hw.AudioSampleRate(), hw.AudioBlockSize());
+  load_init();
 
 	hw.StartAudio(AudioCallback);
 
-        patch_main(thePatchPtr);
-
-        while(1) {
-          hw.PrintLine("dl %f %f %f %f %d", inl, inr, outl, outr, frames);
-
-          show_load_unsafe();
-
-          System::Delay(500);
-        }
-       //while(1) {}
+  patch_main();
+  while(1) {} // Just in case we fall through
 }

@@ -1,0 +1,2 @@
+cd high_pass
+tar -czvf - . | (cd ../patch-template ; tar -xzvf -)

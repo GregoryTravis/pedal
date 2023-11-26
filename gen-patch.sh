@@ -1,5 +1,5 @@
 #!/bin/bash
-#
+
 name=$1
 
 export PEDAL_PATCH_NAME=$name
