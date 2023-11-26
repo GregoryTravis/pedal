@@ -1,7 +1,9 @@
 pushd dsp ; cargo clean ; popd
 pushd high_pass ; ./cln ; popd
+pushd low_pass ; ./cln ; popd
 pushd dsp ; cargo build ; popd
 pushd high_pass ; ./bld ; popd
+pushd low_pass ; ./bld ; popd
 exit
 
 echo nope
