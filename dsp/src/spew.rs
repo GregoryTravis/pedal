@@ -1,5 +1,7 @@
 use alloc::ffi::CString;
 
+extern crate alloc;
+
 extern "C" {
   pub fn spew_int_c(x: i32);
   pub fn spew_size_t_c(x: usize);

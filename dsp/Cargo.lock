@@ -44,6 +44,7 @@ name = "dsp"
 version = "0.1.0"
 dependencies = [
  "alloc-cortex-m",
+ "cortex-m",
  "emballoc",
  "libc",
 ]

@@ -1,3 +1,5 @@
+extern crate alloc;
+
 use alloc::boxed::Box;
 use core::cell::RefCell;
 use core::ops::DerefMut;
@@ -5,8 +7,7 @@ use core::slice;
 
 use cortex_m::interrupt::{self, Mutex};
 
-use crate::dsp::load::*;
-use crate::dsp::spew::*;
+use crate::load::*;
 use crate::spew::*;
 
 use crate::glep;
@@ -63,7 +64,7 @@ pub fn gogogo(box_patch: Box<dyn Patch>) -> i32 {
 pub extern "C" fn rust_process_audio_stub(in_ptr: *const *const f32, out_ptr: *const *mut f32, len: usize) {
   interrupt::free(|cs| {
     if let Some(ref mut rig) = THE_PATCH.borrow(cs).borrow_mut().deref_mut().as_mut() {
-      let ilen = len as isize;
+      //let ilen = len as isize;
 
       let left_input_slice = unsafe { slice::from_raw_parts(*(in_ptr.wrapping_add(0)), len) };
       let right_input_slice = unsafe { slice::from_raw_parts(*(in_ptr.wrapping_add(1)), len) };
@@ -107,5 +108,4 @@ pub fn patch_main() {
     show_load();
     delay(500);
   }
-  loop {} // Just to be safe -- TODO: necessary?
 }
