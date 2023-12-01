@@ -3,12 +3,9 @@ name = "high_pass"
 version = "0.1.0"
 edition = "2021"
 
-[lib]
-name = "high_pass"
-crate-type = ["staticlib"] # Creates static lib
-
 [dependencies]
 alloc-cortex-m = { version = "0.4.4"}
 cortex-m = "0.7.7"
+cortex-m-rt = { version = "0.7", features = [ "device" ] }
 emballoc = "0.2.0"
 libc = "0.2"

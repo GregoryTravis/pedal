@@ -1,9 +1,12 @@
+#![no_main]
 #![no_std]
 #![allow(unused_imports)]
 #![allow(dead_code)]
 #![allow(unused)]
 
 extern crate alloc;
+
+use cortex_m_rt::entry;
 
 use crate::dsp::*;
 #[path = "../../../dsp/src/lib.rs"] mod dsp;
@@ -34,11 +37,13 @@ impl Patch for MyPatch {
   }
 }
 
-#[no_mangle]
-pub fn main() -> i32{
+#[entry]
+fn main() -> ! {
   let box_patch = Box::new(MyPatch {
       hpf_left: HighPassFilter::new(),
       hpf_right: HighPassFilter::new(),
   });
-  gogogo(box_patch)
+  gogogo(box_patch);
+  unsafe { cpp_main(); }
+  loop {}
 }
