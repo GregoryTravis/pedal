@@ -1,10 +1,10 @@
 # Project Name
-TARGET = high_pass
+TARGET = libhigh_pass
 
 APP_TYPE = BOOT_SRAM
 
-LIBDIR = -L /Users/gmt/pedal/high_pass/patch/target/thumbv7em-none-eabihf/debug -L /Users/gmt/pedal/dsp/target/thumbv7em-none-eabihf/debug
-LIBS = -lhigh_pass -ldsp
+#LIBDIR = -L /Users/gmt/pedal/high_pass/patch/target/thumbv7em-none-eabihf/debug -L /Users/gmt/pedal/dsp/target/thumbv7em-none-eabihf/debug
+#LIBS = -lhigh_pass -ldsp
 
 LDFLAGS += -u _printf_float
 
