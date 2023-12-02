@@ -37,6 +37,10 @@ impl Patch for MyPatch {
   }
 }
 
+#[no_mangle]
+fn _start() {
+}
+
 #[entry]
 fn main() -> ! {
   let box_patch = Box::new(MyPatch {
