@@ -37,12 +37,8 @@ impl Patch for MyPatch {
   }
 }
 
-#[no_mangle]
-fn _start() {
-}
-
 #[entry]
-fn main() -> ! {
+fn _start() -> ! {
   let box_patch = Box::new(MyPatch {
       hpf_left: HighPassFilter::new(),
       hpf_right: HighPassFilter::new(),
