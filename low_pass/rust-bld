@@ -1,5 +1,0 @@
-pushd step
-cargo build
-r=$?
-popd
-exit $r

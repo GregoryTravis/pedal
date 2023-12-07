@@ -1,2 +1,0 @@
-set -o pipefail
-cargo build 2>&1 | tee out

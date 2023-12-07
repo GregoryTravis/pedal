@@ -6,9 +6,12 @@
 
 using namespace daisy;
 
+#define PEDAL_MAIN high_pass_main
+
 extern "C" {
   void rust_process_audio_stub(const float* const* in_ptr, float **out_ptr, size_t len);
   void patch_main();
+  int PEDAL_MAIN();
 }
 
 void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size)
@@ -40,4 +43,8 @@ extern "C" int cpp_main(void)
 
   patch_main();
   while(1) {} // Just in case we fall through
+}
+
+int main() {
+  PEDAL_MAIN();
 }

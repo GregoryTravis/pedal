@@ -3,7 +3,7 @@ TARGET = high_pass
 
 APP_TYPE = BOOT_SRAM
 
-LIBDIR = -L /Users/gmt/pedal/high_pass/patch/target/thumbv7em-none-eabihf/debug -L /Users/gmt/pedal/dsp/target/thumbv7em-none-eabihf/debug
+LIBDIR = -L /Users/gmt/pedal/target/thumbv7em-none-eabihf/debug -L /Users/gmt/pedal/dsp/target/thumbv7em-none-eabihf/debug
 LIBS = -lhigh_pass -ldsp
 
 LDFLAGS += -u _printf_float

@@ -1,3 +1,11 @@
+set -o pipefail
+(pushd dsp && cargo build; r=$?; popd && exit $r) && \
+  cargo build && \
+  (pushd shim; make clean_exes; make all; r=$?; popd; exit $r) && \
+  psh
+
+exit
+
 pushd dsp ; cargo clean ; popd
 pushd high_pass ; ./cln ; popd
 pushd low_pass ; ./cln ; popd

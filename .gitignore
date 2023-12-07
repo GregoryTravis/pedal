@@ -1,4 +1,6 @@
 build
 .vscode
+target
 misc
 out
+Cargo.lock
