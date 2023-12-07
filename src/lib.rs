@@ -18,6 +18,7 @@ use alloc_cortex_m::CortexMHeap;
 
 use dsp::filter::high_pass::*;
 use dsp::filter::low_pass::*;
+use dsp::filter::reso::*;
 
 // TODO pub needed?
 // TODO it's mono so don't do both channels
@@ -65,6 +66,31 @@ pub fn high_pass_main() -> i32{
   let box_patch = Box::new(HighPassPatch {
       hpf_left: HighPassFilter::new(),
       hpf_right: HighPassFilter::new(),
+  });
+  gogogo(box_patch)
+}
+
+// TODO pub needed?
+// TODO it's mono so don't do both channels
+pub struct ResoPatch {
+  left: ResoFilter,
+  right: ResoFilter,
+}
+
+impl Patch for ResoPatch  {
+  fn rust_process_audio(&mut self, left_input_slice: &[f32], right_input_slice: &[f32],
+            left_output_slice: &mut [f32], right_output_slice: &mut [f32],
+            size: usize) {
+      self.left.filter(left_input_slice, left_output_slice, size);
+      self.right.filter(right_input_slice, right_output_slice, size);
+  }
+}
+
+#[no_mangle]
+pub fn reso_main() -> i32{
+  let box_patch = Box::new(ResoPatch {
+      left: ResoFilter::new(),
+      right: ResoFilter::new(),
   });
   gogogo(box_patch)
 }
