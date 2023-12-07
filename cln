@@ -1,4 +1,3 @@
-pushd patch
+pushd dsp && cargo clean && popd
 cargo clean
-popd
-make clean
+pushd shim && make clean && popd

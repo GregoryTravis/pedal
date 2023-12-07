@@ -1,1 +1,1 @@
-make program-boot
+pushd shim && make program-boot && popd
