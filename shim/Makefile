@@ -6,6 +6,8 @@ APP_TYPE = BOOT_SRAM
 LIBDIR = -L /Users/gmt/pedal/target/thumbv7em-none-eabihf/debug -L /Users/gmt/pedal/dsp/target/thumbv7em-none-eabihf/debug
 LIBS = -lhigh_pass -ldsp
 
+C_DEFS  ?= -DPEDAL_MAIN=$(PEDAL_MAIN)
+
 LDFLAGS += -u _printf_float
 
 clean_exes:
