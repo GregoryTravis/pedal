@@ -1,7 +1,11 @@
+set -o pipefail
+
 # We always make clean the c++ part because (1) the libDaisy makefile builds
 # the exe and it doesn't rebuild when the rust library changes, and (2) it's
 # very fast. TODO: change the libDaisy makefile to allow static libraries (in
 # addition to .c, .cpp, and .s) to be included as dependencies.
-make clean_exes
+(pushd dsp && cargo build; r=$?; popd && exit $r) && \
+  cargo build && \
+  (pushd shim; make clean_exes; make all; r=$?; popd; exit $r) && \
+  psh
 
-(pushd patch; cargo build; r=$?; popd; exit $r) && make all
