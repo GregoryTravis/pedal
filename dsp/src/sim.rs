@@ -2,10 +2,8 @@ extern crate std;
 
 use std::println;
 
-#[cfg(not(feature = "stdd"))]
 use hound;
 
-#[cfg(feature = "stdd")]
 pub fn sim_main() {
   let mut reader = hound::WavReader::open("hms0.wav").unwrap();
   let sqr_sum = reader.samples::<i16>()
