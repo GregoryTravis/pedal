@@ -12,11 +12,13 @@ name = "sim"
 path = "src/bin.rs"
 
 [features]
-stdd = ["hound"]
+#stdd = ["hound"]
+stdd = []
 
 [dependencies]
 alloc-cortex-m = { version = "0.4.4"}
 cortex-m = "0.7.7"
 emballoc = "0.2.0"
-hound = { version = "3.5.1", optional = true }
+#hound = { version = "3.5.1", optional = true }
 libc = "0.2"
+dsp = { version = "0.1.0", path = "dsp" }

@@ -4,9 +4,11 @@
 #![allow(unused)]
 
 extern crate alloc;
+extern crate dsp;
 
+//use dsp::*;
 use crate::dsp::*;
-#[path = "../dsp/src/lib.rs"] mod dsp;
+//#[path = "../dsp/src/lib.rs"] mod dsp;
 
 use crate::dsp::rig::*;
 

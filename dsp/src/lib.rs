@@ -1,4 +1,5 @@
-#![no_std]
+//#![no_std]
+#![cfg_attr(not(stdd), no_std)]
 
 pub mod filter;
 pub mod load;
