@@ -3,8 +3,8 @@ TARGET = high_pass
 
 APP_TYPE = BOOT_SRAM
 
-LIBDIR = -L ../target/thumbv7em-none-eabihf/debug -L ../dsp/target/thumbv7em-none-eabihf/debug
-LIBS = -lhigh_pass -ldsp
+LIBDIR = -L ../target/thumbv7em-none-eabihf/debug
+LIBS = -lhigh_pass
 
 C_DEFS  ?= -DPEDAL_MAIN=$(PEDAL_MAIN)
 

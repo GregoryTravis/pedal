@@ -1,10 +1,19 @@
 set -o pipefail
 
+# Clean
+#(pushd dsp && cargo clean && popd && cargo clean && pushd shim && make clean && popd)
+
+# Board exe
 cargo build --lib --target thumbv7em-none-eabihf 2>&1 | tee out
+#pushd shim && make clean_exes && make PEDAL_MAIN=reso_main all && popd
 exit
 
-#cargo run --bin sim --features stdd 2>&1 | tee out
-#exit
+# Sim
+cargo run --bin sim --features stdd 2>&1 | tee out
+exit
+
+cargo build --lib --target thumbv7em-none-eabihf 2>&1 | tee out
+exit
 
 # Build dsp for board
 # cargo build --target thumbv7em-none-eabihf

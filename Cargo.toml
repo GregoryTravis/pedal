@@ -21,4 +21,10 @@ cortex-m = "0.7.7"
 emballoc = "0.2.0"
 #hound = { version = "3.5.1", optional = true }
 libc = "0.2"
+#dsp = { version = "0.1.0", path = "dsp", features = ["stdd"] }
+
+[target.'cfg( target = "thumbv7em-none-eabihf" )'.dependencies]
 dsp = { version = "0.1.0", path = "dsp" }
+
+[target.'cfg( not( target = "thumbv7em-none-eabihf") )'.dependencies]
+dsp = { version = "0.1.0", path = "dsp", features = ["stdd"] }

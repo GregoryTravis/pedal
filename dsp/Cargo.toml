@@ -5,7 +5,7 @@ edition = "2021"
 
 [lib]
 name = "dsp"
-crate-type = ["staticlib"] # Creates static lib
+#crate-type = ["staticlib"] # Creates static lib
 
 [features]
 stdd = ["hound"]
@@ -14,5 +14,7 @@ stdd = ["hound"]
 alloc-cortex-m = { version = "0.4.4"}
 cortex-m = "0.7.7"
 emballoc = "0.2.0"
-hound = { version = "3.5.1", optional = true }
 libc = "0.2"
+
+[target.'cfg( not( target = "thumbv7em-none-eabihf") )'.dependencies]
+hound = { version = "3.5.1", optional = true }
