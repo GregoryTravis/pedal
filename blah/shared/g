@@ -1,0 +1,2 @@
+cargo build --lib --target thumbv7em-none-eabihf 2>&1 | tee out
+cargo build --lib 2>&1 | tee out

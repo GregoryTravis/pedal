@@ -1,0 +1,10 @@
+[package]
+name = "host"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+stdd = ["hound"]
+
+[dependencies]
+hound = { version = "3.5.1", optional = true }

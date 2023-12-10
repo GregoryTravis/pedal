@@ -1,0 +1,1 @@
+cargo build --lib --features="stdd" 2>&1 | tee out
