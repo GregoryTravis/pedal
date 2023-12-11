@@ -9,7 +9,7 @@ pub struct ResoFilter {
 
 impl ResoFilter {
   pub fn new() -> ResoFilter {
-    let f = 0.8;
+    let f = 0.3;
     let q = 0.99;
     let fb = q + q/(1.0 - f);
     ResoFilter { buf0: 0.0, buf1: 0.0, f: f, fb: fb }

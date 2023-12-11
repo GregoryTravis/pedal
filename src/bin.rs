@@ -1,11 +1,8 @@
-#[cfg(feature = "std")]
-extern crate std;
-extern crate dsp;
+// #[cfg(feature = "std")]
+// extern crate std;
+extern crate host;
 
-//use crate::dsp::*;
-//#[path = "../dsp/src/lib.rs"] mod dsp;
-
-use crate::dsp::sim::*;
+use host::sim::*;
 
 pub fn main() {
   sim_main();

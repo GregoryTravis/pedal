@@ -13,7 +13,7 @@ path = "src/bin.rs"
 
 [features]
 #stdd = ["hound"]
-stdd = []
+stdd = ["host"]
 
 [dependencies]
 alloc-cortex-m = { version = "0.4.4"}
@@ -22,4 +22,4 @@ emballoc = "0.2.0"
 libc = "0.2"
 board = { path = "blah/board" }
 shared = { path = "blah/shared" }
-host = { path = "blah/host" }
+host = { path = "blah/host", optional = true, features = ["stdd"] }

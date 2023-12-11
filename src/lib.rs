@@ -4,13 +4,14 @@
 #![allow(unused)]
 
 extern crate alloc;
-extern crate dsp;
+extern crate board;
+extern crate shared;
 
 //use dsp::*;
-use crate::dsp::*;
+//use crate::dsp::*;
 //#[path = "../dsp/src/lib.rs"] mod dsp;
 
-use crate::dsp::rig::*;
+use board::rig::*;
 
 use core::mem;
 
@@ -18,9 +19,10 @@ use alloc::boxed::Box;
 //use alloc::format;
 use alloc_cortex_m::CortexMHeap;
 
-use dsp::filter::high_pass::*;
-use dsp::filter::low_pass::*;
-use dsp::filter::reso::*;
+use shared::*;
+use shared::filter::high_pass::*;
+use shared::filter::low_pass::*;
+use shared::filter::reso::*;
 
 // TODO pub needed?
 // TODO it's mono so don't do both channels
