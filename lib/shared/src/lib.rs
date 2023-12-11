@@ -1,4 +1,4 @@
-#![cfg_attr(not(stdd), no_std)]
+#![cfg_attr(not(for_host), no_std)]
 
 pub mod filter;
 

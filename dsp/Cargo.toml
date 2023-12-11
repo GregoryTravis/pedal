@@ -8,7 +8,7 @@ name = "dsp"
 #crate-type = ["staticlib"] # Creates static lib
 
 [features]
-stdd = ["hound"]
+for_host = ["hound"]
 
 [dependencies]
 alloc-cortex-m = { version = "0.4.4"}
