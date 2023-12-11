@@ -7,12 +7,7 @@ edition = "2021"
 name = "pedal"
 crate-type = ["staticlib"] # Creates static lib
 
-[[bin]]
-name = "sim"
-path = "src/bin.rs"
-
 [features]
-#stdd = ["hound"]
 stdd = ["host"]
 
 [dependencies]
