@@ -6,8 +6,6 @@
 
 using namespace daisy;
 
-//#define PEDAL_MAIN high_pass_main
-
 extern "C" {
   void rust_process_audio_stub(const float* const* in_ptr, float **out_ptr, size_t len);
   void patch_main();

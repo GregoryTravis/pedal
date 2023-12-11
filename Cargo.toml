@@ -1,10 +1,10 @@
 [package]
-name = "high_pass"
+name = "pedal"
 version = "0.1.0"
 edition = "2021"
 
 [lib]
-name = "high_pass"
+name = "pedal"
 crate-type = ["staticlib"] # Creates static lib
 
 [[bin]]

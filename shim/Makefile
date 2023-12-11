@@ -1,17 +1,17 @@
 # Project Name
-TARGET = high_pass
+TARGET = pedal
 
 APP_TYPE = BOOT_SRAM
 
 LIBDIR = -L ../target/thumbv7em-none-eabihf/debug
-LIBS = -lhigh_pass
+LIBS = -lpedal
 
 C_DEFS  ?= -DPEDAL_MAIN=$(PEDAL_MAIN)
 
 LDFLAGS += -u _printf_float
 
 clean_exes:
-	rm -f build/high_pass.{bin,hex,map,elf}
+	rm -f build/pedal.{bin,hex,map,elf}
 
 # Sources
 CPP_SOURCES = pedal.cpp spew.cpp hw.cpp load.cpp
