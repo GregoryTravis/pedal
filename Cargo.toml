@@ -20,6 +20,6 @@ alloc-cortex-m = { version = "0.4.4"}
 cortex-m = "0.7.7"
 emballoc = "0.2.0"
 libc = "0.2"
-board = { path = "blah/board" }
-shared = { path = "blah/shared" }
-host = { path = "blah/host", optional = true, features = ["stdd"] }
+board = { path = "lib/board" }
+shared = { path = "lib/shared" }
+host = { path = "lib/host", optional = true, features = ["stdd"] }
