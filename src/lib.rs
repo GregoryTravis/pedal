@@ -1,24 +1,12 @@
 #![no_std]
-#![allow(unused_imports)]
-#![allow(dead_code)]
-#![allow(unused)]
 
 extern crate alloc;
 extern crate board;
 extern crate shared;
 
-//use dsp::*;
-//use crate::dsp::*;
-//#[path = "../dsp/src/lib.rs"] mod dsp;
+use alloc::boxed::Box;
 
 use board::rig::*;
-
-use core::mem;
-
-use alloc::boxed::Box;
-//use alloc::format;
-use alloc_cortex_m::CortexMHeap;
-
 use shared::*;
 use shared::filter::high_pass::*;
 use shared::filter::low_pass::*;
