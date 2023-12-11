@@ -22,7 +22,7 @@ pub struct LowPassPatch {
 impl Patch for LowPassPatch {
   fn rust_process_audio(&mut self, left_input_slice: &[f32], right_input_slice: &[f32],
             left_output_slice: &mut [f32], right_output_slice: &mut [f32],
-            size: usize) {
+            size: usize, _time_in_seconds: f64) {
       self.lpf_left.filter(left_input_slice, left_output_slice, size);
       self.lpf_right.filter(right_input_slice, right_output_slice, size);
   }
@@ -47,7 +47,7 @@ pub struct HighPassPatch {
 impl Patch for HighPassPatch  {
   fn rust_process_audio(&mut self, left_input_slice: &[f32], right_input_slice: &[f32],
             left_output_slice: &mut [f32], right_output_slice: &mut [f32],
-            size: usize) {
+            size: usize, _time_in_seconds: f64) {
       self.hpf_left.filter(left_input_slice, left_output_slice, size);
       self.hpf_right.filter(right_input_slice, right_output_slice, size);
   }
@@ -72,9 +72,9 @@ pub struct ResoPatch {
 impl Patch for ResoPatch  {
   fn rust_process_audio(&mut self, left_input_slice: &[f32], right_input_slice: &[f32],
             left_output_slice: &mut [f32], right_output_slice: &mut [f32],
-            size: usize) {
-      self.left.filter(left_input_slice, left_output_slice, size);
-      self.right.filter(right_input_slice, right_output_slice, size);
+            size: usize, time_in_seconds: f64) {
+      self.left.filter(left_input_slice, left_output_slice, size, time_in_seconds);
+      self.right.filter(right_input_slice, right_output_slice, size, time_in_seconds);
   }
 }
 

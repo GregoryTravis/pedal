@@ -4,6 +4,7 @@ extern crate alloc;
 
 extern "C" {
   pub fn spew_int_c(x: i32);
+  pub fn spew_ulonglong_c(x: u64);
   pub fn spew_size_t_c(x: usize);
   pub fn spew_float_c(x: f32);
   pub fn spew_string_c(s: *const core::ffi::c_char);
@@ -18,6 +19,12 @@ pub trait Spewable {
 impl Spewable for i32 {
     fn do_spew(&self) {
       unsafe { spew_int_c(*self); }
+    }
+}
+
+impl Spewable for u64 {
+    fn do_spew(&self) {
+      unsafe { spew_ulonglong_c(*self); }
     }
 }
 
