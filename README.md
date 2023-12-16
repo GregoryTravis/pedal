@@ -13,7 +13,7 @@ Code for a guitar pedal using the Daisy Seed.
 ### Run sim
     cd host && cargo run --bin sim --features for_host
 
-## Project structure
+## Project Structure
 
 ### Overview
 
@@ -51,7 +51,7 @@ It contains 6 packages:
   * `board` (package name: 'pedalboard'): `main` entrypoints for pedal patches
   * `host` (package name: 'pedalhost'): local development and testing of pedal patches
 
-### Building a board binary
+### Building a Board Binary
 
 This code is based on libDaisy. Linking the final binary that is pushed to the
 Daisy is done with the libDaisy Makefile, not with Rust/Cargo. Thus, the Rust
@@ -73,3 +73,7 @@ routine in `board/src/lib.rs`.
 ### Features
 
 **for_host**: enabled when building for the host.
+
+## Developing Using The Library
+
+_TODO_
