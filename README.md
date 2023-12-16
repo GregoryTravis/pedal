@@ -23,6 +23,11 @@ Daisy', and 'host' means 'runs locally'. 'shared' means 'can be used by both
 board and host code. 'shim' means C++ code needed to connect everything else to
 libDaisy.
 
+Inside Rust source, code can be enabled/disabled for different contexts:
+
+    #[cfg(feature = "for_host")]
+    #[cfg(not(feature = "for_host"))]
+
 The coded is divided up this way because (1) I am a rust beginner and this is
 how I could make it work, and (2) it builds for two architectures.
 
@@ -63,3 +68,7 @@ line in `push-board`:
 
 `reso_main()` is defined in `board/src/lib.rs`. You can deploy different
 patches simply by changing the name passed to make as above.
+
+### Features
+
+**for_host**: enabled when building for the host.
