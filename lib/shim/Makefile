@@ -4,7 +4,7 @@ TARGET = pedal
 APP_TYPE = BOOT_SRAM
 
 LIBDIR = -L ../../board/target/thumbv7em-none-eabihf/debug
-LIBS = -lpedal
+LIBS = -lpedalboard
 
 C_DEFS  ?= -DPEDAL_MAIN=$(PEDAL_MAIN)
 

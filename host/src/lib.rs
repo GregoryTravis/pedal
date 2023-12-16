@@ -1,12 +1,8 @@
-#![no_std]
+#![cfg_attr(not(for_host), no_std)]
 
-extern crate alloc;
-extern crate board;
+//extern crate board;
 extern crate shared;
 
-use alloc::boxed::Box;
-
-use board::rig::*;
 use shared::*;
 use shared::filter::high_pass::*;
 use shared::filter::low_pass::*;
@@ -15,8 +11,8 @@ use shared::filter::reso::*;
 // TODO pub needed?
 // TODO it's mono so don't do both channels
 pub struct LowPassPatch {
-  lpf_left: LowPassFilter,
-  lpf_right: LowPassFilter,
+  pub lpf_left: LowPassFilter,
+  pub lpf_right: LowPassFilter,
 }
 
 impl Patch for LowPassPatch {
@@ -28,20 +24,11 @@ impl Patch for LowPassPatch {
   }
 }
 
-#[no_mangle]
-pub fn low_pass_main() -> i32{
-  let box_patch = Box::new(LowPassPatch {
-      lpf_left: LowPassFilter::new(),
-      lpf_right: LowPassFilter::new(),
-  });
-  gogogo(box_patch)
-}
-
 // TODO pub needed?
 // TODO it's mono so don't do both channels
 pub struct HighPassPatch {
-  hpf_left: HighPassFilter,
-  hpf_right: HighPassFilter,
+  pub hpf_left: HighPassFilter,
+  pub hpf_right: HighPassFilter,
 }
 
 impl Patch for HighPassPatch  {
@@ -53,20 +40,11 @@ impl Patch for HighPassPatch  {
   }
 }
 
-#[no_mangle]
-pub fn high_pass_main() -> i32{
-  let box_patch = Box::new(HighPassPatch {
-      hpf_left: HighPassFilter::new(),
-      hpf_right: HighPassFilter::new(),
-  });
-  gogogo(box_patch)
-}
-
 // TODO pub needed?
 // TODO it's mono so don't do both channels
 pub struct ResoPatch {
-  left: ResoFilter,
-  right: ResoFilter,
+  pub left: ResoFilter,
+  pub right: ResoFilter,
 }
 
 impl Patch for ResoPatch  {
@@ -76,13 +54,4 @@ impl Patch for ResoPatch  {
       self.left.filter(left_input_slice, left_output_slice, size, time_in_seconds);
       self.right.filter(right_input_slice, right_output_slice, size, time_in_seconds);
   }
-}
-
-#[no_mangle]
-pub fn reso_main() -> i32{
-  let box_patch = Box::new(ResoPatch {
-      left: ResoFilter::new(),
-      right: ResoFilter::new(),
-  });
-  gogogo(box_patch)
 }

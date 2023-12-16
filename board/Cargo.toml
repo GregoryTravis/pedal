@@ -1,10 +1,10 @@
 [package]
-name = "pedal"
+name = "pedalboard"
 version = "0.1.0"
 edition = "2021"
 
 [lib]
-name = "pedal"
+name = "pedalboard"
 crate-type = ["staticlib"] # Creates static lib
 
 [features]
@@ -18,3 +18,4 @@ libc = "0.2"
 board = { path = "../lib/board" }
 shared = { path = "../lib/shared" }
 host = { path = "../lib/host", optional = true, features = ["for_host"] }
+pedalhost = { path = "../host" } # , optional = true, features = ["for_host"] }

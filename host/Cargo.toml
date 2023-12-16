@@ -1,11 +1,11 @@
 [package]
-name = "pedal"
+name = "pedalhost"
 version = "0.1.0"
 edition = "2021"
 
 [lib]
-name = "pedal"
-crate-type = ["staticlib"] # Creates static lib
+name = "pedalhost"
+#crate-type = ["staticlib"] # Creates static lib
 
 [features]
 for_host = ["host"]
