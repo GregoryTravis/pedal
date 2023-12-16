@@ -1,0 +1,3 @@
+./cln
+push-board
+pushd host && g && ./t && popd
