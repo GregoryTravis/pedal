@@ -2,4 +2,5 @@ pushd lib && pushd board && cargo clean && popd && \
   pushd shared && cargo clean && popd && \
   pushd host && cargo clean && popd && popd && \
   pushd lib/shim && make clean && make clean_exes && popd && \
-  cargo clean
+  pushd board && cargo clean && popd \
+  pushd host && cargo clean && popd

@@ -1,3 +1,5 @@
-(cargo build --lib --target thumbv7em-none-eabihf && \
+(pushd board && \
+  cargo build --lib --target thumbv7em-none-eabihf && \
+  popd && \
   pushd lib/shim && make clean_exes && make PEDAL_MAIN=reso_main all && popd && \
   psh) 2>&1 | tee out

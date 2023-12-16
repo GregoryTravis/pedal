@@ -1,0 +1,20 @@
+[package]
+name = "pedal"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "pedal"
+crate-type = ["staticlib"] # Creates static lib
+
+[features]
+for_host = ["host"]
+
+[dependencies]
+alloc-cortex-m = { version = "0.4.4"}
+cortex-m = "0.7.7"
+emballoc = "0.2.0"
+libc = "0.2"
+board = { path = "../lib/board" }
+shared = { path = "../lib/shared" }
+host = { path = "../lib/host", optional = true, features = ["for_host"] }
