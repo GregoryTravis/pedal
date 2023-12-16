@@ -17,8 +17,9 @@ clean_exes:
 CPP_SOURCES = pedal.cpp spew.cpp hw.cpp load.cpp
 
 # Library Locations
-LIBDAISY_DIR = ../../../DaisyExamples/libDaisy
-DAISYSP_DIR = ../../../DaisyExamples/DaisySP
+DAISY_EXAMPLES = ../../../DaisyExamples
+LIBDAISY_DIR = $(DAISY_EXAMPLES)/libDaisy
+DAISYSP_DIR = $(DAISY_EXAMPLES)/DaisySP
 
 # Core location, and generic Makefile.
 SYSTEM_FILES_DIR = $(LIBDAISY_DIR)/core

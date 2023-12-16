@@ -37,27 +37,27 @@ In addition to having two different targets, board code runs `no_std`.
 
 Thus:
 * `board` code can only build for `thumbv7em-none-eabihf`
-* `host` code can only build for the default target
+* `host` code can only build for the default target, as it requires `std`
 * `shared` code can build on either
 * `shim` code can only build for the Daisy, using the libDaisy makefile
 
 It contains 6 packages:
 * Generic library
   * `lib/board`: Rust runtime
-  * `lib/shared`: Generic dsp code, suitable for running either the Daisy or the host
-  * `lib/host': Utilities for local development testing, including a Patch runner
-  * `lib/shim`: The C++ glue between Rust and the Daisy
+  * `lib/shared`: Generic dsp code, suitable for running on either the Daisy or the host
+  * `lib/host`: Utilities for local development testing, including a Patch runner
+  * `lib/shim`: The C++ glue between Rust and libDaisy
 * Pedal implementations
-  * `board' (package name: 'pedalboard'): `main` entrypoints for pedal patches
-  * `host' (package name: 'pedalhost'): local development and testing of pedal patches
+  * `board` (package name: 'pedalboard'): `main` entrypoints for pedal patches
+  * `host` (package name: 'pedalhost'): local development and testing of pedal patches
 
 ### Building a board binary
 
 This code is based on libDaisy. Linking the final binary that is pushed to the
-Daisy is done with the libDaisy Makefile, not with Rust. Thus, the Rust
+Daisy is done with the libDaisy Makefile, not with Rust/Cargo. Thus, the Rust
 "binary", containing the entrypoint and all other code it requires is actually
-the library built in `board`. This is then linked into a executable by the shim
-Makefile.
+the library crate built in `board`. This is then linked into a executable by
+the shim makefile.
 
 `board/src/lib.rs` is, in a sense, the root of the board binary. The `main`
 defined in the C++ shim in `lib/shim/pedal.cpp` simply calls `PEDAL_MAIN`,
@@ -67,7 +67,8 @@ line in `push-board`:
     make PEDAL_MAIN=reso_main
 
 `reso_main()` is defined in `board/src/lib.rs`. You can deploy different
-patches simply by changing the name passed to make as above.
+patches simply by changing the definition of `PEDAL_MAIN` to a different main
+routine in `board/src/lib.rs`.
 
 ### Features
 
