@@ -3,6 +3,8 @@
 //extern crate board;
 extern crate shared;
 
+mod tests;
+
 use shared::*;
 use shared::filter::high_pass::*;
 use shared::filter::low_pass::*;
