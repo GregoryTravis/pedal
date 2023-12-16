@@ -5,9 +5,12 @@ edition = "2021"
 
 [lib]
 name = "pedalboard"
-crate-type = ["staticlib"] # Creates static lib
+# This is required because this is linked into the final board binary by lib/shim/Makefile.
+crate-type = ["staticlib"]
 
 [features]
+# Any crates that require std cannot be built for the board, and must be listed
+# here; they must also be configured as optional dependencies.
 for_host = ["host"]
 
 [dependencies]

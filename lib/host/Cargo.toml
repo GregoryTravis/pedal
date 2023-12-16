@@ -4,6 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [features]
+# Any crates that require std cannot be built for the board, and must be listed
+# here; they must also be configured as optional dependencies.
 for_host = ["hound", "shared"]
 
 [dependencies]
