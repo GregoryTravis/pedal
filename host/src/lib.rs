@@ -5,7 +5,7 @@ extern crate shared;
 
 mod tests;
 
-use shared::*;
+use shared::patch::*;
 use shared::filter::high_pass::*;
 use shared::filter::low_pass::*;
 use shared::filter::reso::*;

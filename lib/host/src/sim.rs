@@ -5,7 +5,7 @@ use std::path::Path;
 use std::println;
 
 use hound;
-use shared::Patch;
+use shared::patch::Patch;
 
 const BATCH_SIZE: usize = 4;
 

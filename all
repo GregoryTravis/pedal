@@ -1,3 +1,5 @@
-./cln
-push-board
-pushd host && g && ./t && popd
+(./cln && \
+ push-board && \
+ pushd host && g && ./t && popd) | tee all.out
+echo ========
+fs bdiff all.out golden.all.out

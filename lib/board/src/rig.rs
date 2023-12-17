@@ -9,7 +9,7 @@ use cortex_m::interrupt::{self, Mutex};
 
 use crate::load::*;
 use crate::spew::*;
-use shared::*;
+use shared::patch::*;
 
 use crate::glep;
 

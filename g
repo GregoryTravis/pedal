@@ -1,4 +1,5 @@
 set -o pipefail
 
 #./t
-#./board
+#./push-board
+./all

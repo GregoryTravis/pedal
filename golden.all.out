@@ -1,0 +1,123 @@
+~/pedal/lib/board ~/pedal
+~/pedal
+~/pedal/lib/shared ~/pedal
+~/pedal
+~/pedal/lib/host ~/pedal
+~/pedal
+~/pedal/lib/shim ~/pedal
+rm -fR build
+rm -f build/pedal.{bin,hex,map,elf}
+~/pedal
+~/pedal/board ~/pedal
+~/pedal
+~/pedal/host ~/pedal
+~/pedal
+~/pedal/board ~/pedal
+   Compiling semver-parser v0.7.0
+   Compiling nb v1.1.0
+   Compiling void v1.0.2
+   Compiling libm v0.2.8
+   Compiling vcell v0.1.3
+   Compiling cortex-m v0.7.7
+   Compiling libc v0.2.151
+   Compiling bitfield v0.13.2
+   Compiling nb v0.1.3
+   Compiling volatile-register v0.2.2
+   Compiling linked_list_allocator v0.10.5
+   Compiling embedded-hal v0.2.7
+   Compiling spin v0.9.8
+   Compiling semver v0.9.0
+   Compiling emballoc v0.2.0
+   Compiling rustc_version v0.2.3
+   Compiling bare-metal v0.2.5
+   Compiling shared v0.1.0 (/Users/gmt/pedal/lib/shared)
+   Compiling alloc-cortex-m v0.4.4
+   Compiling board v0.1.0 (/Users/gmt/pedal/lib/board)
+   Compiling pedalhost v0.1.0 (/Users/gmt/pedal/host)
+   Compiling pedalboard v0.1.0 (/Users/gmt/pedal/board)
+    Finished dev [unoptimized + debuginfo] target(s) in 1.20s
+~/pedal
+~/pedal/lib/shim ~/pedal
+rm -f build/pedal.{bin,hex,map,elf}
+mkdir build
+arm-none-eabi-gcc -c -mcpu=cortex-m7 -mthumb -mfpu=fpv5-d16 -mfloat-abi=hard -DPEDAL_MAIN=reso_main -DUSE_HAL_DRIVER -DSTM32H750xx -DHSE_VALUE=16000000  -DCORE_CM7 -DSTM32H750IB -DARM_MATH_CM7 -DUSE_FULL_LL_DRIVER -DBOOT_APP -include stm32h7xx.h -I../../../DaisyExamples/libDaisy -I../../../DaisyExamples/libDaisy/src/ -I../../../DaisyExamples/libDaisy/src/sys -I../../../DaisyExamples/libDaisy/src/usbd -I../../../DaisyExamples/libDaisy/src/usbh -I../../../DaisyExamples/libDaisy/Drivers/CMSIS/Include/ -I../../../DaisyExamples/libDaisy/Drivers/CMSIS/DSP/Include -I../../../DaisyExamples/libDaisy/Drivers/CMSIS/Device/ST/STM32H7xx/Include -I../../../DaisyExamples/libDaisy/Drivers/STM32H7xx_HAL_Driver/Inc/ -I../../../DaisyExamples/libDaisy/Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I../../../DaisyExamples/libDaisy/Middlewares/ST/STM32_USB_Host_Library/Core/Inc -I../../../DaisyExamples/libDaisy/Middlewares/ST/STM32_USB_Host_Library/Class/MSC/Inc -I../../../DaisyExamples/libDaisy/core/ -I../../../DaisyExamples/DaisySP/Source -I../../../DaisyExamples/libDaisy/Middlewares/Third_Party/FatFs/src -O2 -Wall -Wno-missing-attributes -fasm -fdata-sections -ffunction-sections -Wno-stringop-overflow -g -ggdb -MMD -MP -MF"build/startup_stm32h750xx.d" -std=gnu11 -Wa,-a,-ad,-alms=build/startup_stm32h750xx.lst ../../../DaisyExamples/libDaisy/core/startup_stm32h750xx.c -o build/startup_stm32h750xx.o
+arm-none-eabi-g++  -c -mcpu=cortex-m7 -mthumb -mfpu=fpv5-d16 -mfloat-abi=hard -DPEDAL_MAIN=reso_main -DUSE_HAL_DRIVER -DSTM32H750xx -DHSE_VALUE=16000000  -DCORE_CM7 -DSTM32H750IB -DARM_MATH_CM7 -DUSE_FULL_LL_DRIVER -DBOOT_APP -include stm32h7xx.h -I../../../DaisyExamples/libDaisy -I../../../DaisyExamples/libDaisy/src/ -I../../../DaisyExamples/libDaisy/src/sys -I../../../DaisyExamples/libDaisy/src/usbd -I../../../DaisyExamples/libDaisy/src/usbh -I../../../DaisyExamples/libDaisy/Drivers/CMSIS/Include/ -I../../../DaisyExamples/libDaisy/Drivers/CMSIS/DSP/Include -I../../../DaisyExamples/libDaisy/Drivers/CMSIS/Device/ST/STM32H7xx/Include -I../../../DaisyExamples/libDaisy/Drivers/STM32H7xx_HAL_Driver/Inc/ -I../../../DaisyExamples/libDaisy/Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I../../../DaisyExamples/libDaisy/Middlewares/ST/STM32_USB_Host_Library/Core/Inc -I../../../DaisyExamples/libDaisy/Middlewares/ST/STM32_USB_Host_Library/Class/MSC/Inc -I../../../DaisyExamples/libDaisy/core/ -I../../../DaisyExamples/DaisySP/Source -I../../../DaisyExamples/libDaisy/Middlewares/Third_Party/FatFs/src -O2 -Wall -Wno-missing-attributes -fasm -fdata-sections -ffunction-sections -Wno-stringop-overflow -g -ggdb -MMD -MP -MF"build/pedal.d" -fno-exceptions -fasm -finline -finline-functions-called-once -fshort-enums -fno-move-loop-invariants -fno-unwind-tables -fno-rtti -Wno-register -std=gnu++14 -Wa,-a,-ad,-alms=build/pedal.lst pedal.cpp -o build/pedal.o
+arm-none-eabi-g++  -c -mcpu=cortex-m7 -mthumb -mfpu=fpv5-d16 -mfloat-abi=hard -DPEDAL_MAIN=reso_main -DUSE_HAL_DRIVER -DSTM32H750xx -DHSE_VALUE=16000000  -DCORE_CM7 -DSTM32H750IB -DARM_MATH_CM7 -DUSE_FULL_LL_DRIVER -DBOOT_APP -include stm32h7xx.h -I../../../DaisyExamples/libDaisy -I../../../DaisyExamples/libDaisy/src/ -I../../../DaisyExamples/libDaisy/src/sys -I../../../DaisyExamples/libDaisy/src/usbd -I../../../DaisyExamples/libDaisy/src/usbh -I../../../DaisyExamples/libDaisy/Drivers/CMSIS/Include/ -I../../../DaisyExamples/libDaisy/Drivers/CMSIS/DSP/Include -I../../../DaisyExamples/libDaisy/Drivers/CMSIS/Device/ST/STM32H7xx/Include -I../../../DaisyExamples/libDaisy/Drivers/STM32H7xx_HAL_Driver/Inc/ -I../../../DaisyExamples/libDaisy/Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I../../../DaisyExamples/libDaisy/Middlewares/ST/STM32_USB_Host_Library/Core/Inc -I../../../DaisyExamples/libDaisy/Middlewares/ST/STM32_USB_Host_Library/Class/MSC/Inc -I../../../DaisyExamples/libDaisy/core/ -I../../../DaisyExamples/DaisySP/Source -I../../../DaisyExamples/libDaisy/Middlewares/Third_Party/FatFs/src -O2 -Wall -Wno-missing-attributes -fasm -fdata-sections -ffunction-sections -Wno-stringop-overflow -g -ggdb -MMD -MP -MF"build/spew.d" -fno-exceptions -fasm -finline -finline-functions-called-once -fshort-enums -fno-move-loop-invariants -fno-unwind-tables -fno-rtti -Wno-register -std=gnu++14 -Wa,-a,-ad,-alms=build/spew.lst spew.cpp -o build/spew.o
+arm-none-eabi-g++  -c -mcpu=cortex-m7 -mthumb -mfpu=fpv5-d16 -mfloat-abi=hard -DPEDAL_MAIN=reso_main -DUSE_HAL_DRIVER -DSTM32H750xx -DHSE_VALUE=16000000  -DCORE_CM7 -DSTM32H750IB -DARM_MATH_CM7 -DUSE_FULL_LL_DRIVER -DBOOT_APP -include stm32h7xx.h -I../../../DaisyExamples/libDaisy -I../../../DaisyExamples/libDaisy/src/ -I../../../DaisyExamples/libDaisy/src/sys -I../../../DaisyExamples/libDaisy/src/usbd -I../../../DaisyExamples/libDaisy/src/usbh -I../../../DaisyExamples/libDaisy/Drivers/CMSIS/Include/ -I../../../DaisyExamples/libDaisy/Drivers/CMSIS/DSP/Include -I../../../DaisyExamples/libDaisy/Drivers/CMSIS/Device/ST/STM32H7xx/Include -I../../../DaisyExamples/libDaisy/Drivers/STM32H7xx_HAL_Driver/Inc/ -I../../../DaisyExamples/libDaisy/Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I../../../DaisyExamples/libDaisy/Middlewares/ST/STM32_USB_Host_Library/Core/Inc -I../../../DaisyExamples/libDaisy/Middlewares/ST/STM32_USB_Host_Library/Class/MSC/Inc -I../../../DaisyExamples/libDaisy/core/ -I../../../DaisyExamples/DaisySP/Source -I../../../DaisyExamples/libDaisy/Middlewares/Third_Party/FatFs/src -O2 -Wall -Wno-missing-attributes -fasm -fdata-sections -ffunction-sections -Wno-stringop-overflow -g -ggdb -MMD -MP -MF"build/hw.d" -fno-exceptions -fasm -finline -finline-functions-called-once -fshort-enums -fno-move-loop-invariants -fno-unwind-tables -fno-rtti -Wno-register -std=gnu++14 -Wa,-a,-ad,-alms=build/hw.lst hw.cpp -o build/hw.o
+arm-none-eabi-g++  -c -mcpu=cortex-m7 -mthumb -mfpu=fpv5-d16 -mfloat-abi=hard -DPEDAL_MAIN=reso_main -DUSE_HAL_DRIVER -DSTM32H750xx -DHSE_VALUE=16000000  -DCORE_CM7 -DSTM32H750IB -DARM_MATH_CM7 -DUSE_FULL_LL_DRIVER -DBOOT_APP -include stm32h7xx.h -I../../../DaisyExamples/libDaisy -I../../../DaisyExamples/libDaisy/src/ -I../../../DaisyExamples/libDaisy/src/sys -I../../../DaisyExamples/libDaisy/src/usbd -I../../../DaisyExamples/libDaisy/src/usbh -I../../../DaisyExamples/libDaisy/Drivers/CMSIS/Include/ -I../../../DaisyExamples/libDaisy/Drivers/CMSIS/DSP/Include -I../../../DaisyExamples/libDaisy/Drivers/CMSIS/Device/ST/STM32H7xx/Include -I../../../DaisyExamples/libDaisy/Drivers/STM32H7xx_HAL_Driver/Inc/ -I../../../DaisyExamples/libDaisy/Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I../../../DaisyExamples/libDaisy/Middlewares/ST/STM32_USB_Host_Library/Core/Inc -I../../../DaisyExamples/libDaisy/Middlewares/ST/STM32_USB_Host_Library/Class/MSC/Inc -I../../../DaisyExamples/libDaisy/core/ -I../../../DaisyExamples/DaisySP/Source -I../../../DaisyExamples/libDaisy/Middlewares/Third_Party/FatFs/src -O2 -Wall -Wno-missing-attributes -fasm -fdata-sections -ffunction-sections -Wno-stringop-overflow -g -ggdb -MMD -MP -MF"build/load.d" -fno-exceptions -fasm -finline -finline-functions-called-once -fshort-enums -fno-move-loop-invariants -fno-unwind-tables -fno-rtti -Wno-register -std=gnu++14 -Wa,-a,-ad,-alms=build/load.lst load.cpp -o build/load.o
+arm-none-eabi-g++  build/startup_stm32h750xx.o build/pedal.o build/spew.o build/hw.o build/load.o  -u _printf_float -mcpu=cortex-m7 -mthumb -mfpu=fpv5-d16 -mfloat-abi=hard --specs=nano.specs --specs=nosys.specs -T../../../DaisyExamples/libDaisy/core/STM32H750IB_sram.lds -L ../../board/target/thumbv7em-none-eabihf/debug -L../../../DaisyExamples/libDaisy/build -L ../../../DaisyExamples/DaisySP/build -lpedalboard -ldaisy -lc -lm -lnosys -ldaisysp -Wl,-Map=build/pedal.map,--cref -Wl,--gc-sections -Wl,--print-memory-usage -o build/pedal.elf
+Memory region         Used Size  Region Size  %age Used
+           FLASH:          0 GB       128 KB      0.00%
+         DTCMRAM:       57072 B       128 KB     43.54%
+            SRAM:      169216 B       480 KB     34.43%
+      RAM_D2_DMA:         16 KB        32 KB     50.00%
+          RAM_D2:          0 GB       256 KB      0.00%
+          RAM_D3:          0 GB        64 KB      0.00%
+         ITCMRAM:          0 GB        64 KB      0.00%
+           SDRAM:          0 GB        64 MB      0.00%
+       QSPIFLASH:          0 GB      7936 KB      0.00%
+arm-none-eabi-objcopy -O ihex build/pedal.elf build/pedal.hex
+arm-none-eabi-objcopy -O binary -S build/pedal.elf build/pedal.bin
+~/pedal
+~/pedal/lib/shim ~/pedal
+dfu-util -a 0 -s 0x90040000:leave -D build/pedal.bin -d ,0483:df11
+dfu-util 0.11
+
+Copyright 2005-2009 Weston Schmidt, Harald Welte and OpenMoko Inc.
+Copyright 2010-2021 Tormod Volden and Stefan Schmidt
+This program is Free Software and has ABSOLUTELY NO WARRANTY
+Please report bugs to http://sourceforge.net/p/dfu-util/tickets/
+
+dfu-util: Warning: Invalid DFU suffix signature
+dfu-util: A valid DFU suffix will be required in a future dfu-util release
+dfu-util: No DFU capable USB device available
+make: *** [program-dfu] Error 74
+~/pedal/host ~/pedal
+   Compiling semver-parser v0.7.0
+   Compiling nb v1.1.0
+   Compiling libm v0.2.8
+   Compiling cortex-m v0.7.7
+   Compiling vcell v0.1.3
+   Compiling void v1.0.2
+   Compiling bitfield v0.13.2
+   Compiling libc v0.2.151
+   Compiling nb v0.1.3
+   Compiling volatile-register v0.2.2
+   Compiling linked_list_allocator v0.10.5
+   Compiling embedded-hal v0.2.7
+   Compiling spin v0.9.8
+   Compiling semver v0.9.0
+   Compiling emballoc v0.2.0
+   Compiling hound v3.5.1
+   Compiling rustc_version v0.2.3
+   Compiling bare-metal v0.2.5
+   Compiling shared v0.1.0 (/Users/gmt/pedal/lib/shared)
+   Compiling host v0.1.0 (/Users/gmt/pedal/lib/host)
+   Compiling alloc-cortex-m v0.4.4
+   Compiling board v0.1.0 (/Users/gmt/pedal/lib/board)
+   Compiling pedalhost v0.1.0 (/Users/gmt/pedal/host)
+    Finished dev [unoptimized + debuginfo] target(s) in 0.89s
+     Running `target/debug/sim`
+hound::read::WavSamples<std::io::buffered::bufreader::BufReader<std::fs::File>, i16>
+   Compiling pedalhost v0.1.0 (/Users/gmt/pedal/host)
+    Finished test [unoptimized + debuginfo] target(s) in 0.16s
+     Running unittests src/lib.rs (target/debug/deps/pedalhost-994bc4c140d929cd)
+
+running 1 test
+test tests::atest ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/sim.rs (target/debug/deps/sim-fe1ec9627f1ea22b)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests pedalhost
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+~/pedal
