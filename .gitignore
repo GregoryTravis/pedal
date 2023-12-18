@@ -3,5 +3,6 @@ build
 target
 misc
 out
+all.out
 Cargo.lock
 *.wav
