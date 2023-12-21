@@ -32,14 +32,12 @@ pub fn sim_main(mut patch: Box<dyn Patch>) {
   assert!(!path.is_file());
 
   let mut output_spec = input_spec;
-  output_spec.channels = 2;
+  output_spec.channels = 1;
   let mut writer = hound::WavWriter::create(path, output_spec).unwrap();
   assert_eq!(output_spec, writer.spec());
 
-  let mut left_input_buf: [f32; BATCH_SIZE] = [0.0; BATCH_SIZE];
-  let mut right_input_buf: [f32; BATCH_SIZE] = [0.0; BATCH_SIZE];
-  let mut left_output_buf: [f32; BATCH_SIZE] = [0.0; BATCH_SIZE];
-  let mut right_output_buf: [f32; BATCH_SIZE] = [0.0; BATCH_SIZE];
+  let mut input_buf: [f32; BATCH_SIZE] = [0.0; BATCH_SIZE];
+  let mut output_buf: [f32; BATCH_SIZE] = [0.0; BATCH_SIZE];
 
   let mut time_in_samples: u64 = 0;
 
@@ -53,8 +51,9 @@ pub fn sim_main(mut patch: Box<dyn Patch>) {
         num_frames = input_samples_count / 2;
         assert!(num_frames >= 1 && num_frames <= BATCH_SIZE);
         for i in 0..num_frames {
-          left_input_buf[i] = sample_i16_to_f32(samples.next().unwrap().unwrap());
-          right_input_buf[i] = sample_i16_to_f32(samples.next().unwrap().unwrap());
+          input_buf[i] = sample_i16_to_f32(samples.next().unwrap().unwrap());
+          // Skip right channel
+          samples.next().unwrap().unwrap();
         }
       }
       1 => {
@@ -62,20 +61,17 @@ pub fn sim_main(mut patch: Box<dyn Patch>) {
         num_frames = input_samples_count;
         assert!(num_frames >= 1 && num_frames <= BATCH_SIZE);
         for i in 0..num_frames {
-          left_input_buf[i] = (samples.next().unwrap().unwrap() as f32) / 32768.0;
-          right_input_buf[i] = left_input_buf[i]
+          input_buf[i] = (samples.next().unwrap().unwrap() as f32) / 32768.0;
         }
       }
       _ => assert!(false)
     }
 
     let time_in_seconds : f64 = (time_in_samples as f64) / (input_spec.sample_rate as f64);
-    patch.rust_process_audio(&left_input_buf, &right_input_buf, &mut left_output_buf, &mut right_output_buf,
-                             num_frames, time_in_seconds);
+    patch.rust_process_audio(&input_buf, &mut output_buf, time_in_seconds);
 
     for i in 0..num_frames {
-      writer.write_sample(sample_f32_to_i16(left_output_buf[i])).unwrap();
-      writer.write_sample(sample_f32_to_i16(right_output_buf[i])).unwrap();
+      writer.write_sample(sample_f32_to_i16(output_buf[i])).unwrap();
     }
 
     time_in_samples += num_frames as u64;

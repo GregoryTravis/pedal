@@ -1,6 +1,6 @@
-// https://www.musicdsp.org/en/latest/Filters/29-resonant-filter.html
-
 extern crate libm;
+
+use crate::patch::Patch;
 
 pub struct ResoFilter {
   pub buf0: f32,
@@ -8,15 +8,18 @@ pub struct ResoFilter {
   pub q: f32,
 }
 
+// From https://www.musicdsp.org/en/latest/Filters/29-resonant-filter.html
 impl ResoFilter {
   pub fn new() -> ResoFilter {
     let q = 0.95;
     ResoFilter { buf0: 0.0, buf1: 0.0, q: q }
   }
+}
 
-  pub fn filter(&mut self, input_slice: &[f32], output_slice: &mut [f32], size: usize,
+impl Patch for ResoFilter {
+  fn rust_process_audio(&mut self, input_slice: &[f32], output_slice: &mut [f32],
                 time_in_seconds: f64) {
-    for i in 0..size {
+    for i in 0..input_slice.len() {
       // Rolls over every 68 years
       let osc = libm::sinf(time_in_seconds as f32);
       let max_f = 0.9;
