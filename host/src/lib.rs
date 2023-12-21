@@ -9,6 +9,7 @@ use shared::patch::*;
 use shared::filter::high_pass::*;
 use shared::filter::low_pass::*;
 use shared::filter::reso::*;
+use shared::filter::sine::*;
 
 // TODO pub needed?
 // TODO it's mono so don't do both channels
@@ -50,6 +51,22 @@ pub struct ResoPatch {
 }
 
 impl Patch for ResoPatch  {
+  fn rust_process_audio(&mut self, left_input_slice: &[f32], right_input_slice: &[f32],
+            left_output_slice: &mut [f32], right_output_slice: &mut [f32],
+            size: usize, time_in_seconds: f64) {
+      self.left.filter(left_input_slice, left_output_slice, size, time_in_seconds);
+      self.right.filter(right_input_slice, right_output_slice, size, time_in_seconds);
+  }
+}
+
+// TODO pub needed?
+// TODO it's mono so don't do both channels
+pub struct HalfResoHalfSine {
+  pub left: SineGenerator,
+  pub right: ResoFilter,
+}
+
+impl Patch for HalfResoHalfSine   {
   fn rust_process_audio(&mut self, left_input_slice: &[f32], right_input_slice: &[f32],
             left_output_slice: &mut [f32], right_output_slice: &mut [f32],
             size: usize, time_in_seconds: f64) {
