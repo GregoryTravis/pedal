@@ -9,5 +9,6 @@ edition = "2021"
 for_host = ["hound", "shared"]
 
 [dependencies]
+plotters = "0.3.5"
 hound = { version = "3.5.1", optional = true }
 shared = { path = "../shared", optional = true }

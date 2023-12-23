@@ -1,7 +1,3 @@
-//extern crate host;
-//extern crate shared;
-//extern crate pedalboard
-
 use host::sim::*;
 use shared::filter::reso::*;
 
