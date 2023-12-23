@@ -1,8 +1,10 @@
+use std::ops::Range;
+
 use plotters::prelude::*;
 
 const OUT_FILE_NAME: &str = "plotters-doc-data/sample.png";
-pub fn graphing_main() -> Result<(), Box<dyn std::error::Error>> {
-    let root_area = BitMapBackend::new(OUT_FILE_NAME, (1024, 768)).into_drawing_area();
+pub fn graph2dfun(width: u32, height: u32, x_range: Range<f32>, y_range: Range<f32>, fun: fn(f32) -> f32) -> Result<(), Box<dyn std::error::Error>> {
+    let root_area = BitMapBackend::new(OUT_FILE_NAME, (width, height)).into_drawing_area();
 
     root_area.fill(&WHITE)?;
 
@@ -10,13 +12,14 @@ pub fn graphing_main() -> Result<(), Box<dyn std::error::Error>> {
 
     //let (upper, lower) = root_area.split_vertically(512);
 
-    let x_axis = (-3.4f32..3.4).step(0.1);
+    let step: f32 = (x_range.end - x_range.start) / (width as f32);
+    let x_axis = x_range.clone().step(step);
 
     let mut cc = ChartBuilder::on(&root_area)
         .margin(5)
         .set_all_label_area_size(50)
         .caption("Sine and Cosine", ("sans-serif", 40))
-        .build_cartesian_2d(-3.4f32..3.4, -1.2f32..1.2f32)?;
+        .build_cartesian_2d(x_range, y_range)?;
 
     cc.configure_mesh()
         .x_labels(10)
@@ -26,7 +29,7 @@ pub fn graphing_main() -> Result<(), Box<dyn std::error::Error>> {
         .y_label_formatter(&|v| format!("{:.1}", v))
         .draw()?;
 
-    cc.draw_series(LineSeries::new(x_axis.values().map(|x| (x, x.sin())), &RED))?
+    cc.draw_series(LineSeries::new(x_axis.values().map(|x| (x, fun(x))), &RED))?
         .label("Sine")
         .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], RED));
 
