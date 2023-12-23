@@ -31,7 +31,7 @@ pub fn graph_2d_fun(filename: &str, width: u32, height: u32, x_range: Range<f32>
     cc.configure_series_labels().border_style(BLACK).draw()?;
 
     // To avoid the IO failure being ignored silently, we manually call the present function
-    root_area.present().expect("Unable to write result to file, please make sure 'plotters-doc-data' dir exists under current dir");
+    root_area.present().expect("");
     println!("Result has been saved to {}", filename);
     Ok(())
 }
@@ -72,7 +72,7 @@ pub fn graph_3d_line_fun(filename: &str, width: u32, height: u32, x_range: Range
     chart.configure_series_labels().border_style(BLACK).draw()?;
 
     // To avoid the IO failure being ignored silently, we manually call the present function
-    area.present().expect("Unable to write result to file, please make sure 'plotters-doc-data' dir exists under current dir");
+    area.present().expect("");
     println!("Result has been saved to {}", filename);
     Ok(())
 }
