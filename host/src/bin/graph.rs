@@ -9,6 +9,6 @@ pub fn main() {
     let tt = t*2.0*PI;
     (tt.cos(), tt.sin(), tt)
   };
-  graph_3d_line_fun("out3d.svg", 1024, 768, -3.0..3.0, -3.0..3.0, -3.0..3.0,
+  graph_3d_line_fun("out3d.svg", 1024, 768, -7.0..7.0, -7.0..7.0, -7.0..7.0,
                     canonical_complex_sinusoid, 500).unwrap();
 }
