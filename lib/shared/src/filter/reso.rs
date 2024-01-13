@@ -28,12 +28,11 @@ impl Patch for ResoFilter {
         &mut self,
         input_slice: &[f32],
         output_slice: &mut [f32],
-        playhead: Playhead,
+        mut playhead: Playhead,
     ) {
-        let mut playhead_local = playhead;
         for i in 0..input_slice.len() {
             // Rolls over every 68 years
-            let osc = playhead_local.sinf(1.0/(2.0*PI));
+            let osc = playhead.sinf(1.0/(2.0*PI));
             let max_f = 0.9;
             let min_f = 0.3;
             let oscf = min_f + ((max_f - min_f) * ((osc + 1.0) / 2.0));
@@ -43,7 +42,7 @@ impl Patch for ResoFilter {
             self.buf1 = self.buf1 + oscf * (self.buf0 - self.buf1);
             let out = self.buf1;
             output_slice[i] = out;
-            playhead_local.increment_samples(1);
+            playhead.increment_samples(1);
         }
     }
 }
