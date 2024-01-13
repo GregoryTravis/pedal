@@ -80,9 +80,10 @@ pub extern "C" fn rust_process_audio_stub(
 
             rig.patch
                 .rust_process_audio(right_input_slice, right_output_slice, time_in_seconds);
-            left_output_slice.copy_from_slice(right_output_slice);
 
-            // Mono pedal, so copy right to left
+            // Mono pedal, so copy right output to left output. Left and right outputs are mixed to
+            // the analog mono out, so I'm told.
+            left_output_slice.copy_from_slice(right_output_slice);
 
             rig.inl = left_input_slice[0];
             rig.inr = right_input_slice[0];
