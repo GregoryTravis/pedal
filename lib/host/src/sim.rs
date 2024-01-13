@@ -6,6 +6,7 @@ use std::println;
 
 use hound;
 use shared::patch::Patch;
+use shared::playhead::Playhead;
 
 const BATCH_SIZE: usize = 4;
 
@@ -39,7 +40,7 @@ pub fn sim_main(mut patch: Box<dyn Patch>) {
     let mut input_buf: [f32; BATCH_SIZE] = [0.0; BATCH_SIZE];
     let mut output_buf: [f32; BATCH_SIZE] = [0.0; BATCH_SIZE];
 
-    let mut time_in_samples: u64 = 0;
+    let mut playhead: Playhead = Playhead::new();
 
     let mut num_frames: usize = 0;
 
@@ -67,8 +68,7 @@ pub fn sim_main(mut patch: Box<dyn Patch>) {
             _ => assert!(false),
         }
 
-        let time_in_seconds: f64 = (time_in_samples as f64) / (input_spec.sample_rate as f64);
-        patch.rust_process_audio(&input_buf, &mut output_buf, time_in_seconds);
+        patch.rust_process_audio(&input_buf, &mut output_buf, playhead);
 
         for i in 0..num_frames {
             writer
@@ -76,7 +76,7 @@ pub fn sim_main(mut patch: Box<dyn Patch>) {
                 .unwrap();
         }
 
-        time_in_samples += num_frames as u64;
+        playhead.increment_samples(num_frames as u64);
     }
     writer.finalize().unwrap();
 }

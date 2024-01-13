@@ -7,6 +7,7 @@ extern "C" {
     pub fn spew_ulonglong_c(x: u64);
     pub fn spew_size_t_c(x: usize);
     pub fn spew_float_c(x: f32);
+    pub fn spew_double_c(x: f64);
     pub fn spew_string_c(s: *const core::ffi::c_char);
     pub fn spew_newline_c();
     pub fn spew_space_c();
@@ -44,6 +45,14 @@ impl Spewable for f32 {
     fn do_spew(&self) {
         unsafe {
             spew_float_c(*self);
+        }
+    }
+}
+
+impl Spewable for f64 {
+    fn do_spew(&self) {
+        unsafe {
+            spew_double_c(*self);
         }
     }
 }

@@ -1,6 +1,9 @@
 extern crate libm;
 
+use core::f32::consts::PI;
+
 use crate::patch::Patch;
+use crate::playhead::Playhead;
 
 pub struct ResoFilter {
     pub buf0: f32,
@@ -25,11 +28,11 @@ impl Patch for ResoFilter {
         &mut self,
         input_slice: &[f32],
         output_slice: &mut [f32],
-        time_in_seconds: f64,
+        playhead: Playhead,
     ) {
         for i in 0..input_slice.len() {
             // Rolls over every 68 years
-            let osc = libm::sinf(time_in_seconds as f32);
+            let osc = playhead.sinf(1.0/(2.0*PI));
             let max_f = 0.9;
             let min_f = 0.3;
             let oscf = min_f + ((max_f - min_f) * ((osc + 1.0) / 2.0));

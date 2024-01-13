@@ -16,6 +16,10 @@ extern "C" void spew_float_c(float x) {
   hw.Print("%f", x);
 }
 
+extern "C" void spew_double_c(double x) {
+  hw.Print("%f", x);
+}
+
 extern "C" void spew_string_c(char *s) {
   hw.Print("%s", s);
 }

@@ -10,6 +10,7 @@ use cortex_m::interrupt::{self, Mutex};
 use crate::load::*;
 use crate::spew::*;
 use shared::patch::*;
+use shared::playhead::*;
 
 use crate::glep;
 
@@ -39,7 +40,7 @@ pub struct Rig {
     outl: f32,
     outr: f32,
     framesize: usize,
-    time_in_samples: u64,
+    playhead: Playhead,
 }
 
 pub fn gogogo(box_patch: Box<dyn Patch>) -> i32 {
@@ -47,12 +48,12 @@ pub fn gogogo(box_patch: Box<dyn Patch>) -> i32 {
     // TODO is this use of get_patch() an unnecessary copy?
     let rig = Rig {
         patch: box_patch,
-        time_in_samples: 0,
         inl: 0.0,
         inr: 0.0,
         outl: 0.0,
         outr: 0.0,
         framesize: 0,
+        playhead : Playhead::new(),
     };
     interrupt::free(|cs| THE_PATCH.borrow(cs).replace(Some(rig)));
     unsafe { cpp_main() }
@@ -66,9 +67,6 @@ pub extern "C" fn rust_process_audio_stub(
 ) {
     interrupt::free(|cs| {
         if let Some(ref mut rig) = THE_PATCH.borrow(cs).borrow_mut().deref_mut().as_mut() {
-            //let ilen = len as isize;
-            let time_in_seconds: f64 = (rig.time_in_samples as f64) / 48000.0;
-
             // Mono pedal, so left_input_slice  is unused, except that we dump a value
             let left_input_slice = unsafe { slice::from_raw_parts(*(in_ptr.wrapping_add(0)), len) };
             let right_input_slice =
@@ -79,7 +77,7 @@ pub extern "C" fn rust_process_audio_stub(
                 unsafe { slice::from_raw_parts_mut(*(out_ptr.wrapping_add(1)), len) };
 
             rig.patch
-                .rust_process_audio(right_input_slice, right_output_slice, time_in_seconds);
+                .rust_process_audio(right_input_slice, right_output_slice, rig.playhead);
 
             // Mono pedal, so copy right output to left output. Left and right outputs are mixed to
             // the analog mono out, so I'm told.
@@ -90,7 +88,7 @@ pub extern "C" fn rust_process_audio_stub(
             rig.outl = left_output_slice[0];
             rig.outr = right_output_slice[0];
             rig.framesize = len;
-            rig.time_in_samples += len as u64;
+            rig.playhead.increment_samples(len as u64);
         }
     });
 }
@@ -98,25 +96,25 @@ pub extern "C" fn rust_process_audio_stub(
 #[no_mangle]
 pub fn patch_main() {
     loop {
-        let mut time_in_samples = 0;
         let mut inl: f32 = 0.0;
         let mut inr: f32 = 0.0;
         let mut outl: f32 = 0.0;
         let mut outr: f32 = 0.0;
         let mut framesize: usize = 0;
+        let mut playhead: Playhead = Playhead::new();
 
         interrupt::free(|cs| {
             if let Some(ref mut rig) = THE_PATCH.borrow(cs).borrow_mut().deref_mut().as_mut() {
-                time_in_samples = rig.time_in_samples;
                 inl = rig.inl;
                 inr = rig.inr;
                 outl = rig.outl;
                 outr = rig.outr;
                 framesize = rig.framesize;
+                playhead = rig.playhead;
             }
         });
 
-        glep!(inl, inr, outl, outr, framesize, time_in_samples);
+        glep!(inl, inr, outl, outr, framesize, playhead.time_in_samples(), playhead.time_in_seconds());
 
         show_load();
         delay(500);
