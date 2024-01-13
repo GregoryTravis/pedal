@@ -1,6 +1,6 @@
 use core::f32::consts::PI;
 
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Playhead {
     time_in_samples: u64,
 }
