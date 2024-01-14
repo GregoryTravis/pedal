@@ -3,3 +3,4 @@
 pub mod filter;
 pub mod patch;
 pub mod playhead;
+pub mod signal;
