@@ -12,6 +12,7 @@ use shared::filter::high_pass::*;
 use shared::filter::low_pass::*;
 use shared::filter::reso::*;
 use shared::filter::sine::*;
+use shared::signal::base::Sin;
 
 #[no_mangle]
 pub fn low_pass_main() -> i32 {
@@ -25,7 +26,8 @@ pub fn high_pass_main() -> i32 {
 
 #[no_mangle]
 pub fn reso_main() -> i32 {
-    gogogo(Box::new(ResoFilter::new()))
+    let siner = Sin {};
+    gogogo(Box::new(ResoFilter::new(Box::new(siner))))
 }
 
 #[no_mangle]
