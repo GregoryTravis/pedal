@@ -9,3 +9,16 @@ impl Signal<f32> for Sin {
         libm::sinf(t)
     }
 }
+
+pub struct Const<T> {
+    x: T,
+}
+
+impl<T> Signal<T> for Const<T>
+  where T: Copy + Clone
+{
+    fn f(&self, _t: f32) -> T {
+        self.x
+    }
+}
+
