@@ -2,7 +2,6 @@ extern crate alloc;
 extern crate libm;
 
 use alloc::boxed::Box;
-use core::f32::consts::PI;
 
 use crate::patch::Patch;
 use crate::playhead::Playhead;

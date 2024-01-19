@@ -7,8 +7,13 @@ edition = "2021"
 # Any crates that require std cannot be built for the board, and must be listed
 # here; they must also be configured as optional dependencies.
 for_host = ["hound", "shared"]
+bin = ["hound"]
 
 [dependencies]
 plotters = "0.3.5"
 hound = { version = "3.5.1", optional = true }
 shared = { path = "../shared", optional = true }
+
+[[bin]]
+name = "compare_wavs"
+required-features = ["hound"]
