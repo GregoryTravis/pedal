@@ -15,10 +15,9 @@ pub struct Const<T> {
 }
 
 impl<T> Signal<T> for Const<T>
-  where T: Copy + Clone
+  where T: Copy + Clone + Send
 {
     fn f(&self, _t: f32) -> T {
         self.x
     }
 }
-
