@@ -1,12 +1,10 @@
 extern crate alloc;
 extern crate libm;
 
-use alloc::boxed::Box;
 
 use crate::patch::Patch;
 use crate::playhead::Playhead;
 use crate::signal::base::Sin;
-use crate::signal::combinators::Scale;
 use crate::signal::Signal;
 
 pub struct ResoFilter {
@@ -36,7 +34,7 @@ impl Patch for ResoFilter {
     ) {
         for i in 0..input_slice.len() {
             // Rolls over every 68 years
-            let siner = Scale { signal: Box::new(Sin {}), s: 1.0 };
+            let siner = Sin {};
             let osc = siner.f(playhead.time_in_seconds() as f32);
             let max_f = 0.9;
             let min_f = 0.3;
