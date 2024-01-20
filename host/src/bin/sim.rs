@@ -7,6 +7,7 @@ use host::sim::*;
 use shared::filter::delay::*;
 use shared::filter::pass_thru::*;
 use shared::filter::reso::*;
+use shared::filter::tremolo::*;
 use shared::signal::base::*;
 use shared::signal::combinators::*;
 
@@ -27,6 +28,11 @@ fn pass_thru() {
     sim_main(Box::new(PassThruFilter {}));
 }
 
+#[allow(dead_code)]
+fn tremolo() {
+    sim_main(Box::new(Tremolo::new()));
+}
+
 pub fn main() {
-    delay();
+    tremolo();
 }
