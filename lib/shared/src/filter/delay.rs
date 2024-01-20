@@ -7,7 +7,7 @@ use crate::patch::Patch;
 use crate::playhead::Playhead;
 
 pub struct Delay {
-    cbuf: CircularBuffer::<4, f32>,
+    pub cbuf: CircularBuffer::<4, f32>,
 }
 
 impl Delay {
@@ -19,11 +19,20 @@ impl Delay {
 impl Patch for Delay {
     fn rust_process_audio(
         &mut self,
-        _input_slice: &[f32],
-        _output_slice: &mut [f32],
+        input_slice: &[f32],
+        output_slice: &mut [f32],
         mut _playhead: Playhead,
     ) {
-        self.cbuf.push_back(1.2);
-        // assert_eq!(self.cbuf, [1.2]);
+        for i in 0..input_slice.len() {
+            let inp = input_slice[i];
+            let out: f32;
+            if self.cbuf.len() < 4 {
+                out = 0.0;
+            } else {
+                out = *self.cbuf.front().unwrap();
+            }
+            self.cbuf.push_back(inp);
+            output_slice[i] = out;
+        }
     }
 }

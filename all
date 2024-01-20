@@ -2,4 +2,4 @@
  push-board && \
  pushd host && g && ./t && popd) | tee all.out
 echo ========
-fs bdiff all.out golden.all.out
+fs bdiff all.out golden.all.out | grep -v "Finished dev .unoptimized + debuginfo. target.s. in "

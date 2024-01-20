@@ -4,8 +4,9 @@ use alloc::boxed::Box;
 use alloc::sync::Arc;
 
 use host::sim::*;
-use shared::filter::reso::*;
 use shared::filter::delay::*;
+use shared::filter::pass_thru::*;
+use shared::filter::reso::*;
 use shared::signal::base::*;
 use shared::signal::combinators::*;
 
@@ -16,8 +17,14 @@ fn reso() {
     sim_main(Box::new(ResoFilter::new(Arc::new(siner), Arc::new(q))));
 }
 
+#[allow(dead_code)]
 fn delay() {
     sim_main(Box::new(Delay::new()));
+}
+
+#[allow(dead_code)]
+fn pass_thru() {
+    sim_main(Box::new(PassThruFilter {}));
 }
 
 pub fn main() {

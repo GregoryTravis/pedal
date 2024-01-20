@@ -17,3 +17,7 @@ shared = { path = "../shared", optional = true }
 [[bin]]
 name = "compare_wavs"
 required-features = ["hound"]
+
+[[bin]]
+name = "dump"
+required-features = ["hound"]

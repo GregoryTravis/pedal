@@ -7,6 +7,7 @@ use hound;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
+    assert_eq!(args.len(), 3);
     let mut reader0 = hound::WavReader::open(&args[1]).unwrap();
     let mut reader1 = hound::WavReader::open(&args[2]).unwrap();
     let input_spec0 = reader0.spec();
