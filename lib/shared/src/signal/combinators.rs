@@ -4,13 +4,28 @@ use alloc::boxed::Box;
 
 use crate::signal::Signal;
 
-pub struct Scale {
+pub struct ScaleTime {
     pub signal: Box<dyn Signal<f32>>,
     pub s: f32,
 }
 
-impl Signal<f32> for Scale {
+impl Signal<f32> for ScaleTime {
     fn f(&self, t: f32) -> f32 {
         self.signal.f(t * self.s)
+    }
+}
+
+pub struct PostCompose<T>
+  where T: Send
+{
+    pub signal: Box<dyn Signal<T>>,
+    pub ff: dyn Fn(T) -> T + Send + 'static,
+}
+
+impl<T> Signal<T> for PostCompose<T>
+  where T: Send
+{
+    fn f(&self, t: f32) -> T {
+        (self.ff)(self.signal.f(t))
     }
 }
