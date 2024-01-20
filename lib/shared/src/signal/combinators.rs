@@ -1,7 +1,6 @@
 extern crate alloc;
 
 use alloc::sync::Arc;
-//use core::ops::Add;
 
 use crate::signal::Signal;
 
@@ -16,10 +15,9 @@ impl Signal<f32> for ScaleTime {
     }
 }
 
-/*
 pub struct Adder {
-    pub a: Box<dyn Signal<f32>>,
-    pub b: Box<dyn Signal<f32>>,
+    pub a: Arc<dyn Signal<f32>>,
+    pub b: Arc<dyn Signal<f32>>,
 }
 
 impl Signal<f32> for Adder {
@@ -28,10 +26,15 @@ impl Signal<f32> for Adder {
     }
 }
 
-impl Add<Box<dyn Signal<f32>>> for Box<dyn Signal<f32>> {
+pub fn add(a: &Arc<dyn Signal<f32>>, b: &Arc<dyn Signal<f32>>) -> Arc<dyn Signal<f32>> {
+    Arc::new(Adder { a: a.clone(), b: b.clone() })
+}
+
+/*
+impl Add<Arc<dyn Signal<f32>>> for Arc<dyn Signal<f32>> {
     type Output = Self;
     fn add(self, other: Self) -> Self {
-        Box::new(Adder { a: self, b: other })
+        Arc::new(Adder { a: self, b: other })
     }
 }
 */

@@ -6,6 +6,7 @@ use alloc::sync::Arc;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
 use crate::signal::Signal;
+use crate::signal::combinators::*;
 
 pub struct ResoFilter {
     pub buf0: f32,
@@ -38,7 +39,7 @@ impl Patch for ResoFilter {
             let t = playhead.time_in_seconds() as f32;
             let oscf = self.siner.f(t);
             let q = self.q_sig.f(t);
-            //let qq = self.q_sig + self.q_sig;
+            //let _qq = add(&self.q_sig, &self.q_sig);
             let fb = q + q / (1.0 - oscf);
             let inp = input_slice[i];
             self.buf0 = self.buf0 + oscf * (inp - self.buf0 + fb * (self.buf0 - self.buf1));
