@@ -1,12 +1,12 @@
 extern crate alloc;
 
-use alloc::boxed::Box;
+use alloc::sync::Arc;
 //use core::ops::Add;
 
 use crate::signal::Signal;
 
 pub struct ScaleTime {
-    pub signal: Box<dyn Signal<f32>>,
+    pub signal: Arc<dyn Signal<f32>>,
     pub s: f32,
 }
 
@@ -39,12 +39,12 @@ impl Add<Box<dyn Signal<f32>>> for Box<dyn Signal<f32>> {
 pub struct PostCompose<T>
   where T: Send
 {
-    pub signal: Box<dyn Signal<T>>,
-    pub ff: Box<dyn Fn(T) -> T + Send + 'static>,
+    pub signal: Arc<dyn Signal<T>>,
+    pub ff: Arc<dyn Fn(T) -> T + Send + Sync + 'static>,
 }
 
 impl<T> Signal<T> for PostCompose<T>
-  where T: Send
+  where T: Send + Sync
 {
     fn f(&self, t: f32) -> T {
         (self.ff)(self.signal.f(t))
@@ -52,6 +52,6 @@ impl<T> Signal<T> for PostCompose<T>
 }
 
 // Scale -1..1 to a..b
-pub fn scale_range(a: f32, b: f32) -> Box<dyn Fn(f32) -> f32 + Send + 'static> {
-    Box::new(move |x| a + ((b - a) * ((x + 1.0) / 2.0)))
+pub fn scale_range(a: f32, b: f32) -> Arc<dyn Fn(f32) -> f32 + Send + Sync + 'static> {
+    Arc::new(move |x| a + ((b - a) * ((x + 1.0) / 2.0)))
 }

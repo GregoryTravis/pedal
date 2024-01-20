@@ -1,7 +1,7 @@
 extern crate alloc;
 extern crate libm;
 
-use alloc::boxed::Box;
+use alloc::sync::Arc;
 
 use crate::patch::Patch;
 use crate::playhead::Playhead;
@@ -10,13 +10,13 @@ use crate::signal::Signal;
 pub struct ResoFilter {
     pub buf0: f32,
     pub buf1: f32,
-    pub q_sig: Box<dyn Signal<f32>>,
-    pub siner: Box<dyn Signal<f32>>,
+    pub q_sig: Arc<dyn Signal<f32>>,
+    pub siner: Arc<dyn Signal<f32>>,
 }
 
 // From https://www.musicdsp.org/en/latest/Filters/29-resonant-filter.html
 impl ResoFilter {
-    pub fn new(siner: Box<dyn Signal<f32>>, q_sig: Box<dyn Signal<f32>>) -> ResoFilter {
+    pub fn new(siner: Arc<dyn Signal<f32>>, q_sig: Arc<dyn Signal<f32>>) -> ResoFilter {
         ResoFilter {
             buf0: 0.0,
             buf1: 0.0,
