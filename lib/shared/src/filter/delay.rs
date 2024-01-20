@@ -7,7 +7,7 @@ use crate::patch::Patch;
 use crate::playhead::Playhead;
 
 pub struct Delay {
-    pub cbuf: CircularBuffer::<4, f32>,
+    cbuf: CircularBuffer::<4, f32>,
 }
 
 impl Delay {
