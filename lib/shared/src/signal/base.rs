@@ -11,7 +11,7 @@ impl Signal<f32> for Sin {
 }
 
 pub struct Const<T> {
-    x: T,
+    pub x: T,
 }
 
 impl<T> Signal<T> for Const<T>
