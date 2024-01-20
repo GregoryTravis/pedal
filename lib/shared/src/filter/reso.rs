@@ -36,10 +36,7 @@ impl Patch for ResoFilter {
     ) {
         for i in 0..input_slice.len() {
             // Rolls over every 68 years
-            let osc = self.siner.f(playhead.time_in_seconds() as f32);
-            let max_f = 0.9;
-            let min_f = 0.3;
-            let oscf = min_f + ((max_f - min_f) * ((osc + 1.0) / 2.0));
+            let oscf = self.siner.f(playhead.time_in_seconds() as f32);
             let fb = self.q + self.q / (1.0 - oscf);
             let inp = input_slice[i];
             self.buf0 = self.buf0 + oscf * (inp - self.buf0 + fb * (self.buf0 - self.buf1));
