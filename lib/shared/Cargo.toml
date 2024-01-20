@@ -5,3 +5,4 @@ edition = "2021"
 
 [dependencies]
 libm = "0.2.8"
+circular-buffer = { version = "0.1.6", features = [], default-features = false }
