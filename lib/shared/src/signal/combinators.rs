@@ -1,6 +1,7 @@
 extern crate alloc;
 
 use alloc::boxed::Box;
+//use core::ops::Add;
 
 use crate::signal::Signal;
 
@@ -14,6 +15,26 @@ impl Signal<f32> for ScaleTime {
         self.signal.f(t * self.s)
     }
 }
+
+/*
+pub struct Adder {
+    pub a: Box<dyn Signal<f32>>,
+    pub b: Box<dyn Signal<f32>>,
+}
+
+impl Signal<f32> for Adder {
+    fn f(&self, t: f32) -> f32 {
+        self.a.f(t) + self.b.f(t)
+    }
+}
+
+impl Add<Box<dyn Signal<f32>>> for Box<dyn Signal<f32>> {
+    type Output = Self;
+    fn add(self, other: Self) -> Self {
+        Box::new(Adder { a: self, b: other })
+    }
+}
+*/
 
 pub struct PostCompose<T>
   where T: Send
