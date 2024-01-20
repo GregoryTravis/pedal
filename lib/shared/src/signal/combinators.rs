@@ -30,15 +30,6 @@ pub fn add(a: &Arc<dyn Signal<f32>>, b: &Arc<dyn Signal<f32>>) -> Arc<dyn Signal
     Arc::new(Adder { a: a.clone(), b: b.clone() })
 }
 
-/*
-impl Add<Arc<dyn Signal<f32>>> for Arc<dyn Signal<f32>> {
-    type Output = Self;
-    fn add(self, other: Self) -> Self {
-        Arc::new(Adder { a: self, b: other })
-    }
-}
-*/
-
 pub struct PostCompose<T>
   where T: Send
 {
