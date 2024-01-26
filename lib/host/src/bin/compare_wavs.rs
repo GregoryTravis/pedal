@@ -5,6 +5,8 @@ use std::println;
 
 use hound;
 
+use shared::convert::*;
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     assert_eq!(args.len(), 3);
@@ -24,8 +26,8 @@ fn main() {
 
             while samples0.len() > 0 {
                 assert!(samples0.len() == samples1.len());
-                let sample0: f32 = (samples0.next().unwrap().unwrap() as f32) / 32768.0;
-                let sample1: f32 = (samples1.next().unwrap().unwrap() as f32) / 32768.0;
+                let sample0: f32 = sample_i16_to_f32(samples0.next().unwrap().unwrap());
+                let sample1: f32 = sample_i16_to_f32(samples1.next().unwrap().unwrap());
                 let diff = sample0 - sample1;
                 total_diff_squared += diff * diff;
             }

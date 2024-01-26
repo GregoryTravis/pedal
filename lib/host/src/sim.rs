@@ -5,6 +5,7 @@ use std::path::Path;
 use std::println;
 
 use hound;
+use shared::convert::*;
 use shared::patch::Patch;
 use shared::playhead::Playhead;
 
@@ -14,22 +15,14 @@ fn print_type_of<T>(_: &T) {
     println!("{}", std::any::type_name::<T>())
 }
 
-fn sample_i16_to_f32(x: i16) -> f32 {
-    (x as f32) / 32768.0
-}
-
-fn sample_f32_to_i16(x: f32) -> i16 {
-    ((x * 32767.0) as i16).try_into().unwrap()
-}
-
-pub fn sim_main(mut patch: Box<dyn Patch>) {
-    let mut reader = hound::WavReader::open("fd.wav").unwrap();
+pub fn sim_main(input_file: &str, output_file: &str, mut patch: Box<dyn Patch>) {
+    let mut reader = hound::WavReader::open(input_file).unwrap();
     let input_spec = reader.spec();
     assert!(input_spec.channels == 1 || input_spec.channels == 2);
     let mut samples = reader.samples::<i16>();
     print_type_of(&samples);
 
-    let path: &Path = "out.wav".as_ref();
+    let path: &Path = output_file.as_ref();
     assert!(!path.is_file());
 
     let mut output_spec = input_spec;
@@ -79,4 +72,37 @@ pub fn sim_main(mut patch: Box<dyn Patch>) {
         playhead.increment_samples(num_frames as u64);
     }
     writer.finalize().unwrap();
+}
+
+pub fn sim_run_patch_on_buffer(mut patch: Box<dyn Patch>, input: &[f32]) -> Box<[f32]> {
+    let len = input.len();
+    let mut output: Vec<f32> = vec![0.0; len];
+
+    let mut playhead: Playhead = Playhead::new();
+
+    let mut sofar = 0;
+    while sofar < len {
+        let start = sofar;
+        let end = min(sofar + BATCH_SIZE, len);
+        println!("rpob {} {} {} {}", sofar, len, start, end);
+        let sub_input = &input[start..end];
+        let mut sub_output: &mut [f32] = &mut output[start..end];
+//let body_slice: &mut [u8] = &mut myvec[10..1034];
+        patch.rust_process_audio(&sub_input, &mut sub_output, playhead);
+        playhead.increment_samples(BATCH_SIZE as u64);
+        sofar += BATCH_SIZE;
+    }
+
+    output.into_boxed_slice()
+}
+
+pub fn sim_ramp_patch(patch: Box<dyn Patch>, num_samples: usize) {
+    let mut input: Vec<f32> = vec![0.0; num_samples];
+    for i in 0..num_samples {
+        input[i] = i as f32;
+    }
+    let output = sim_run_patch_on_buffer(patch, input.as_slice());
+    for i in 0..num_samples {
+        println!("ramp {} {}", i, output[i]);
+    }
 }

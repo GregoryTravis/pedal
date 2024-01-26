@@ -46,7 +46,7 @@ impl Patch for ResoFilter {
             self.buf1 = self.buf1 + oscf * (self.buf0 - self.buf1);
             let out = self.buf1;
             output_slice[i] = out;
-            playhead.increment_samples(1);
+            playhead.inc();
         }
     }
 }

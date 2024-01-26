@@ -10,8 +10,9 @@ for_host = ["hound", "shared"]
 bin = ["hound"]
 
 [dependencies]
-plotters = "0.3.5"
 hound = { version = "3.5.1", optional = true }
+libm = "0.2.8"
+plotters = "0.3.5"
 shared = { path = "../shared", optional = true }
 
 [[bin]]
