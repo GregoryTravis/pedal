@@ -2,8 +2,8 @@ extern crate alloc;
 
 use alloc::boxed::Box;
 
-use host::sim::*;
 use shared::filter::tremolo::*;
+use shared::sim::*;
 
 #[allow(dead_code)]
 fn tremolo() {

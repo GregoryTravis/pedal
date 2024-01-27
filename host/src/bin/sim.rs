@@ -4,13 +4,13 @@ use std::env;
 use alloc::boxed::Box;
 use alloc::sync::Arc;
 
-use host::sim::*;
 use shared::filter::delay::*;
 use shared::filter::pass_thru::*;
 use shared::filter::reso::*;
 use shared::filter::tremolo::*;
 use shared::signal::base::*;
 use shared::signal::combinators::*;
+use shared::sim::*;
 
 #[allow(dead_code)]
 fn reso(input_file: &str, output_file: &str) {

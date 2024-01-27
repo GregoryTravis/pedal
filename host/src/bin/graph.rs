@@ -1,6 +1,6 @@
 use core::f32::consts::PI;
 
-use host::graphing::*;
+use shared::graphing::*;
 
 pub fn main() {
     let fun: fn(f32) -> f32 = |x| (x * 10.0).sin();

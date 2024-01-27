@@ -1,5 +1,5 @@
 rm -f out.wav tremsine.wav
-#cargo run --bin ramp --features for_host 2>&1 | tee out
+cargo run --bin ramp --features for_host 2>&1 | tee out
 cargo run --bin sim --features for_host -- sine.wav tremsine.wav 2>&1 | tee out
-#cargo run --bin graph --features for_host 2>&1 | tee out
-#cargo build --lib --features for_host
+cargo run --bin graph --features for_host 2>&1 | tee out
+cargo build --lib --features for_host 2>&1 | tee out
