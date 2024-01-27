@@ -1,9 +1,14 @@
-rm -f naout
+rm -f new-all.out
 
-./cln 2>&1 | tee -a naout
+./cln 2>&1 | tee -a new-all.out
 
 (pushd lib/shared ; ./build-all ; popd ; \
   pushd board ; ./build-all ; popd ; \
-  pushd host ; ./build-all ; popd) 2>&1 | tee -a naout
+  pushd host ; ./build-all ; popd) 2>&1 | tee -a new-all.out
 
-./push-board 2>&1 | tee -a naout
+./push-board 2>&1 | tee -a new-all.out
+
+echo ========
+fs bdiff new-all.out golden.new-all.out | \
+  grep -v "Finished dev .unoptimized + debuginfo. target.s. in " | \
+  grep -v "Finished test .unoptimized + debuginfo. target.s. in "
