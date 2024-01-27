@@ -9,7 +9,6 @@ pub mod load;
 pub mod patch;
 pub mod playhead;
 pub mod rig;
-#[cfg(feature = "for_host")]
 pub mod signal;
 #[cfg(feature = "for_host")]
 pub mod sim;
