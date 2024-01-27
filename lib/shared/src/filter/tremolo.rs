@@ -27,7 +27,8 @@ const NOW_INDEX: usize = MAX_SAMPLE_DEVIATION + NUM_SINC_TAPS_ONE_SIDE + GUARD_S
 const TREMOLO_FREQUENCY: f32 = 1.0;
 
 fn sinc(x: f32) -> f32 {
-    if x == 0.0 {
+    let small = 0.000000001;
+    if x < small || x > -small {
         1.0
     } else {
         libm::sinf(x) / x
