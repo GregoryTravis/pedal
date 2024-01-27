@@ -1,13 +1,17 @@
 extern crate std;
+extern crate alloc;
 
 use std::cmp::min;
+use alloc::boxed::Box;
 use std::path::Path;
 use std::println;
+use std::vec;
+use std::vec::Vec;
 
 use hound;
-use shared::convert::*;
-use shared::patch::Patch;
-use shared::playhead::Playhead;
+use crate::convert::*;
+use crate::patch::Patch;
+use crate::playhead::Playhead;
 
 const BATCH_SIZE: usize = 4;
 

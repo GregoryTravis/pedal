@@ -9,8 +9,8 @@ use cortex_m::interrupt::{self, Mutex};
 
 use crate::load::*;
 use crate::spew::*;
-use shared::patch::*;
-use shared::playhead::*;
+use crate::patch::*;
+use crate::playhead::*;
 
 use crate::glep;
 

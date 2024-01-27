@@ -1,5 +1,12 @@
-use std::ops::Range;
+extern crate std;
+extern crate alloc;
 
+use alloc::boxed::Box;
+use alloc::string::ToString;
+use std::format;
+use std::ops::Range;
+use std::println;
+use std::vec;
 use plotters::prelude::full_palette::GREY_500;
 use plotters::prelude::*;
 

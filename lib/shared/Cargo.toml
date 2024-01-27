@@ -3,6 +3,26 @@ name = "shared"
 version = "0.1.0"
 edition = "2021"
 
+[features]
+# Any crates that require std cannot be built for the board, and must be listed
+# here; they must also be configured as optional dependencies.
+for_host = ["hound"]
+bin = ["hound"]
+
 [dependencies]
-libm = "0.2.8"
+alloc-cortex-m = { version = "0.4.4"}
 circular-buffer = { version = "0.1.6", features = [], default-features = false }
+cortex-m = "0.7.7"
+emballoc = "0.2.0"
+hound = { version = "3.5.1", optional = true }
+libc = "0.2"
+libm = "0.2.8"
+plotters = "0.3.5"
+
+[[bin]]
+name = "compare_wavs"
+required-features = ["hound"]
+
+[[bin]]
+name = "dump"
+required-features = ["hound"]
