@@ -10,8 +10,11 @@ C_DEFS  ?= -DPEDAL_MAIN=$(PEDAL_MAIN)
 
 LDFLAGS += -u _printf_float
 
-clean_exes:
+clean_exes: clean_pedal_dependent_o
 	rm -f build/pedal.{bin,hex,map,elf}
+
+clean_pedal_dependent_o:
+	rm -f build/pedal.o
 
 # Sources
 CPP_SOURCES = pedal.cpp spew.cpp hw.cpp load.cpp

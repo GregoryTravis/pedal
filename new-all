@@ -1,8 +1,6 @@
 rm -f naout
 
-(pushd lib/shared ; cargo clean ; popd ; \
-  pushd board ; cargo clean ; popd ; \
-  pushd host ; cargo clean ; popd) 2>&1 | tee -a naout
+./cln 2>&1 | tee -a naout
 
 (pushd lib/shared ; g ; popd ; \
   pushd board ; g ; popd ; \

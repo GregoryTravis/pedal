@@ -1,6 +1,4 @@
-pushd lib/board && cargo clean && popd && \
 pushd lib/shared && cargo clean && popd && \
-pushd lib/host && cargo clean && popd && \
 pushd lib/shim && make clean && make clean_exes && popd && \
 pushd board && cargo clean && popd && \
 pushd host && cargo clean && popd
