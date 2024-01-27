@@ -1,18 +1,18 @@
 #![no_std]
 
 extern crate alloc;
-extern crate board;
+//extern crate board;
 extern crate pedalhost;
 extern crate shared;
 
 use alloc::boxed::Box;
 use alloc::sync::Arc;
 
-use board::rig::*;
 use shared::filter::high_pass::*;
 use shared::filter::low_pass::*;
 use shared::filter::reso::*;
 use shared::filter::sine::*;
+use shared::rig::*;
 use shared::signal::base::*;
 use shared::signal::combinators::*;
 
