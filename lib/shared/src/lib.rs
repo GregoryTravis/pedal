@@ -1,7 +1,9 @@
 #![cfg_attr(not(for_host), no_std)]
 
+pub mod canned_sound;
 pub mod convert;
 pub mod constants;
+pub mod dilly;
 pub mod filter;
 #[cfg(feature = "for_host")]
 pub mod graphing;

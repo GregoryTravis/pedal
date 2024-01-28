@@ -7,12 +7,13 @@ use core::slice;
 
 use cortex_m::interrupt::{self, Mutex};
 
+use crate::canned_sound::*;
+use crate::dilly::*;
+use crate::glep;
 use crate::load::*;
 use crate::spew::*;
 use crate::patch::*;
 use crate::playhead::*;
-
-use crate::glep;
 
 extern "C" {
     pub fn UnsafeDelay(delay_ms: u32);
@@ -33,8 +34,16 @@ static THE_PATCH: Mutex<RefCell<Option<Rig>>> = Mutex::new(RefCell::new(None));
 #[global_allocator]
 static ALLOCATOR: emballoc::Allocator<32768> = emballoc::Allocator::new();
 
+const DO_DILLY: bool = true;
+
+enum PatchOrDilly {
+    PODPatch(Box<dyn Patch>),
+    PODDilly(Box<Dilly>),
+}
+
 pub struct Rig {
-    patch: Box<dyn Patch>,
+    //patch_or_dilly: Either<Box<Dilly>, Box<dyn Patch>>,
+    patch_or_dilly: PatchOrDilly,
     inl: f32,
     inr: f32,
     outl: f32,
@@ -43,11 +52,46 @@ pub struct Rig {
     playhead: Playhead,
 }
 
+impl Rig {
+    /*
+    fn get_patch(&self) -> &Box<dyn Patch> {
+        match self.patch_or_dilly {
+            PatchOrDilly::PODPatch(dynPatch) => &dynPatch,
+            PatchOrDilly::PODDilly(dilly) => &(dilly as Box<dyn Patch>),
+        }
+    }
+    */
+
+    fn dump_dilly_maybe(&mut self) {
+        match &mut self.patch_or_dilly {
+            PatchOrDilly::PODPatch(_patch) => {},
+            PatchOrDilly::PODDilly(dilly) => {
+                dilly.dump_maybe()
+            }
+        }
+        /*
+        if self.patch_or_dilly.is_left() {
+            self.patch_or_dilly.left().dump_maybe();
+        }
+        */
+    }
+}
+
 pub fn gogogo(box_patch: Box<dyn Patch>) -> i32 {
+    // TODO
     // The audio handler must be installed AFTER this line.
-    // TODO is this use of get_patch() an unnecessary copy?
+
+    let patch_or_dilly: PatchOrDilly;
+    if DO_DILLY {
+        patch_or_dilly = PatchOrDilly::PODDilly(Box::new(Dilly::new(box_patch, Box::new(CANNED_SOUND_0))));
+        //patch_or_dilly = Left(Box::new(Dilly::new(box_patch, canned_sound_0)));
+    } else {
+        patch_or_dilly = PatchOrDilly::PODPatch(box_patch);
+        //patch_or_dilly = Right(box_patch);
+    }
+
     let rig = Rig {
-        patch: box_patch,
+        patch_or_dilly: patch_or_dilly,
         inl: 0.0,
         inr: 0.0,
         outl: 0.0,
@@ -76,8 +120,18 @@ pub extern "C" fn rust_process_audio_stub(
             let right_output_slice =
                 unsafe { slice::from_raw_parts_mut(*(out_ptr.wrapping_add(1)), len) };
 
-            rig.patch
-                .rust_process_audio(right_input_slice, right_output_slice, rig.playhead);
+            // TODO: Factor this into a helper.
+            match &mut rig.patch_or_dilly {
+                PatchOrDilly::PODPatch(patch) => {
+                    patch
+                        .rust_process_audio(right_input_slice, right_output_slice, rig.playhead);
+                },
+                PatchOrDilly::PODDilly(dilly) => {
+                    //(*dilly as Box<dyn Patch>)
+                    dilly
+                        .rust_process_audio(right_input_slice, right_output_slice, rig.playhead);
+                },
+            }
 
             // Mono pedal, so copy right output to left output. Left and right outputs are mixed to
             // the analog mono out, so I'm told.
@@ -111,6 +165,7 @@ pub fn patch_main() {
                 outr = rig.outr;
                 framesize = rig.framesize;
                 playhead = rig.playhead;
+                //rig.dump_dilly_maybe();
             }
         });
 
