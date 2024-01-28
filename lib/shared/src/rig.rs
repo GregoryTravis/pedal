@@ -36,14 +36,9 @@ static ALLOCATOR: emballoc::Allocator<32768> = emballoc::Allocator::new();
 
 const DO_DILLY: bool = true;
 
-enum PatchOrDilly {
-    PODPatch(Box<dyn Patch>),
-    PODDilly(Box<Dilly>),
-}
-
 pub struct Rig {
-    //patch_or_dilly: Either<Box<Dilly>, Box<dyn Patch>>,
-    patch_or_dilly: PatchOrDilly,
+    patch: Box<dyn Patch>,
+    dilly: Option<Box<Dilly>>,
     inl: f32,
     inr: f32,
     outl: f32,
@@ -54,44 +49,26 @@ pub struct Rig {
 
 impl Rig {
     /*
-    fn get_patch(&self) -> &Box<dyn Patch> {
-        match self.patch_or_dilly {
-            PatchOrDilly::PODPatch(dynPatch) => &dynPatch,
-            PatchOrDilly::PODDilly(dilly) => &(dilly as Box<dyn Patch>),
+    fn dump_dilly_maybe(&mut self) {
+        match &mut self.dilly {
+            Some(dilly) => {
+                dilly.dump_maybe();
+            },
+            None => {},
         }
     }
     */
-
-    fn dump_dilly_maybe(&mut self) {
-        match &mut self.patch_or_dilly {
-            PatchOrDilly::PODPatch(_patch) => {},
-            PatchOrDilly::PODDilly(dilly) => {
-                dilly.dump_maybe()
-            }
-        }
-        /*
-        if self.patch_or_dilly.is_left() {
-            self.patch_or_dilly.left().dump_maybe();
-        }
-        */
-    }
 }
 
 pub fn gogogo(box_patch: Box<dyn Patch>) -> i32 {
     // TODO
     // The audio handler must be installed AFTER this line.
 
-    let patch_or_dilly: PatchOrDilly;
-    if DO_DILLY {
-        patch_or_dilly = PatchOrDilly::PODDilly(Box::new(Dilly::new(box_patch, Box::new(CANNED_SOUND_0))));
-        //patch_or_dilly = Left(Box::new(Dilly::new(box_patch, canned_sound_0)));
-    } else {
-        patch_or_dilly = PatchOrDilly::PODPatch(box_patch);
-        //patch_or_dilly = Right(box_patch);
-    }
+    let dilly_maybe = if DO_DILLY { Some(Box::new(Dilly::new(Box::new(CANNED_SOUND_0)))) } else { None };
 
     let rig = Rig {
-        patch_or_dilly: patch_or_dilly,
+        patch: box_patch,
+        dilly: dilly_maybe,
         inl: 0.0,
         inr: 0.0,
         outl: 0.0,
@@ -121,15 +98,12 @@ pub extern "C" fn rust_process_audio_stub(
                 unsafe { slice::from_raw_parts_mut(*(out_ptr.wrapping_add(1)), len) };
 
             // TODO: Factor this into a helper.
-            match &mut rig.patch_or_dilly {
-                PatchOrDilly::PODPatch(patch) => {
-                    patch
-                        .rust_process_audio(right_input_slice, right_output_slice, rig.playhead);
+            match &mut rig.dilly {
+                Some(dilly) => {
+                    dilly.rust_process_audio(&mut rig.patch, right_input_slice, right_output_slice, rig.playhead);
                 },
-                PatchOrDilly::PODDilly(dilly) => {
-                    //(*dilly as Box<dyn Patch>)
-                    dilly
-                        .rust_process_audio(right_input_slice, right_output_slice, rig.playhead);
+                None => {
+                    rig.patch.rust_process_audio(right_input_slice, right_output_slice, rig.playhead);
                 },
             }
 
@@ -156,6 +130,7 @@ pub fn patch_main() {
         let mut outr: f32 = 0.0;
         let mut framesize: usize = 0;
         let mut playhead: Playhead = Playhead::new();
+        let mut dilly_maybe: Option<Box<Dilly>> = None;
 
         interrupt::free(|cs| {
             if let Some(ref mut rig) = THE_PATCH.borrow(cs).borrow_mut().deref_mut().as_mut() {
@@ -165,11 +140,26 @@ pub fn patch_main() {
                 outr = rig.outr;
                 framesize = rig.framesize;
                 playhead = rig.playhead;
-                //rig.dump_dilly_maybe();
+                match &mut rig.dilly {
+                    Some(dilly) => {
+                        if dilly.is_done() {
+                            dilly_maybe = rig.dilly.take();
+                        }
+                    },
+                    None => {},
+                }
             }
         });
 
         glep!(inl, inr, outl, outr, framesize, playhead.time_in_samples(), playhead.time_in_seconds());
+        
+        match &mut dilly_maybe {
+            Some(dilly) => {
+                assert!(dilly.is_done());
+                dilly.dump_maybe();
+            },
+            None => {},
+        }
 
         show_load();
         delay(500);
