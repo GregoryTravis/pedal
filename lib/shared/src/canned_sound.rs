@@ -1,20 +1,16 @@
+extern crate alloc;
+extern crate libm;
+
+use alloc::boxed::Box;
+use core::f32::consts::PI;
+
 const BUFSIZE: usize = 16;
 
-pub const CANNED_SOUND_0: [f32; BUFSIZE] = [
-    0.0 / 100.0,
-    1.0 / 100.0,
-    2.0 / 100.0,
-    3.0 / 100.0,
-    4.0 / 100.0,
-    5.0 / 100.0,
-    6.0 / 100.0,
-    7.0 / 100.0,
-    8.0 / 100.0,
-    9.0 / 100.0,
-    10.0 / 100.0,
-    11.0 / 100.0,
-    12.0 / 100.0,
-    13.0 / 100.0,
-    14.0 / 100.0,
-    15.0 / 100.0,
-];
+pub fn canned_sound_0() -> Box<[f32; BUFSIZE]> {
+    let mut ret: [f32; BUFSIZE] = [0.0; BUFSIZE];
+    for i in 0..BUFSIZE {
+        let ph = 2.0 * PI * ((i as f32) / 100.0);
+        ret[i] = libm::sinf(ph);
+    }
+    Box::new(ret)
+}

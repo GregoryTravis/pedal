@@ -48,23 +48,13 @@ pub struct Rig {
 }
 
 impl Rig {
-    /*
-    fn dump_dilly_maybe(&mut self) {
-        match &mut self.dilly {
-            Some(dilly) => {
-                dilly.dump_maybe();
-            },
-            None => {},
-        }
-    }
-    */
 }
 
 pub fn gogogo(box_patch: Box<dyn Patch>) -> i32 {
     // TODO
     // The audio handler must be installed AFTER this line.
 
-    let dilly_maybe = if DO_DILLY { Some(Box::new(Dilly::new(Box::new(CANNED_SOUND_0)))) } else { None };
+    let dilly_maybe = if DO_DILLY { Some(Box::new(Dilly::new(canned_sound_0()))) } else { None };
 
     let rig = Rig {
         patch: box_patch,
@@ -100,7 +90,7 @@ pub extern "C" fn rust_process_audio_stub(
             // TODO: Factor this into a helper.
             match &mut rig.dilly {
                 Some(dilly) => {
-                    dilly.rust_process_audio(&mut rig.patch, right_input_slice, right_output_slice, rig.playhead);
+                    dilly.bleee(&mut rig.patch, right_input_slice, right_output_slice, rig.playhead);
                 },
                 None => {
                     rig.patch.rust_process_audio(right_input_slice, right_output_slice, rig.playhead);
@@ -131,6 +121,7 @@ pub fn patch_main() {
         let mut framesize: usize = 0;
         let mut playhead: Playhead = Playhead::new();
         let mut dilly_maybe: Option<Box<Dilly>> = None;
+        let mut ever_dilled: bool = false;
 
         interrupt::free(|cs| {
             if let Some(ref mut rig) = THE_PATCH.borrow(cs).borrow_mut().deref_mut().as_mut() {
@@ -142,6 +133,7 @@ pub fn patch_main() {
                 playhead = rig.playhead;
                 match &mut rig.dilly {
                     Some(dilly) => {
+                        ever_dilled = dilly.ever_dilled;
                         if dilly.is_done() {
                             dilly_maybe = rig.dilly.take();
                         }
@@ -151,7 +143,7 @@ pub fn patch_main() {
             }
         });
 
-        glep!(inl, inr, outl, outr, framesize, playhead.time_in_samples(), playhead.time_in_seconds());
+        glep!(if ever_dilled { 1 } else { 0 }, inl, inr, outl, outr, framesize, playhead.time_in_samples(), playhead.time_in_seconds());
         
         match &mut dilly_maybe {
             Some(dilly) => {
