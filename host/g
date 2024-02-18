@@ -1,5 +1,5 @@
-rm -rf tremfd.wav
-cargo run --bin sim --features for_host -- fd.wav tremfd.wav 2>&1 | tee out
+rm -rf chorfd.wav
+cargo run --bin sim --features for_host -- fd.wav chorfd.wav 2>&1 | tee out
 exit
 
 rm -f out.wav tremsine.wav

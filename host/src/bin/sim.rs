@@ -4,6 +4,7 @@ use std::env;
 use alloc::boxed::Box;
 use alloc::sync::Arc;
 
+use shared::filter::chorus::*;
 use shared::filter::delay::*;
 use shared::filter::pass_thru::*;
 use shared::filter::reso::*;
@@ -34,10 +35,15 @@ fn tremolo(input_file: &str, output_file: &str) {
     sim_main(input_file, output_file, Box::new(Tremolo::new(400, 1.0)));
 }
 
+#[allow(dead_code)]
+fn chorus(input_file: &str, output_file: &str) {
+    sim_main(input_file, output_file, Box::new(Chorus::new()));
+}
+
 pub fn main() {
     let args: Vec<String> = env::args().collect();
     assert!(args.len() == 3);
     let input_file = &args[1];
     let output_file = &args[2];
-    tremolo(input_file, output_file);
+    chorus(input_file, output_file);
 }
