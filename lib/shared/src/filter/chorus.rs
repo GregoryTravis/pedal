@@ -12,10 +12,12 @@ pub struct Chorus {
 
 impl Chorus {
     pub fn new() -> Chorus {
+        let n: f32 = 3.0;
+        let d: f32 = 0.3;
         Chorus {
-            tremolo_a: Tremolo::new(400, 1.0),
-            tremolo_b: Tremolo::new(300, 0.9),
-            tremolo_c: Tremolo::new(500, 1.1),
+            tremolo_a: Tremolo::new(20, n-d),
+            tremolo_b: Tremolo::new(22, n),
+            tremolo_c: Tremolo::new(18, n+d),
         }
     }
 }
