@@ -31,7 +31,7 @@ fn pass_thru(input_file: &str, output_file: &str) {
 
 #[allow(dead_code)]
 fn tremolo(input_file: &str, output_file: &str) {
-    sim_main(input_file, output_file, Box::new(Tremolo::new()));
+    sim_main(input_file, output_file, Box::new(Tremolo::new(400, 1.0)));
 }
 
 pub fn main() {

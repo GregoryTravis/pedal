@@ -1,5 +1,9 @@
 #![cfg_attr(not(for_host), no_std)]
 
+#[macro_use]
+extern crate alloc;
+
+pub mod ds;
 pub mod convert;
 pub mod constants;
 pub mod filter;

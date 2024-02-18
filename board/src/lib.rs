@@ -42,7 +42,7 @@ pub fn reso_main() -> i32 {
 
 #[no_mangle]
 pub fn tremolo_main() -> i32 {
-    gogogo(Box::new(Tremolo::new()))
+    gogogo(Box::new(Tremolo::new(400, 1.0)))
 }
 
 #[no_mangle]

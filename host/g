@@ -1,3 +1,7 @@
+rm -rf tremfd.wav
+cargo run --bin sim --features for_host -- fd.wav tremfd.wav 2>&1 | tee out
+exit
+
 rm -f out.wav tremsine.wav
 cargo run --bin ramp --features for_host 2>&1 | tee out
 cargo run --bin sim --features for_host -- sine.wav tremsine.wav 2>&1 | tee out
