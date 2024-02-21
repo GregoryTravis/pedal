@@ -21,7 +21,7 @@ const GUARD_SAMPLES: usize = 1;
 
 fn sinc(x: f32) -> f32 {
     // TODO how on earth does this work?
-    let small = 0.000000000000000000000000000000000000000000000000000000001;
+    let small = 0.000000000000000000000000000000000000000000001;
     if x < small || x > -small {
         1.0
     } else {
@@ -46,13 +46,16 @@ impl Tremolo {
         let buffer_length: usize = 2 * (max_sample_deviation + NUM_SINC_TAPS_ONE_SIDE + GUARD_SAMPLES) + 1;
         let now_index: usize = max_sample_deviation + NUM_SINC_TAPS_ONE_SIDE + GUARD_SAMPLES;
 
-        let tremolo = Tremolo {
+        let mut tremolo = Tremolo {
             max_sample_deviation: max_sample_deviation,
             tremolo_frequency: tremolo_frequency,
             buffer_length: buffer_length,
             now_index: now_index,
             cbuf: CircBuf::<f32>::new(buffer_length, 0.0)
         };
+        for _i in 0..buffer_length {
+            tremolo.cbuf.push(0.0);
+        }
         tremolo
     }
 }
@@ -84,10 +87,15 @@ impl Patch for Tremolo {
                 let sinc_value = sinc(sinc_x);
                 let si_sample = self.cbuf.get(si);
                 convolution_sum += sinc_value * si_sample;
+                if !(convolution_sum <= 1.0 && convolution_sum >= -1.0) {
+    //#[cfg(feature = "for_host")]
+                    //println!("Overflowi {} {} {}", sinc_x, sinc_value, convolution_sum);
+                }
             }
+            convolution_sum /= 2.0;
             if !(convolution_sum <= 1.0 && convolution_sum >= -1.0) {
 #[cfg(feature = "for_host")]
-                println!("Overflow {} {}", playhead.time_in_samples(), convolution_sum);
+                println!("Overflow {}", convolution_sum);
             }
             output_slice[i] = convolution_sum;
             playhead.inc();
