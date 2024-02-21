@@ -46,16 +46,13 @@ impl Tremolo {
         let buffer_length: usize = 2 * (max_sample_deviation + NUM_SINC_TAPS_ONE_SIDE + GUARD_SAMPLES) + 1;
         let now_index: usize = max_sample_deviation + NUM_SINC_TAPS_ONE_SIDE + GUARD_SAMPLES;
 
-        let mut tremolo = Tremolo {
+        let tremolo = Tremolo {
             max_sample_deviation: max_sample_deviation,
             tremolo_frequency: tremolo_frequency,
             buffer_length: buffer_length,
             now_index: now_index,
             cbuf: CircBuf::<f32>::new(buffer_length, 0.0)
         };
-        for _i in 0..buffer_length {
-            tremolo.cbuf.push(0.0);
-        }
         tremolo
     }
 }
