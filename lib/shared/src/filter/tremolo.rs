@@ -1,11 +1,16 @@
 extern crate alloc;
 extern crate libm;
+#[cfg(feature = "for_host")]
+extern crate std;
 
 use core::f32::consts::PI;
 
 use crate::ds::circbuf::CircBuf;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
+
+#[cfg(feature = "for_host")]
+use std::println;
 
 // The sinc convolution window is twice this.
 const NUM_SINC_TAPS_ONE_SIDE: usize = 3;
@@ -79,6 +84,10 @@ impl Patch for Tremolo {
                 let sinc_value = sinc(sinc_x);
                 let si_sample = self.cbuf.get(si);
                 convolution_sum += sinc_value * si_sample;
+            }
+            if !(convolution_sum <= 1.0 && convolution_sum >= -1.0) {
+#[cfg(feature = "for_host")]
+                println!("Overflow {} {}", playhead.time_in_samples(), convolution_sum);
             }
             output_slice[i] = convolution_sum;
             playhead.inc();
