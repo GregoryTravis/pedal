@@ -45,5 +45,5 @@ pub fn main() {
     assert!(args.len() == 3);
     let input_file = &args[1];
     let output_file = &args[2];
-    tremolo(input_file, output_file);
+    chorus(input_file, output_file);
 }
