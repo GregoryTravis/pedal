@@ -1,6 +1,12 @@
+#[cfg(feature = "for_host")]
+extern crate std;
+
 use crate::filter::tremolo::*;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
+
+#[cfg(feature = "for_host")]
+use std::println;
 
 const BATCH_SIZE: usize = 4;
 
@@ -42,6 +48,22 @@ impl Patch for Chorus {
         for i in 0..input_slice.len() {
             output_slice[i] /= 3.0;
         }
+
+        let mut temp0: [f32; BATCH_SIZE] = [0.0; BATCH_SIZE];
+        let mut temp1: [f32; BATCH_SIZE] = [0.0; BATCH_SIZE];
+        let mut temp2: [f32; BATCH_SIZE] = [0.0; BATCH_SIZE];
+        self.tremolo_a.rust_process_audio(input_slice, &mut temp0, playhead);
+        self.tremolo_b.rust_process_audio(input_slice, &mut temp1, playhead);
+        self.tremolo_c.rust_process_audio(input_slice, &mut temp2, playhead);
+        for i in 0..input_slice.len() {
+            output_slice[i] /= 3.0;
+            if output_slice[i] < -1.0 || output_slice[i] > 1.0 {
+#[cfg(feature = "for_host")]
+                println!("Overflow {} {} {} {} {}", playhead.time_in_samples()+(i as u64),
+                    output_slice[i], temp0[i], temp1[i], temp2[i]);
+            }
+        }
+
     }
 }
 
