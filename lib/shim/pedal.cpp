@@ -3,8 +3,12 @@
 #include "hw.h"
 #include "load.h"
 #include "spew.h"
+#include "vibrato.h"
 
 using namespace daisy;
+
+Vibrato *vibrato = nullptr;
+Playhead playhead;
 
 extern "C" {
   void rust_process_audio_stub(const float* const* in_ptr, float **out_ptr, size_t len);
@@ -12,10 +16,20 @@ extern "C" {
   int PEDAL_MAIN();
 }
 
+// (libDaisy/src/hid/audio.h)
+// Non-Interleaving output buffer
+// Arranged by float[chn][sample] 
+// typedef const float* const* InputBuffer;
+// typedef float** OutputBuffer;
 void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size)
 {
   load_before();
-  rust_process_audio_stub(in, out, size);
+  //rust_process_audio_stub(in, out, size);
+  vibrato->cpp_process_audio(in[1], out[1], size, playhead);
+  for (size_t i = 0; i < size; ++i) {
+    out[0][i] = out[1][i];
+  }
+  playhead.increment_samples(size);
   load_after();
 }
 
@@ -44,5 +58,9 @@ extern "C" int cpp_main(void)
 }
 
 int main() {
+  printf("float is %d\n", sizeof(float));
+  printf("double is %d\n", sizeof(double));
+  printf("int is %d\n", sizeof(int));
+  vibrato = new Vibrato(400, 0.10);
   PEDAL_MAIN();
 }
