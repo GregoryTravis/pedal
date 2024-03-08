@@ -1,7 +1,7 @@
 #[cfg(feature = "for_host")]
 extern crate std;
 
-use crate::filter::tremolo::*;
+use crate::filter::linear_vibrato::*;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
 
@@ -11,9 +11,9 @@ use std::println;
 const BATCH_SIZE: usize = 4;
 
 pub struct Chorus {
-    tremolo_a: Tremolo,
-    tremolo_b: Tremolo,
-    tremolo_c: Tremolo,
+    vibrato_a: LinearVibrato,
+    vibrato_b: LinearVibrato,
+    vibrato_c: LinearVibrato,
 }
 
 impl Chorus {
@@ -21,9 +21,9 @@ impl Chorus {
         let n: f32 = 3.0;
         let d: f32 = 0.3;
         Chorus {
-            tremolo_a: Tremolo::new(20, n-d),
-            tremolo_b: Tremolo::new(22, n),
-            tremolo_c: Tremolo::new(18, n+d),
+            vibrato_a: LinearVibrato::new(20, n-d),
+            vibrato_b: LinearVibrato::new(22, n),
+            vibrato_c: LinearVibrato::new(18, n+d),
         }
     }
 }
@@ -36,12 +36,12 @@ impl Patch for Chorus {
         playhead: Playhead,
     ) {
         let mut temp: [f32; BATCH_SIZE] = [0.0; BATCH_SIZE];
-        self.tremolo_a.rust_process_audio(input_slice, output_slice, playhead);
-        self.tremolo_b.rust_process_audio(input_slice, &mut temp, playhead);
+        self.vibrato_a.rust_process_audio(input_slice, output_slice, playhead);
+        self.vibrato_b.rust_process_audio(input_slice, &mut temp, playhead);
         for i in 0..input_slice.len() {
             output_slice[i] += temp[i];
         }
-        self.tremolo_c.rust_process_audio(input_slice, &mut temp, playhead);
+        self.vibrato_c.rust_process_audio(input_slice, &mut temp, playhead);
         for i in 0..input_slice.len() {
             output_slice[i] += temp[i];
         }
@@ -52,9 +52,9 @@ impl Patch for Chorus {
         let mut temp0: [f32; BATCH_SIZE] = [0.0; BATCH_SIZE];
         let mut temp1: [f32; BATCH_SIZE] = [0.0; BATCH_SIZE];
         let mut temp2: [f32; BATCH_SIZE] = [0.0; BATCH_SIZE];
-        self.tremolo_a.rust_process_audio(input_slice, &mut temp0, playhead);
-        self.tremolo_b.rust_process_audio(input_slice, &mut temp1, playhead);
-        self.tremolo_c.rust_process_audio(input_slice, &mut temp2, playhead);
+        self.vibrato_a.rust_process_audio(input_slice, &mut temp0, playhead);
+        self.vibrato_b.rust_process_audio(input_slice, &mut temp1, playhead);
+        self.vibrato_c.rust_process_audio(input_slice, &mut temp2, playhead);
         for i in 0..input_slice.len() {
             output_slice[i] /= 3.0;
             if output_slice[i] < -1.0 || output_slice[i] > 1.0 {

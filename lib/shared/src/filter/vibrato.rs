@@ -29,35 +29,35 @@ fn sinc(x: f32) -> f32 {
     }
 }
 
-pub struct Tremolo {
+pub struct Vibrato {
     // The fractional playhead can only deviate from the regular one by this much on either side.
     // Range is *exclusive*. -- TODO ??
     max_sample_deviation: usize,
     // Hz
-    tremolo_frequency: f32,
+    vibrato_frequency: f32,
 
     buffer_length: usize,
     now_index: usize,
     cbuf: CircBuf::<f32>,
 }
 
-impl Tremolo {
-    pub fn new(max_sample_deviation: usize, tremolo_frequency: f32) -> Tremolo {
+impl Vibrato {
+    pub fn new(max_sample_deviation: usize, vibrato_frequency: f32) -> Vibrato {
         let buffer_length: usize = 2 * (max_sample_deviation + NUM_SINC_TAPS_ONE_SIDE + GUARD_SAMPLES) + 1;
         let now_index: usize = max_sample_deviation + NUM_SINC_TAPS_ONE_SIDE + GUARD_SAMPLES;
 
-        let tremolo = Tremolo {
+        let vibrato = Vibrato {
             max_sample_deviation: max_sample_deviation,
-            tremolo_frequency: tremolo_frequency,
+            vibrato_frequency: vibrato_frequency,
             buffer_length: buffer_length,
             now_index: now_index,
             cbuf: CircBuf::<f32>::new(buffer_length, 0.0)
         };
-        tremolo
+        vibrato
     }
 }
 
-impl Patch for Tremolo {
+impl Patch for Vibrato {
     fn rust_process_audio(
         &mut self,
         input_slice: &[f32],
@@ -67,10 +67,10 @@ impl Patch for Tremolo {
         for i in 0..input_slice.len() {
             self.cbuf.push(input_slice[i]);
             let tis = playhead.time_in_seconds();
-            let tremolo_deviation = libm::sin(
-                tis * self.tremolo_frequency as f64 * 2.0 * PI as f64) * (self.max_sample_deviation as f64);
+            let vibrato_deviation = libm::sin(
+                tis * self.vibrato_frequency as f64 * 2.0 * PI as f64) * (self.max_sample_deviation as f64);
             // Fractional playhead
-            let fph = (self.now_index as f32) + tremolo_deviation as f32;
+            let fph = (self.now_index as f32) + vibrato_deviation as f32;
             let window_low_f = fph - (NUM_SINC_TAPS_ONE_SIDE as f32);
             let window_high_f = fph + (NUM_SINC_TAPS_ONE_SIDE as f32);
             assert!(window_low_f > 0.0);
@@ -84,14 +84,10 @@ impl Patch for Tremolo {
                 let sinc_value = sinc(sinc_x);
                 let si_sample = self.cbuf.get(si);
                 convolution_sum += sinc_value * si_sample;
-                if !(convolution_sum <= 1.0 && convolution_sum >= -1.0) {
-    //#[cfg(feature = "for_host")]
-                    //println!("Overflowi {} {} {}", sinc_x, sinc_value, convolution_sum);
-                }
             }
             convolution_sum /= 2.0;
-            if !(convolution_sum <= 1.0 && convolution_sum >= -1.0) {
 #[cfg(feature = "for_host")]
+            if !(convolution_sum <= 1.0 && convolution_sum >= -1.0) {
                 println!("Overflow {}", convolution_sum);
             }
             output_slice[i] = convolution_sum;

@@ -8,7 +8,8 @@ use shared::filter::chorus::*;
 use shared::filter::delay::*;
 use shared::filter::pass_thru::*;
 use shared::filter::reso::*;
-use shared::filter::tremolo::*;
+use shared::filter::vibrato::*;
+use shared::filter::linear_vibrato::*;
 use shared::signal::base::*;
 use shared::signal::combinators::*;
 use shared::sim::*;
@@ -31,8 +32,13 @@ fn pass_thru(input_file: &str, output_file: &str) {
 }
 
 #[allow(dead_code)]
-fn tremolo(input_file: &str, output_file: &str) {
-    sim_main(input_file, output_file, Box::new(Tremolo::new(400, 1.0)));
+fn vibrato(input_file: &str, output_file: &str) {
+    sim_main(input_file, output_file, Box::new(Vibrato::new(400, 1.0)));
+}
+
+#[allow(dead_code)]
+fn linear_vibrato(input_file: &str, output_file: &str) {
+    sim_main(input_file, output_file, Box::new(LinearVibrato::new(400, 1.0)));
 }
 
 #[allow(dead_code)]
@@ -45,5 +51,5 @@ pub fn main() {
     assert!(args.len() == 3);
     let input_file = &args[1];
     let output_file = &args[2];
-    tremolo(input_file, output_file);
+    linear_vibrato(input_file, output_file);
 }

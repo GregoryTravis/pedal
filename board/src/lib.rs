@@ -8,12 +8,13 @@ extern crate shared;
 use alloc::boxed::Box;
 use alloc::sync::Arc;
 
+use shared::filter::chorus::*;
 use shared::filter::high_pass::*;
 use shared::filter::low_pass::*;
 use shared::filter::pass_thru::*;
 use shared::filter::reso::*;
 use shared::filter::sine::*;
-use shared::filter::tremolo::*;
+use shared::filter::vibrato::*;
 use shared::rig::*;
 use shared::signal::base::*;
 use shared::signal::combinators::*;
@@ -41,8 +42,13 @@ pub fn reso_main() -> i32 {
 }
 
 #[no_mangle]
-pub fn tremolo_main() -> i32 {
-    gogogo(Box::new(Tremolo::new(400, 1.0)))
+pub fn vibrato_main() -> i32 {
+    gogogo(Box::new(Vibrato::new(400, 1.0)))
+}
+
+#[no_mangle]
+pub fn chorus_main() -> i32 {
+    gogogo(Box::new(Chorus::new()))
 }
 
 #[no_mangle]

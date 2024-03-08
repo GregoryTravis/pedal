@@ -2,14 +2,14 @@ extern crate alloc;
 
 use alloc::boxed::Box;
 
-use shared::filter::tremolo::*;
+use shared::filter::vibrato::*;
 use shared::sim::*;
 
 #[allow(dead_code)]
-fn tremolo() {
-    sim_ramp_patch(Box::new(Tremolo::new()), 40);
+fn vibrato() {
+    sim_ramp_patch(Box::new(Vibrato::new()), 40);
 }
 
 pub fn main() {
-    tremolo();
+    vibrato();
 }
