@@ -58,9 +58,12 @@ extern "C" int cpp_main(void)
 }
 
 int main() {
-  printf("float is %d\n", sizeof(float));
-  printf("double is %d\n", sizeof(double));
-  printf("int is %d\n", sizeof(int));
+  spew_string_c("float");
+  spew_int_c(sizeof(float));
+  spew_string_c("double");
+  spew_int_c(sizeof(double));
+  spew_string_c("int");
+  spew_int_c(sizeof(int));
   vibrato = new Vibrato(400, 0.10);
   PEDAL_MAIN();
 }

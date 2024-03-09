@@ -20,7 +20,7 @@ extern "C" void spew_double_c(double x) {
   hw.Print("%f", x);
 }
 
-extern "C" void spew_string_c(char *s) {
+extern "C" void spew_string_c(const char *s) {
   hw.Print("%s", s);
 }
 

@@ -1,6 +1,9 @@
 #include <stdio.h>
+#include <algorithm>
 #include <assert.h>
 #include <math.h>
+
+#include "AudioFile.h"
 
 #include "vibrato.h"
 
@@ -18,7 +21,7 @@ void Vibrato::cpp_process_audio(
     const float *input_slice,
     float *output_slice,
     size_t size,
-    Playhead playhead) {
+    Playhead &playhead) {
   for (size_t i=0; i < size; ++i) {
       cbuf.push(input_slice[i]);
       double tis = playhead.time_in_seconds();
@@ -28,7 +31,6 @@ void Vibrato::cpp_process_audio(
       float fph = ((float) now_index) + vibrato_deviation;
       float window_low_f = fph - ((float) NUM_SINC_TAPS_ONE_SIDE);
       float window_high_f = fph + ((float) NUM_SINC_TAPS_ONE_SIDE);
-      assert(0); // confirming it's on
       assert(window_low_f > 0.0);
       assert(window_high_f < (float) buffer_length);
       size_t window_low_i = (size_t) ceil(window_low_f);
@@ -48,5 +50,48 @@ void Vibrato::cpp_process_audio(
       output_slice[i] = convolution_sum;
       playhead.inc();
   }
+}
+
+int main(int argc, char *argv[]) {
+  printf("float is %lu\n", sizeof(float));
+  printf("double is %lu\n", sizeof(double));
+  printf("int is %lu\n", sizeof(int));
+
+  char *infile = argv[1];
+  char *outfile = argv[2];
+
+  AudioFile<float> audioFile;
+  audioFile.load(infile);
+
+  assert(audioFile.isMono());
+  assert(audioFile.getBitDepth() == 16);
+
+  int numSamples = audioFile.getNumSamplesPerChannel();
+  assert(numSamples > 0);
+  int bufSize = 4;
+
+  AudioFile<float> outAudioFile;
+  outAudioFile.setAudioBufferSize(1, numSamples);
+  outAudioFile.setBitDepth(audioFile.getBitDepth());
+  outAudioFile.setSampleRate(audioFile.getSampleRate());
+  AudioFile<float>::AudioBuffer buffer;
+  buffer.resize(1);
+  buffer[0].resize(numSamples);
+  outAudioFile.setAudioBuffer(buffer);
+
+  Vibrato vibrato(400, 0.10);
+  Playhead playhead;
+
+  int current = 0;
+  while (current < numSamples) {
+    float *inp = &audioFile.samples[0][current];
+    float *outp = &outAudioFile.samples[0][current];
+    size_t remaining = std::min(numSamples - current, 4);
+    vibrato.cpp_process_audio(inp, outp, remaining, playhead);
+    playhead.increment_samples(remaining);
+    current += remaining;
+  }
+
+  outAudioFile.save(outfile);
 }
 
