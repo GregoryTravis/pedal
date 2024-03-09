@@ -51,5 +51,5 @@ pub fn main() {
     assert!(args.len() == 3);
     let input_file = &args[1];
     let output_file = &args[2];
-    linear_vibrato(input_file, output_file);
+    vibrato(input_file, output_file);
 }

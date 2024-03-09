@@ -21,7 +21,7 @@ void Vibrato::cpp_process_audio(
     const float *input_slice,
     float *output_slice,
     size_t size,
-    Playhead &playhead) {
+    Playhead playhead) {
   for (size_t i=0; i < size; ++i) {
       cbuf.push(input_slice[i]);
       double tis = playhead.time_in_seconds();
@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
   buffer[0].resize(numSamples);
   outAudioFile.setAudioBuffer(buffer);
 
-  Vibrato vibrato(400, 0.10);
+  Vibrato vibrato(400, 1.0);
   Playhead playhead;
 
   int current = 0;

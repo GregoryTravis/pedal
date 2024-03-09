@@ -22,7 +22,7 @@ class Vibrato {
     const float *input_slice,
     float *output_slice,
     size_t size,
-    Playhead &playhead);
+    Playhead playhead);
 
   private:
   // The fractional playhead can only deviate from the regular one by this much on either side.
