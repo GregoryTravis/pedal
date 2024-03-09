@@ -1,5 +1,5 @@
-rm -f vibrato
-(g++ -std=c++17 -o vibrato vibrato.cpp) 2>&1 | tee out
+rm -f vibrato chorgen0.wav
+(g++ -std=c++17 -DSTANDALONE -o vibrato vibrato.cpp) 2>&1 | tee out
 ./vibrato ../../host/gen0.wav chorgen0.wav
 pushd ../shared
 cargo run --bin compare_wavs --features for_host -- ../shim/chorgen0.wav ../../host/chorgen0.wav

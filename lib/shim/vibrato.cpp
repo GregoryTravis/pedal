@@ -1,9 +1,11 @@
 #include <stdio.h>
-#include <algorithm>
 #include <assert.h>
 #include <math.h>
 
+#ifdef STANDALONE
+#include <algorithm>
 #include "AudioFile.h"
+#endif
 
 #include "vibrato.h"
 
@@ -52,6 +54,7 @@ void Vibrato::cpp_process_audio(
   }
 }
 
+#ifdef STANDALONE
 int main(int argc, char *argv[]) {
   printf("float is %lu\n", sizeof(float));
   printf("double is %lu\n", sizeof(double));
@@ -94,4 +97,5 @@ int main(int argc, char *argv[]) {
 
   outAudioFile.save(outfile);
 }
+#endif
 
