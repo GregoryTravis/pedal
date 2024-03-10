@@ -3,10 +3,11 @@ set -euxo pipefail
 cargo clean
 cargo build --release --lib --target thumbv7em-none-eabihf 2>&1 | tee out
 tmp=q.$$
-mkdir $tmp
+#tmp=q
+mkdir -p $tmp
 cd $tmp
-mkdir bin
+mkdir -p bin
 arm-none-eabi-ar -xv ../target/thumbv7em-none-eabihf/release/libpedalboard.a
 cd ..
-arm-none-eabi-objdump -dS $tmp/*.o
+arm-none-eabi-objdump -dS -l -F --demangle=auto --no-recurse-limit -w --demangle=auto --no-recurse-limit --special-syms --inlines --visualize-jumps=extended-color $tmp/*shared*.o
 rm -r $tmp
