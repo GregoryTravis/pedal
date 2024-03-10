@@ -9,5 +9,5 @@ cd $tmp
 mkdir -p bin
 arm-none-eabi-ar -xv ../target/thumbv7em-none-eabihf/release/libpedalboard.a
 cd ..
-arm-none-eabi-objdump -dS -l -F --demangle=auto --no-recurse-limit -w --demangle=auto --no-recurse-limit --special-syms --inlines --visualize-jumps=extended-color $tmp/*shared*.o
+arm-none-eabi-objdump -dS -l -F --demangle=auto --no-recurse-limit -w --demangle=auto --no-recurse-limit --special-syms --inlines --visualize-jumps=extended-color `find $tmp | egrep 'shared|pedalboard'` > release-asm
 rm -r $tmp
