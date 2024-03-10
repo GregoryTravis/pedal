@@ -24,7 +24,13 @@ extern "C" {
 void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size)
 {
   load_before();
-  //rust_process_audio_stub(in, out, size);
+  rust_process_audio_stub(in, out, size);
+  load_after();
+}
+
+void CppVibratoAudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size)
+{
+  load_before();
   vibrato->cpp_process_audio(in[1], out[1], size, playhead);
   for (size_t i = 0; i < size; ++i) {
     out[0][i] = out[1][i];
@@ -52,6 +58,7 @@ extern "C" int cpp_main(void)
   load_init();
 
 	hw.StartAudio(AudioCallback);
+	//hw.StartAudio(CppVibratoAudioCallback);
 
   patch_main();
   while(1) {} // Just in case we fall through
