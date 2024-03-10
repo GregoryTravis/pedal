@@ -9,7 +9,7 @@ name = "pedalboard"
 crate-type = ["staticlib"]
 
 [profile.release]
-#lto = "fat"
+lto = "fat"
 
 [features]
 # Any crates that require std cannot be built for the board, and must be listed
