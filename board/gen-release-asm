@@ -1,0 +1,12 @@
+set -euxo pipefail
+
+cargo clean
+cargo build --release --lib --target thumbv7em-none-eabihf 2>&1 | tee out
+tmp=q.$$
+mkdir $tmp
+cd $tmp
+mkdir bin
+arm-none-eabi-ar -xv ../target/thumbv7em-none-eabihf/release/libpedalboard.a
+cd ..
+arm-none-eabi-objdump -dS $tmp/*.o
+rm -r $tmp

@@ -7,6 +7,9 @@ edition = "2021"
 name = "pedalhost"
 #crate-type = ["staticlib"] # Creates static lib
 
+[profile.release]
+#lto = "fat"
+
 [features]
 # Any crates that require std cannot be built for the board, and must be listed
 # here; they must also be configured as optional dependencies.
