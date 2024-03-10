@@ -14,6 +14,7 @@ use shared::filter::low_pass::*;
 use shared::filter::pass_thru::*;
 use shared::filter::reso::*;
 use shared::filter::sine::*;
+use shared::filter::speed_test::*;
 use shared::filter::vibrato::*;
 use shared::rig::*;
 use shared::signal::base::*;
@@ -44,6 +45,11 @@ pub fn reso_main() -> i32 {
 #[no_mangle]
 pub fn vibrato_main() -> i32 {
     gogogo(Box::new(Vibrato::new(400, 1.0)))
+}
+
+#[no_mangle]
+pub fn speed_test_main() -> i32 {
+    gogogo(Box::new(SpeedTest::new()))
 }
 
 #[no_mangle]

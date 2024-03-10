@@ -75,8 +75,8 @@ extern "C" int cpp_main(void)
 
   load_init();
 
-	//hw.StartAudio(AudioCallback);
-	hw.StartAudio(CppSpeedAudioCallback);
+	hw.StartAudio(AudioCallback);
+	//hw.StartAudio(CppSpeedAudioCallback);
 	//hw.StartAudio(CppVibratoAudioCallback);
 
   patch_main();

@@ -1,4 +1,4 @@
-./gen-release-asm 2>&1 | tee out
-exit
+#./gen-release-asm 2>&1 | tee out
+#exit
 
 cargo build --release --lib --target thumbv7em-none-eabihf 2>&1 | tee out
