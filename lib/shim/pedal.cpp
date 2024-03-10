@@ -39,6 +39,24 @@ void CppVibratoAudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuf
   load_after();
 }
 
+#define DOT_SIZE 48
+float fxs[DOT_SIZE], fys[DOT_SIZE], fzs[DOT_SIZE];
+void dot() {
+  for (int i = 0; i < DOT_SIZE; ++i) {
+    fzs[i] = fxs[i] * fys[i];
+  }
+}
+
+#define NROUNDS 20
+void CppSpeedAudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size)
+{
+  load_before();
+  for (int i = 0; i < NROUNDS; ++i) {
+    dot();
+  }
+  load_after();
+}
+
 void initLogging() {
   hw.StartLog(true);
   hw.PrintLine("Pedal!");
@@ -57,7 +75,8 @@ extern "C" int cpp_main(void)
 
   load_init();
 
-	hw.StartAudio(AudioCallback);
+	//hw.StartAudio(AudioCallback);
+	hw.StartAudio(CppSpeedAudioCallback);
 	//hw.StartAudio(CppVibratoAudioCallback);
 
   patch_main();
