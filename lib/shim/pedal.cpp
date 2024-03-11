@@ -1,3 +1,5 @@
+#include <assert.h>
+
 #include "daisy_seed.h"
 
 #include "hw.h"
@@ -44,8 +46,16 @@ void CppVibratoAudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuf
 #define TEST_CPP 0
 
 #define DOT_SIZE 48
+
+float dys[DOT_SIZE];
+void ddot(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out) {
+  for (int i = 0; i < DOT_SIZE; ++i) {
+    out[1][i] = (float) (((double)in[1][i]) * dys[i]);
+  }
+}
+
 float fys[DOT_SIZE];
-void dot(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out) {
+void fdot(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out) {
   for (int i = 0; i < DOT_SIZE; ++i) {
     out[1][i] = in[1][i] * fys[i];
   }
@@ -56,7 +66,7 @@ void CppSpeedAudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffe
 {
   load_before();
   for (int i = 0; i < NROUNDS; ++i) {
-    dot(in, out);
+    ddot(in, out);
   }
   load_after();
 }
@@ -77,6 +87,8 @@ extern "C" int cpp_main(void)
 	hw.SetAudioBlockSize(48); // number of samples handled per callback
 	hw.SetAudioSampleRate(SaiHandle::Config::SampleRate::SAI_48KHZ);
 
+  assert(hw.audio_handle.GetChannels() == 2);
+
   load_init();
 
 #if TEST_CPP
@@ -92,6 +104,7 @@ extern "C" int cpp_main(void)
 }
 
 int main() {
+  /*
   spew_string_c("float");
   spew_int_c(sizeof(float));
   spew_string_c("double");
@@ -99,5 +112,6 @@ int main() {
   spew_string_c("int");
   spew_int_c(sizeof(int));
   vibrato = new Vibrato(400, 0.10);
+  */
   PEDAL_MAIN();
 }
