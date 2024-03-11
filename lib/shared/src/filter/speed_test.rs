@@ -28,7 +28,7 @@ fn ddot(speed_test: &SpeedTest, input_slice: &[f32], output_slice: &mut [f32]) {
 #[allow(dead_code)]
 fn fdot(speed_test: &SpeedTest, input_slice: &[f32], output_slice: &mut [f32]) {
     for i in 0..DOT_SIZE {
-        output_slice[i] = input_slice[i] * (speed_test.dys[i] as f32);
+        output_slice[i] = input_slice[i] * speed_test.fys[i];
     }
 }
 
