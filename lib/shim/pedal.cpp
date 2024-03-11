@@ -19,6 +19,8 @@ extern "C" {
 // (libDaisy/src/hid/audio.h)
 // Non-Interleaving output buffer
 // Arranged by float[chn][sample] 
+// Left 0, Right 1
+// The mono pedal is right only
 // typedef const float* const* InputBuffer;
 // typedef float** OutputBuffer;
 void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size)
@@ -39,20 +41,22 @@ void CppVibratoAudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuf
   load_after();
 }
 
+#define TEST_CPP 0
+
 #define DOT_SIZE 48
-float fxs[DOT_SIZE], fys[DOT_SIZE], fzs[DOT_SIZE];
-void dot() {
+float fys[DOT_SIZE];
+void dot(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out) {
   for (int i = 0; i < DOT_SIZE; ++i) {
-    fzs[i] = fxs[i] * fys[i];
+    out[1][i] = in[1][i] * fys[i];
   }
 }
 
-#define NROUNDS 20
+#define NROUNDS 400
 void CppSpeedAudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size)
 {
   load_before();
   for (int i = 0; i < NROUNDS; ++i) {
-    dot();
+    dot(in, out);
   }
   load_after();
 }
@@ -70,13 +74,17 @@ extern "C" int cpp_main(void)
 {
 	hw.Init();
   initLogging();
-	hw.SetAudioBlockSize(4); // number of samples handled per callback
+	hw.SetAudioBlockSize(48); // number of samples handled per callback
 	hw.SetAudioSampleRate(SaiHandle::Config::SampleRate::SAI_48KHZ);
 
   load_init();
 
+#if TEST_CPP
+	hw.StartAudio(CppSpeedAudioCallback);
+#else
 	hw.StartAudio(AudioCallback);
-	//hw.StartAudio(CppSpeedAudioCallback);
+#endif
+
 	//hw.StartAudio(CppVibratoAudioCallback);
 
   patch_main();
