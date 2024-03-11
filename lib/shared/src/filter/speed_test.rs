@@ -58,7 +58,7 @@ impl Patch for SpeedTest {
         mut _playhead: Playhead,
     ) {
         for _r in 0..NROUNDS {
-            fdot(&self, input_slice, output_slice);
+            ddot(&self, input_slice, output_slice);
         }
     }
 }

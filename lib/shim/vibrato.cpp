@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
   while (current < numSamples) {
     float *inp = &audioFile.samples[0][current];
     float *outp = &outAudioFile.samples[0][current];
-    size_t remaining = std::min(numSamples - current, 4);
+    size_t remaining = std::min(numSamples - current, bufSize);
     vibrato.cpp_process_audio(inp, outp, remaining, playhead);
     playhead.increment_samples(remaining);
     current += remaining;
