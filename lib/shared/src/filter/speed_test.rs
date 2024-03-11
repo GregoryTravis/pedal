@@ -10,6 +10,7 @@ use crate::playhead::Playhead;
 //use std::println;
 
 const DOT_SIZE: usize = 48;
+const LESS: usize = 0;
 const NROUNDS: u32 = 400;
 
 #[allow(dead_code)]
@@ -20,14 +21,22 @@ pub struct SpeedTest {
 
 #[allow(dead_code)]
 fn ddot(speed_test: &SpeedTest, input_slice: &[f32], output_slice: &mut [f32]) {
-    for i in 0..DOT_SIZE {
+    for i in 0..(DOT_SIZE-LESS) {
         output_slice[i] = ((input_slice[i] as f64) * speed_test.dys[i]) as f32;
+    }
+}
+
+// fdot but it uses dys anyway
+#[allow(dead_code)]
+fn fddot(speed_test: &SpeedTest, input_slice: &[f32], output_slice: &mut [f32]) {
+    for i in 0..(DOT_SIZE-LESS) {
+        output_slice[i] = input_slice[i] * (speed_test.dys[i] as f32);
     }
 }
 
 #[allow(dead_code)]
 fn fdot(speed_test: &SpeedTest, input_slice: &[f32], output_slice: &mut [f32]) {
-    for i in 0..DOT_SIZE {
+    for i in 0..(DOT_SIZE-LESS) {
         output_slice[i] = input_slice[i] * speed_test.fys[i];
     }
 }
@@ -49,7 +58,7 @@ impl Patch for SpeedTest {
         mut _playhead: Playhead,
     ) {
         for _r in 0..NROUNDS {
-            ddot(&self, input_slice, output_slice);
+            fdot(&self, input_slice, output_slice);
         }
     }
 }

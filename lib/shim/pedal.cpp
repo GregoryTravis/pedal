@@ -98,6 +98,11 @@ extern "C" int cpp_main(void)
 #endif
 
 	//hw.StartAudio(CppVibratoAudioCallback);
+  /*
+  spew_string_c("chans ");
+  spew_int_c(hw.audio_handle.GetChannels());
+  spew_newline_c();
+  */
 
   patch_main();
   while(1) {} // Just in case we fall through
