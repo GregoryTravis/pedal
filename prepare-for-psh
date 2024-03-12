@@ -1,0 +1,7 @@
+# openocd -s /usr/local/share/openocd/scripts -f interface/stlink.cfg -f target/stm32h7x.cfg \
+#                 -c "program ./build/Blink.elf verify reset exit"
+
+# Note: this fails to write the software, but it does put it in the mode where ./push-boot
+# can flash it, without having to press the buttons.
+openocd -s /usr/local/share/openocd/scripts -f interface/stlink.cfg -f target/stm32h7x.cfg \
+                -c "program lib/shim/build/pedal.elf verify reset exit"
