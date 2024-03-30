@@ -11,7 +11,7 @@ use crate::playhead::Playhead;
 
 const DOT_SIZE: usize = 48;
 const LESS: usize = 0;
-const NROUNDS: u32 = 400;
+const NROUNDS: u32 = 10;
 
 #[allow(dead_code)]
 pub struct SpeedTest {
