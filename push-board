@@ -1,5 +1,5 @@
 (pushd board && \
   cargo build --lib --target thumbv7em-none-eabihf && \
   popd && \
-  pushd lib/shim && make clean_exes && make PEDAL_MAIN=chorus_main all && popd && \
+  pushd lib/shim && make clean_exes && make PEDAL_MAIN=linear_vibrato_main all && popd && \
   psh) 2>&1 | tee out
