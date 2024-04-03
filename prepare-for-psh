@@ -1,4 +1,4 @@
-# Note: this fails to write the software, but it does put it briefly in the
+# Note: this fails to write the software, but it does sometimes put it briefly in the
 # mode where ./push-board can flash it, without having to press the buttons.
 openocd -s /usr/local/share/openocd/scripts -f interface/stlink.cfg -f target/stm32h7x.cfg \
                 -c "program lib/shim/build/pedal.elf verify reset exit"
