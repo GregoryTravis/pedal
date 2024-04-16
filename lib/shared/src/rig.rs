@@ -93,8 +93,21 @@ pub extern "C" fn rust_process_audio_stub(
     });
 }
 
+#[inline(never)]
+fn add_f32(a: f32, b: f32) -> f32 {
+    return a + b;
+}
+
+#[inline(never)]
+fn mult_f32(a: f32, b: f32) -> f32 {
+    return a * b;
+}
+
 #[no_mangle]
 pub fn patch_main() {
+    add_f32(1.3, 2.4);
+    mult_f32(1.3, 2.4);
+
     loop {
         let mut inl: f32 = 0.0;
         let mut inr: f32 = 0.0;
