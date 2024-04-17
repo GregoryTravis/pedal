@@ -84,7 +84,7 @@ extern "C" int cpp_main(void)
 {
 	hw.Init();
   initLogging();
-	hw.SetAudioBlockSize(48); // number of samples handled per callback
+	hw.SetAudioBlockSize(4); // number of samples handled per callback
 	hw.SetAudioSampleRate(SaiHandle::Config::SampleRate::SAI_48KHZ);
 
   assert(hw.audio_handle.GetChannels() == 2);
@@ -92,7 +92,8 @@ extern "C" int cpp_main(void)
   load_init();
 
 #if TEST_CPP
-	hw.StartAudio(CppSpeedAudioCallback);
+	//hw.StartAudio(CppSpeedAudioCallback);
+	hw.StartAudio(CppVibratoAudioCallback);
 #else
 	hw.StartAudio(AudioCallback);
 #endif
@@ -116,7 +117,7 @@ int main() {
   spew_int_c(sizeof(double));
   spew_string_c("int");
   spew_int_c(sizeof(int));
-  vibrato = new Vibrato(400, 0.10);
   */
+  vibrato = new Vibrato(400, 0.10);
   PEDAL_MAIN();
 }
