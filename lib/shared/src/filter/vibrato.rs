@@ -55,6 +55,17 @@ impl Vibrato {
         };
         vibrato
     }
+
+    fn volve(&self, window_low_i: usize, window_high_i: usize, fph: f32) -> f32 {
+        let mut convolution_sum: f32 = 0.0;
+        for si in window_low_i..(window_high_i+1) {
+            let sinc_x = fph - (si as f32);
+            let sinc_value = sinc(sinc_x);
+            let si_sample = self.cbuf.get(si);
+            convolution_sum += sinc_value * si_sample;
+        }
+        return convolution_sum;
+    }
 }
 
 impl Patch for Vibrato {
@@ -78,13 +89,7 @@ impl Patch for Vibrato {
             let window_low_i = libm::ceilf(window_low_f) as usize;
             let window_high_i = libm::floorf(window_high_f) as usize;
             assert!(window_low_i < window_high_i);
-            let mut convolution_sum: f32 = 0.0;
-            for si in window_low_i..(window_high_i+1) {
-                let sinc_x = fph - (si as f32);
-                let sinc_value = sinc(sinc_x);
-                let si_sample = self.cbuf.get(si);
-                convolution_sum += sinc_value * si_sample;
-            }
+            let mut convolution_sum: f32 = self.volve(window_low_i, window_high_i, fph);
             convolution_sum /= 2.0;
 #[cfg(feature = "for_host")]
             if !(convolution_sum <= 1.0 && convolution_sum >= -1.0) {

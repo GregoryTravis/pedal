@@ -8,6 +8,9 @@ name = "pedalboard"
 # This is required because this is linked into the final board binary by lib/shim/Makefile.
 crate-type = ["staticlib"]
 
+[profile.release]
+debug = true
+
 [features]
 # Any crates that require std cannot be built for the board, and must be listed
 # here; they must also be configured as optional dependencies.

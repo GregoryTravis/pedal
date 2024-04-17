@@ -27,6 +27,27 @@ impl ResoFilter {
     }
 }
 
+#[inline(never)]
+fn urghu32(a: u32, b: u32) -> u32 {
+    let c: u32 = a * b;
+    let d: u32 = a + b;
+    return c+d;
+}
+
+#[inline(never)]
+fn urgh(a: f32, b: f32) -> f32 {
+    let c: f32 = a * b;
+    let d: f32 = a + b;
+    return c+d;
+}
+
+#[inline(never)]
+fn urgh64(a: f64, b: f64) -> f64 {
+    let c: f64 = a * b;
+    let d: f64 = a + b;
+    return c+d;
+}
+
 impl Patch for ResoFilter {
     fn rust_process_audio(
         &mut self,
@@ -39,8 +60,11 @@ impl Patch for ResoFilter {
             let t = playhead.time_in_seconds() as f32;
             let oscf = self.siner.f(t);
             let q = self.q_sig.f(t);
+            let j = urgh(q, 3.4);
+            let j2 = urgh64(q.into(), 3.4);
+            let j3 = urghu32(q as u32, 3);
             //let _qq = add(&self.q_sig, &self.q_sig);
-            let fb = q + q / (1.0 - oscf);
+            let fb = q + q / (1.0 - oscf) + j + (j2 as f32) + (j3 as f32);
             let inp = input_slice[i];
             self.buf0 = self.buf0 + oscf * (inp - self.buf0 + fb * (self.buf0 - self.buf1));
             self.buf1 = self.buf1 + oscf * (self.buf0 - self.buf1);

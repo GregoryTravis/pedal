@@ -37,7 +37,7 @@ extern "C" int cpp_main(void)
 
   load_init();
 
-	//hw.StartAudio(AudioCallback);
+	hw.StartAudio(AudioCallback);
 
   patch_main();
   while(1) {} // Just in case we fall through

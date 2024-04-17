@@ -9,6 +9,9 @@ edition = "2021"
 for_host = ["hound", "plotters"]
 bin = ["hound"]
 
+[profile.release]
+debug = true
+
 [dependencies]
 alloc-cortex-m = { version = "0.4.4"}
 circular-buffer = { version = "0.1.6", features = [], default-features = false }
