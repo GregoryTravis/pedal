@@ -2,11 +2,6 @@
 #include <assert.h>
 #include <math.h>
 
-#ifdef STANDALONE
-#include <algorithm>
-#include "AudioFile.h"
-#endif
-
 #include "vibrato.h"
 
 float sinc(float x) {
@@ -53,49 +48,3 @@ void Vibrato::cpp_process_audio(
       playhead.inc();
   }
 }
-
-#ifdef STANDALONE
-int main(int argc, char *argv[]) {
-  printf("float is %lu\n", sizeof(float));
-  printf("double is %lu\n", sizeof(double));
-  printf("int is %lu\n", sizeof(int));
-
-  char *infile = argv[1];
-  char *outfile = argv[2];
-
-  AudioFile<float> audioFile;
-  audioFile.load(infile);
-
-  assert(audioFile.isMono());
-  assert(audioFile.getBitDepth() == 16);
-
-  int numSamples = audioFile.getNumSamplesPerChannel();
-  assert(numSamples > 0);
-  int bufSize = 4;
-
-  AudioFile<float> outAudioFile;
-  outAudioFile.setAudioBufferSize(1, numSamples);
-  outAudioFile.setBitDepth(audioFile.getBitDepth());
-  outAudioFile.setSampleRate(audioFile.getSampleRate());
-  AudioFile<float>::AudioBuffer buffer;
-  buffer.resize(1);
-  buffer[0].resize(numSamples);
-  outAudioFile.setAudioBuffer(buffer);
-
-  Vibrato vibrato(400, 1.0);
-  Playhead playhead;
-
-  int current = 0;
-  while (current < numSamples) {
-    float *inp = &audioFile.samples[0][current];
-    float *outp = &outAudioFile.samples[0][current];
-    size_t remaining = std::min(numSamples - current, bufSize);
-    vibrato.cpp_process_audio(inp, outp, remaining, playhead);
-    playhead.increment_samples(remaining);
-    current += remaining;
-  }
-
-  outAudioFile.save(outfile);
-}
-#endif
-

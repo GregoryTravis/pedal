@@ -8,6 +8,7 @@ name = "pedalhost"
 #crate-type = ["staticlib"] # Creates static lib
 
 [profile.release]
+debug = true
 lto = "fat"
 
 [features]

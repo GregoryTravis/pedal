@@ -9,6 +9,7 @@ name = "pedalboard"
 crate-type = ["staticlib"]
 
 [profile.release]
+debug = true
 lto = "fat"
 
 [features]

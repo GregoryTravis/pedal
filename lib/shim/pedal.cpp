@@ -43,33 +43,7 @@ void CppVibratoAudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuf
   load_after();
 }
 
-#define TEST_CPP 0
-
-#define DOT_SIZE 48
-
-float dys[DOT_SIZE];
-void ddot(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out) {
-  for (int i = 0; i < DOT_SIZE; ++i) {
-    out[1][i] = (float) (((double)in[1][i]) * dys[i]);
-  }
-}
-
-float fys[DOT_SIZE];
-void fdot(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out) {
-  for (int i = 0; i < DOT_SIZE; ++i) {
-    out[1][i] = in[1][i] * fys[i];
-  }
-}
-
-#define NROUNDS 400
-void CppSpeedAudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size)
-{
-  load_before();
-  for (int i = 0; i < NROUNDS; ++i) {
-    ddot(in, out);
-  }
-  load_after();
-}
+#define TEST_CPP 1
 
 void initLogging() {
   hw.StartLog(true);
@@ -98,26 +72,11 @@ extern "C" int cpp_main(void)
 	hw.StartAudio(AudioCallback);
 #endif
 
-	//hw.StartAudio(CppVibratoAudioCallback);
-  /*
-  spew_string_c("chans ");
-  spew_int_c(hw.audio_handle.GetChannels());
-  spew_newline_c();
-  */
-
   patch_main();
   while(1) {} // Just in case we fall through
 }
 
 int main() {
-  /*
-  spew_string_c("float");
-  spew_int_c(sizeof(float));
-  spew_string_c("double");
-  spew_int_c(sizeof(double));
-  spew_string_c("int");
-  spew_int_c(sizeof(int));
-  */
   vibrato = new Vibrato(400, 0.10);
   PEDAL_MAIN();
 }
