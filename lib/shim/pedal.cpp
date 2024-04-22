@@ -5,12 +5,14 @@
 #include "hw.h"
 #include "load.h"
 #include "spew.h"
-#include "vibrato.h"
 
 using namespace daisy;
 
-Vibrato *vibrato = nullptr;
-Playhead playhead;
+#define TEST_CPP 0
+
+#if TEST_CPP
+#include "patch.h"
+#endif
 
 extern "C" {
   void rust_process_audio_stub(const float* const* in_ptr, float **out_ptr, size_t len);
@@ -31,19 +33,6 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
   rust_process_audio_stub(in, out, size);
   load_after();
 }
-
-void CppVibratoAudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size)
-{
-  load_before();
-  vibrato->cpp_process_audio(in[1], out[1], size, playhead);
-  for (size_t i = 0; i < size; ++i) {
-    out[0][i] = out[1][i];
-  }
-  playhead.increment_samples(size);
-  load_after();
-}
-
-#define TEST_CPP 1
 
 void initLogging() {
   hw.StartLog(true);
@@ -66,7 +55,6 @@ extern "C" int cpp_main(void)
   load_init();
 
 #if TEST_CPP
-	//hw.StartAudio(CppSpeedAudioCallback);
 	hw.StartAudio(CppVibratoAudioCallback);
 #else
 	hw.StartAudio(AudioCallback);
@@ -77,6 +65,8 @@ extern "C" int cpp_main(void)
 }
 
 int main() {
-  vibrato = new Vibrato(400, 0.10);
+#if TEST_CPP
+  patch_setup();
+#endif
   PEDAL_MAIN();
 }
