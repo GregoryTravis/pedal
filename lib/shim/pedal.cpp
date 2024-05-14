@@ -43,6 +43,9 @@ extern "C" void UnsafeDelay(uint32_t delay_ms) {
   System::Delay(delay_ms);
 }
 
+GPIO audioBypassTrigger;
+GPIO audioMuteTrigger;
+
 extern "C" int cpp_main(void)
 {
 	hw.Init();
@@ -51,6 +54,16 @@ extern "C" int cpp_main(void)
 	hw.SetAudioSampleRate(SaiHandle::Config::SampleRate::SAI_48KHZ);
 
   assert(hw.audio_handle.GetChannels() == 2);
+
+  Pin relayPin = seed::D1;
+  Pin mutePin = seed::D12;
+  audioBypassTrigger.Init(relayPin, GPIO::Mode::OUTPUT);
+  audioMuteTrigger.Init(mutePin, GPIO::Mode::OUTPUT);
+
+  bool m_audioBypass = false;
+  audioBypassTrigger.Write(!m_audioBypass);
+  bool m_audioMute = false;
+  audioMuteTrigger.Write(m_audioMute);
 
   load_init();
 
