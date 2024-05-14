@@ -7,12 +7,12 @@ use crate::patch::Patch;
 use crate::playhead::Playhead;
 
 pub struct Delay {
-    cbuf: CircularBuffer::<4, f32>,
+    cbuf: CircularBuffer::<48, f32>,
 }
 
 impl Delay {
     pub fn new() -> Delay {
-        Delay { cbuf: CircularBuffer::<4, f32>::new() }
+        Delay { cbuf: CircularBuffer::<48, f32>::new() }
     }
 }
 
@@ -26,7 +26,7 @@ impl Patch for Delay {
         for i in 0..input_slice.len() {
             let inp = input_slice[i];
             let out: f32;
-            if self.cbuf.len() < 4 {
+            if self.cbuf.len() < 48 {
                 out = 0.0;
             } else {
                 out = *self.cbuf.front().unwrap();

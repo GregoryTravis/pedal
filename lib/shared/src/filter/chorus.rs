@@ -8,7 +8,7 @@ use crate::playhead::Playhead;
 #[cfg(feature = "for_host")]
 use std::println;
 
-const BATCH_SIZE: usize = 4;
+const BATCH_SIZE: usize = 48;
 
 pub struct Chorus {
     vibrato_a: LinearVibrato,

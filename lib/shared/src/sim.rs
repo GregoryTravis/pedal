@@ -13,7 +13,7 @@ use crate::convert::*;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
 
-const BATCH_SIZE: usize = 4;
+const BATCH_SIZE: usize = 48;
 
 fn print_type_of<T>(_: &T) {
     println!("{}", std::any::type_name::<T>())
