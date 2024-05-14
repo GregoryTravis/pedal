@@ -73,7 +73,7 @@ pub fn sim_main(input_file: &str, output_file: &str, mut patch: Box<dyn Patch>) 
                 .unwrap();
         }
 
-        playhead.increment_samples(num_frames as u64);
+        playhead.increment_samples(num_frames as u32);
     }
     writer.finalize().unwrap();
 }
@@ -93,7 +93,7 @@ pub fn sim_run_patch_on_buffer(mut patch: Box<dyn Patch>, input: &[f32]) -> Box<
         let mut sub_output: &mut [f32] = &mut output[start..end];
 //let body_slice: &mut [u8] = &mut myvec[10..1034];
         patch.rust_process_audio(&sub_input, &mut sub_output, playhead);
-        playhead.increment_samples(BATCH_SIZE as u64);
+        playhead.increment_samples(BATCH_SIZE as u32);
         sofar += BATCH_SIZE;
     }
 

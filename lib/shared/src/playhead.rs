@@ -4,7 +4,7 @@ use crate::constants::SAMPLE_RATE;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Playhead {
-    time_in_samples: u64,
+    time_in_samples: u32,
 }
 
 impl Playhead {
@@ -12,13 +12,13 @@ impl Playhead {
         Playhead { time_in_samples: 0 }
     }
 
-    pub fn time_in_samples(&self) -> u64 {
+    pub fn time_in_samples(&self) -> u32 {
         self.time_in_samples
     }
 
-    pub fn time_in_seconds(&self) -> f64 {
+    pub fn time_in_seconds(&self) -> f32 {
         // TODO: un-hardcode sampling rate
-        (self.time_in_samples as f64) / (SAMPLE_RATE as f64)
+        (self.time_in_samples as f32) / (SAMPLE_RATE as f32)
     }
 
     pub fn sinf(&self, hz: f32) -> f32 {
@@ -27,7 +27,7 @@ impl Playhead {
         libm::sinf(radians)
     }
 
-    pub fn increment_samples(&mut self, delta_samples: u64) {
+    pub fn increment_samples(&mut self, delta_samples: u32) {
         self.time_in_samples += delta_samples;
     }
 

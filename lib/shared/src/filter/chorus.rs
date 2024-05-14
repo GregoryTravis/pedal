@@ -59,7 +59,7 @@ impl Patch for Chorus {
             output_slice[i] /= 3.0;
             if output_slice[i] < -1.0 || output_slice[i] > 1.0 {
 #[cfg(feature = "for_host")]
-                println!("Overflow {} {} {} {} {}", playhead.time_in_samples()+(i as u64),
+                println!("Overflow {} {} {} {} {}", playhead.time_in_samples()+(i as u32),
                     output_slice[i], temp0[i], temp1[i], temp2[i]);
             }
         }

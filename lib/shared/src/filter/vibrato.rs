@@ -67,8 +67,8 @@ impl Patch for Vibrato {
         for i in 0..input_slice.len() {
             self.cbuf.push(input_slice[i]);
             let tis = playhead.time_in_seconds();
-            let vibrato_deviation = libm::sin(
-                tis * self.vibrato_frequency as f64 * 2.0 * PI as f64) * (self.max_sample_deviation as f64);
+            let vibrato_deviation = libm::sinf(
+                tis * self.vibrato_frequency as f32 * 2.0 * PI as f32) * (self.max_sample_deviation as f32);
             // Fractional playhead
             let fph = (self.now_index as f32) + vibrato_deviation as f32;
             let window_low_f = fph - (NUM_SINC_TAPS_ONE_SIDE as f32);

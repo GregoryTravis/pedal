@@ -5,6 +5,7 @@ extern crate alloc;
 extern "C" {
     pub fn spew_int_c(x: i32);
     pub fn spew_ulonglong_c(x: u64);
+    pub fn spew_ulong_c(x: u32);
     pub fn spew_size_t_c(x: usize);
     pub fn spew_float_c(x: f32);
     pub fn spew_double_c(x: f64);
@@ -21,6 +22,14 @@ impl Spewable for i32 {
     fn do_spew(&self) {
         unsafe {
             spew_int_c(*self);
+        }
+    }
+}
+
+impl Spewable for u32 {
+    fn do_spew(&self) {
+        unsafe {
+            spew_ulong_c(*self);
         }
     }
 }

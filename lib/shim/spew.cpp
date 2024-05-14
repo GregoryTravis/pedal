@@ -4,6 +4,10 @@ extern "C" void spew_int_c(int x) {
   hw.Print("%d", x);
 }
 
+extern "C" void spew_ulong_c(unsigned long x) {
+  hw.Print("%lu", x);
+}
+
 extern "C" void spew_ulonglong_c(unsigned long long x) {
   hw.Print("%lu", (unsigned long)x);
 }

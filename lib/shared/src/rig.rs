@@ -88,7 +88,7 @@ pub extern "C" fn rust_process_audio_stub(
             rig.outl = left_output_slice[0];
             rig.outr = right_output_slice[0];
             rig.framesize = len;
-            rig.playhead.increment_samples(len as u64);
+            rig.playhead.increment_samples(len as u32);
         }
     });
 }
