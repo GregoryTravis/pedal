@@ -10,6 +10,7 @@ use alloc::sync::Arc;
 
 use shared::filter::chorus::*;
 use shared::filter::high_pass::*;
+use shared::filter::linear_vibrato::*;
 use shared::filter::low_pass::*;
 use shared::filter::pass_thru::*;
 use shared::filter::reso::*;
@@ -45,6 +46,11 @@ pub fn reso_main() -> i32 {
 #[no_mangle]
 pub fn vibrato_main() -> i32 {
     gogogo(Box::new(Vibrato::new(400, 1.0)))
+}
+
+#[no_mangle]
+pub fn linear_vibrato_main() -> i32 {
+    gogogo(Box::new(LinearVibrato::new(400, 1.0)))
 }
 
 #[no_mangle]
