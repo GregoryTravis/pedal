@@ -5,6 +5,9 @@
 #include "hw.h"
 #include "load.h"
 #include "spew.h"
+#include "spew.h"
+
+#define SPEED_TEST 1
 
 using namespace daisy;
 
@@ -18,6 +21,7 @@ extern "C" {
   void rust_process_audio_stub(const float* const* in_ptr, float **out_ptr, size_t len);
   void patch_main();
   int PEDAL_MAIN();
+  void rust_f32_dot();
 }
 
 // (libDaisy/src/hid/audio.h)
@@ -77,9 +81,57 @@ extern "C" int cpp_main(void)
   while(1) {} // Just in case we fall through
 }
 
+#if SPEED_TEST
+
+#include "speed_test.h"
+
+static long ticks = 0;
+void speed_test_callback(AudioHandle::InputBuffer _in, AudioHandle::OutputBuffer _out, size_t _size)
+{
+  ticks++;
+}
+
+#define TEST_FOR 100
+
+void speed_test(const char *test_name, void (*f)()) {
+  long start = ticks;
+  long end = ticks + TEST_FOR;
+  long num_calls = 0;
+  while (ticks < end) {
+    f();
+    num_calls++;
+  }
+  long num_ticks = end - start;
+  hw.PrintLine("%s %d %d", test_name, num_ticks, num_calls);
+}
+
+void speed_test_main() {
+  speed_test("cpp_f32_dot", &cpp_f32_dot);
+  speed_test("rust_f32_dot", &rust_f32_dot);
+}
+
+int main() {
+	hw.Init();
+  initLogging();
+	hw.SetAudioBlockSize(4); // number of samples handled per callback
+	hw.SetAudioSampleRate(SaiHandle::Config::SampleRate::SAI_48KHZ);
+
+  assert(hw.audio_handle.GetChannels() == 2);
+
+	hw.StartAudio(&speed_test_callback);
+
+  hw.PrintLine("float %d\n", sizeof(float));
+
+  speed_test_main();
+}
+
+#else
+
 int main() {
 #if TEST_CPP
   patch_setup();
 #endif
   PEDAL_MAIN();
 }
+
+#endif  // if SPEED_TEST

@@ -17,4 +17,5 @@ pub mod rig;
 pub mod signal;
 #[cfg(feature = "for_host")]
 pub mod sim;
+pub mod speed_test;
 pub mod spew;
