@@ -105,7 +105,7 @@ void speed_test(const char *test_name, float (*f)()) {
     num_calls++;
   }
   long num_ticks = end - start;
-  hw.PrintLine("%s %d %d %f %f", test_name, num_ticks, num_calls, fr, (fr / num_calls));
+  hw.PrintLine("%s %d %d %f", test_name, num_ticks, num_calls, fr);
 }
 
 void speed_test_main() {

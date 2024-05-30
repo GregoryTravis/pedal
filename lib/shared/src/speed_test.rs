@@ -32,7 +32,7 @@ pub fn rust_f32_dot() -> f32 {
         for i in 0..DOT_SIZE {
            totes += a[i] * b[i];
         }
-        accum += totes;
+        accum = totes;
         accum
     }
 }

@@ -22,6 +22,6 @@ __attribute__((noinline)) float cpp_f32_dot() {
     totes += (a[i] * b[i]);
   }
 
-  accum += totes;
+  accum = totes;
   return accum;
 }
