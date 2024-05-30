@@ -28,11 +28,11 @@ pub fn rust_speed_test_init() {
 #[inline(never)]
 pub fn rust_f32_dot() -> f32 {
     unsafe {
-        let mut c: f32 = 0.0;
+        let mut totes: f32 = 0.0;
         for i in 0..DOT_SIZE {
-           c += a[i] * b[i];
+           totes += a[i] * b[i];
         }
-        accum += c;
+        accum += totes;
         accum
     }
 }
