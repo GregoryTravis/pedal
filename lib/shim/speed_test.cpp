@@ -15,22 +15,13 @@ void cpp_speed_test_init() {
   accum = 0;
 }
 
-__attribute__((noinline)) float cpp_f32_dot_2() {
+__attribute__((noinline)) float cpp_f32_dot() {
   float totes = 0.0;
 
   for (int i = 0; i < DOT_SIZE; ++i) {
     totes += (a[i] * b[i]);
   }
 
-  return totes;
-}
-
-float cpp_f32_dot() {
-  float f = cpp_f32_dot_2();
-  accum += f;
+  accum += totes;
   return accum;
-  //float f = cpp_f32_dot_2();
-  //spew_string_c("c++ ");
-  //spew_float_c(f);
-  //spew_newline_c();
 }

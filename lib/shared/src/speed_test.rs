@@ -25,23 +25,14 @@ pub fn rust_speed_test_init() {
 }
 
 #[no_mangle]
-pub fn rust_f32_dot() -> f32 {
-    let fr = rust_f32_dot_2();
-    unsafe {
-        accum += fr;
-        accum
-    }
-    //let f = rust_f32_dot_2();
-    //glep!("rust", f);
-}
-
 #[inline(never)]
-pub fn rust_f32_dot_2() -> f32 {
+pub fn rust_f32_dot() -> f32 {
     unsafe {
         let mut c: f32 = 0.0;
         for i in 0..DOT_SIZE {
            c += a[i] * b[i];
         }
-        return c;
+        accum += c;
+        accum
     }
 }
