@@ -1,12 +1,47 @@
-const DOT_SIZE: usize = 18;
+#[allow(unused_imports)]
+use crate::glep;
+
+#[allow(unused_imports)]
+use crate::spew::*;
+
+const DOT_SIZE: usize = 10;
+
+#[allow(non_upper_case_globals)]
+static mut a: [f32; DOT_SIZE] = [0.0; DOT_SIZE];
+#[allow(non_upper_case_globals)]
+static mut b: [f32; DOT_SIZE] = [0.0; DOT_SIZE];
+#[allow(non_upper_case_globals)]
+static mut accum: f32 = 0.0;
 
 #[no_mangle]
-pub fn rust_f32_dot() {
-    let a: [f32; DOT_SIZE] = [0.0; DOT_SIZE];
-    let b: [f32; DOT_SIZE] = [0.0; DOT_SIZE];
-    let mut c: f32 = 0.0;
-    for i in 0..DOT_SIZE {
-       c += a[i] * b[i];
+pub fn rust_speed_test_init() {
+    unsafe {
+        for i in 0..DOT_SIZE {
+            a[i] = i as f32;
+            b[i] = i as f32;
+        }
+        accum = 0.0;
     }
-    let mut _use = c;
+}
+
+#[no_mangle]
+pub fn rust_f32_dot() -> f32 {
+    let fr = rust_f32_dot_2();
+    unsafe {
+        accum += fr;
+        accum
+    }
+    //let f = rust_f32_dot_2();
+    //glep!("rust", f);
+}
+
+#[inline(never)]
+pub fn rust_f32_dot_2() -> f32 {
+    unsafe {
+        let mut c: f32 = 0.0;
+        for i in 0..DOT_SIZE {
+           c += a[i] * b[i];
+        }
+        return c;
+    }
 }

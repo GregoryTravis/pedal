@@ -5,7 +5,6 @@
 #include "hw.h"
 #include "load.h"
 #include "spew.h"
-#include "spew.h"
 
 #define SPEED_TEST 1
 
@@ -21,7 +20,8 @@ extern "C" {
   void rust_process_audio_stub(const float* const* in_ptr, float **out_ptr, size_t len);
   void patch_main();
   int PEDAL_MAIN();
-  void rust_f32_dot();
+  void rust_speed_test_init();
+  float rust_f32_dot();
 }
 
 // (libDaisy/src/hid/audio.h)
@@ -54,7 +54,7 @@ extern "C" int cpp_main(void)
 {
 	hw.Init();
   initLogging();
-	hw.SetAudioBlockSize(4); // number of samples handled per callback
+	hw.SetAudioBlockSize(48); // number of samples handled per callback
 	hw.SetAudioSampleRate(SaiHandle::Config::SampleRate::SAI_48KHZ);
 
   assert(hw.audio_handle.GetChannels() == 2);
@@ -93,19 +93,25 @@ void speed_test_callback(AudioHandle::InputBuffer _in, AudioHandle::OutputBuffer
 
 #define TEST_FOR 100
 
-void speed_test(const char *test_name, void (*f)()) {
+void speed_test(const char *test_name, float (*f)()) {
   long start = ticks;
   long end = ticks + TEST_FOR;
   long num_calls = 0;
-  while (ticks < end) {
-    f();
+  bool stop_early = false;
+  int stop_early_count = 1000000;
+  float fr;
+  while (ticks < end && (!stop_early || num_calls < stop_early_count)) {
+    fr = f();
     num_calls++;
   }
   long num_ticks = end - start;
-  hw.PrintLine("%s %d %d", test_name, num_ticks, num_calls);
+  hw.PrintLine("%s %d %d %f %f", test_name, num_ticks, num_calls, fr, (fr / num_calls));
 }
 
 void speed_test_main() {
+  cpp_speed_test_init();
+  rust_speed_test_init();
+
   speed_test("cpp_f32_dot", &cpp_f32_dot);
   speed_test("rust_f32_dot", &rust_f32_dot);
 }
@@ -113,7 +119,7 @@ void speed_test_main() {
 int main() {
 	hw.Init();
   initLogging();
-	hw.SetAudioBlockSize(4); // number of samples handled per callback
+	hw.SetAudioBlockSize(48); // number of samples handled per callback
 	hw.SetAudioSampleRate(SaiHandle::Config::SampleRate::SAI_48KHZ);
 
   assert(hw.audio_handle.GetChannels() == 2);
