@@ -22,6 +22,7 @@ extern "C" {
   int PEDAL_MAIN();
   void rust_speed_test_init();
   float rust_f32_dot();
+  float rust_f32_circsum();
 }
 
 // (libDaisy/src/hid/audio.h)
@@ -112,8 +113,8 @@ void speed_test_main() {
   cpp_speed_test_init();
   rust_speed_test_init();
 
-  speed_test("cpp_f32_dot", &cpp_f32_dot);
-  speed_test("rust_f32_dot", &rust_f32_dot);
+  speed_test("cpp_f32_circsum", &cpp_f32_circsum);
+  speed_test("rust_f32_circsum", &rust_f32_circsum);
 }
 
 int main() {
