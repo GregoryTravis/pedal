@@ -117,7 +117,7 @@ void speed_test_main() {
   speed_test("rust_f32_circsum", &rust_f32_circsum);
 }
 
-int main() {
+int xmain() {
 	hw.Init();
   initLogging();
 	hw.SetAudioBlockSize(48); // number of samples handled per callback
@@ -130,6 +130,8 @@ int main() {
   hw.PrintLine("float %d\n", sizeof(float));
 
   speed_test_main();
+
+  return 0;
 }
 
 #else

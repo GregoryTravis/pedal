@@ -67,3 +67,12 @@ pub fn chorus_main() -> i32 {
 pub fn sine_main() -> i32 {
     gogogo(Box::new(SineGenerator::new()))
 }
+
+#[no_mangle]
+pub fn main() {
+    loop {
+        let a = 1;
+        let b = a;
+        let _c = b;
+    }
+}
