@@ -18,10 +18,6 @@ extern "C" {
     pub fn cpp_rig_install_callback();
 }
 
-extern "C" {
-    pub fn cpp_main() -> i32;
-}
-
 static THE_PATCH: Mutex<RefCell<Option<Rig>>> = Mutex::new(RefCell::new(None));
 
 #[global_allocator]
@@ -50,7 +46,6 @@ pub fn rig_install_patch(box_patch: Box<dyn Patch>) {
         playhead : Playhead::new(),
     };
     interrupt::free(|cs| THE_PATCH.borrow(cs).replace(Some(rig)));
-    //unsafe { cpp_main() }
 }
 
 pub fn rig_install_callback() {
@@ -60,7 +55,7 @@ pub fn rig_install_callback() {
 }
 
 #[no_mangle]
-pub extern "C" fn rust_process_audio_stub(
+pub extern "C" fn rig_process_audio(
     in_ptr: *const *const f32,
     out_ptr: *const *mut f32,
     len: usize,

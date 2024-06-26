@@ -2,18 +2,17 @@
 #include "load.h"
 
 extern "C" {
-  void rust_process_audio_stub(const float* const* in_ptr, float **out_ptr, size_t len);
+  void rig_process_audio(const float* const* in_ptr, float **out_ptr, size_t len);
   void patch_main();
 }
 
+// TODO remove this indirection
 void AudioCallback2(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size)
 {
-  rust_process_audio_stub(in, out, size);
+  rig_process_audio(in, out, size);
 }
 
 extern "C" void cpp_rig_install_callback()
 {
 	hw.StartAudio(AudioCallback2);
-  //patch_main();
-  //while(1) {} // Just in case we fall through
 }
