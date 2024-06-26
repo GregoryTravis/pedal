@@ -6,10 +6,8 @@ use shared::spew::*;
 #[no_mangle]
 pub fn main() {
     hw_sanity_check();
-    hw_Init();
-    hw_StartLog(true);
+    hw_init(true, BLOCK_SIZE);
     glep!("hi");
-    hw_SetAudioBlockSize(BLOCK_SIZE);
     loop {
         let a = 1;
         let b = a;
