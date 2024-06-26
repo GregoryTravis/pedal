@@ -7,7 +7,6 @@ use core::slice;
 
 use cortex_m::interrupt::{self, Mutex};
 
-use crate::load::*;
 use crate::spew::*;
 use crate::patch::*;
 use crate::playhead::*;
@@ -15,14 +14,7 @@ use crate::playhead::*;
 use crate::glep;
 
 extern "C" {
-    pub fn UnsafeDelay(delay_ms: u32);
     pub fn cpp_rig_install_callback();
-}
-
-pub fn delay(delay_ms: u32) {
-    unsafe {
-        UnsafeDelay(delay_ms);
-    }
 }
 
 extern "C" {
@@ -100,8 +92,7 @@ pub extern "C" fn rust_process_audio_stub(
     });
 }
 
-#[no_mangle]
-pub fn patch_main() {
+pub fn rig_log() {
     let mut inl: f32 = 0.0;
     let mut inr: f32 = 0.0;
     let mut outl: f32 = 0.0;
@@ -121,7 +112,4 @@ pub fn patch_main() {
     });
 
     glep!(inl, inr, outl, outr, framesize, playhead.time_in_samples(), playhead.time_in_seconds());
-
-    load_spew();
-    delay(500);
 }

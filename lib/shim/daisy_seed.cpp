@@ -26,3 +26,7 @@ extern "C" void cpp_hw_kshep_init() {
   bool m_audioMute = false;
   audioMuteTrigger.Write(m_audioMute);
 }
+
+extern "C" void cpp_hw_delay(uint32_t delay_ms) {
+  System::Delay(delay_ms);
+}

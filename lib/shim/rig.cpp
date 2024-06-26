@@ -19,4 +19,3 @@ extern "C" void cpp_rig_install_callback()
   //patch_main();
   //while(1) {} // Just in case we fall through
 }
-

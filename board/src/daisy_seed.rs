@@ -8,6 +8,7 @@ extern "C" {
     pub fn cpp_hw_get_size_t_size() -> usize;
     pub fn cpp_hw_init(b: bool, block_size: usize);
     pub fn cpp_hw_kshep_init();
+    pub fn cpp_hw_delay(delay_ms: u32);
 }
 
 pub fn hw_get_size_t_size() -> usize {
@@ -35,3 +36,10 @@ pub fn hw_init(b: bool, block_size: usize) {
         }
     }
 }
+
+pub fn hw_delay(delay_ms: u32) {
+    unsafe {
+        cpp_hw_delay(delay_ms);
+    }
+}
+

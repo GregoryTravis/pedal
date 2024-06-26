@@ -44,10 +44,6 @@ void initLogging() {
   hw.PrintLine("Pedal!");
 }
 
-extern "C" void UnsafeDelay(uint32_t delay_ms) {
-  System::Delay(delay_ms);
-}
-
 GPIO audioBypassTrigger;
 GPIO audioMuteTrigger;
 

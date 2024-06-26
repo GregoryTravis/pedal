@@ -26,6 +26,8 @@ pub fn main() {
     rig_install_callback();
 
     loop {
-        patch_main();
+        rig_log();
+        load_spew();
+        hw_delay(500);
     }
 }
