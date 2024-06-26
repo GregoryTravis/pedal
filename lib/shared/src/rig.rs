@@ -16,6 +16,7 @@ use crate::glep;
 
 extern "C" {
     pub fn UnsafeDelay(delay_ms: u32);
+    pub fn cpp_rig_install_callback();
 }
 
 pub fn delay(delay_ms: u32) {
@@ -57,6 +58,12 @@ pub fn gogogo(box_patch: Box<dyn Patch>) {
     };
     interrupt::free(|cs| THE_PATCH.borrow(cs).replace(Some(rig)));
     //unsafe { cpp_main() }
+}
+
+pub fn rig_install_callback() {
+    unsafe {
+        cpp_rig_install_callback();
+    }
 }
 
 #[no_mangle]

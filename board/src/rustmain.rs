@@ -13,10 +13,6 @@ use shared::glep;
 use shared::load::*;
 use shared::spew::*;
 
-extern "C" {
-    pub fn morf_main();
-}
-
 #[no_mangle]
 pub fn main() {
     hw_sanity_check();
@@ -29,9 +25,7 @@ pub fn main() {
     glep!("hi");
     load_init();
 
-    unsafe {
-        morf_main();
-    }
+    rig_install_callback();
 
     loop {
         let a = 1;

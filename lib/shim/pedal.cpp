@@ -51,13 +51,6 @@ extern "C" void UnsafeDelay(uint32_t delay_ms) {
 GPIO audioBypassTrigger;
 GPIO audioMuteTrigger;
 
-extern "C" void morf_main()
-{
-	hw.StartAudio(AudioCallback);
-  patch_main();
-  while(1) {} // Just in case we fall through
-}
-
 extern "C" int cpp_main(void)
 {
 	hw.Init();

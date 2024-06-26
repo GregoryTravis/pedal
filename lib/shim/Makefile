@@ -21,7 +21,7 @@ clean_pedal_dependent_o:
 	rm -f build/pedal.o
 
 # Sources
-CPP_SOURCES = pedal.cpp spew.cpp hw.cpp load.cpp vibrato.cpp playhead.cpp circbuf.cpp patch.cpp speed_test.cpp daisy_seed.cpp
+CPP_SOURCES = pedal.cpp spew.cpp hw.cpp load.cpp vibrato.cpp playhead.cpp circbuf.cpp patch.cpp speed_test.cpp daisy_seed.cpp rig.cpp
 
 # Library Locations
 DAISY_EXAMPLES = ../../../DaisyExamples
