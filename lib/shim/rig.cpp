@@ -8,9 +8,7 @@ extern "C" {
 
 void AudioCallback2(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size)
 {
-  cpp_load_before();
   rust_process_audio_stub(in, out, size);
-  cpp_load_after();
 }
 
 extern "C" void cpp_rig_install_callback()

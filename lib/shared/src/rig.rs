@@ -7,6 +7,7 @@ use core::slice;
 
 use cortex_m::interrupt::{self, Mutex};
 
+use crate::load::*;
 use crate::spew::*;
 use crate::patch::*;
 use crate::playhead::*;
@@ -64,6 +65,7 @@ pub extern "C" fn rust_process_audio_stub(
     out_ptr: *const *mut f32,
     len: usize,
 ) {
+    load_before();
     interrupt::free(|cs| {
         if let Some(ref mut rig) = THE_PATCH.borrow(cs).borrow_mut().deref_mut().as_mut() {
             // Mono pedal, so left_input_slice  is unused, except that we dump a value
@@ -90,6 +92,7 @@ pub extern "C" fn rust_process_audio_stub(
             rig.playhead.increment_samples(len as u32);
         }
     });
+    load_after();
 }
 
 pub fn rig_log() {
