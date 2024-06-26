@@ -116,7 +116,7 @@ pub fn patch_main() {
 
         glep!(inl, inr, outl, outr, framesize, playhead.time_in_samples(), playhead.time_in_seconds());
 
-        show_load();
+        load_spew();
         delay(500);
     }
 }

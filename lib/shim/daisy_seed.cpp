@@ -1,4 +1,5 @@
 #include "hw.h"
+#include "load.h"
 
 extern "C" size_t cpp_hw_get_size_t_size() {
   return sizeof(size_t);

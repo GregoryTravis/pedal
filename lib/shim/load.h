@@ -2,9 +2,7 @@
 
 using namespace daisy;
 
-#define CPU_LOAD 1
-
-extern void load_init();
-extern void load_before();
-extern void load_after();
-extern "C" void load_spew();
+extern "C" void cpp_load_init();
+extern "C" void cpp_load_before();
+extern "C" void cpp_load_after();
+extern "C" void cpp_load_spew();

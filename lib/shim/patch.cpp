@@ -9,13 +9,13 @@ Playhead playhead;
 
 void CppVibratoAudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size)
 {
-  load_before();
+  cpp_load_before();
   vibrato->cpp_process_audio(in[1], out[1], size, playhead);
   for (size_t i = 0; i < size; ++i) {
     out[0][i] = out[1][i];
   }
   playhead.increment_samples(size);
-  load_after();
+  cpp_load_after();
 }
 
 void patch_setup() {

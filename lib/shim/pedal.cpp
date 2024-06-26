@@ -34,9 +34,9 @@ extern "C" {
 // typedef float** OutputBuffer;
 void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size)
 {
-  load_before();
+  cpp_load_before();
   rust_process_audio_stub(in, out, size);
-  load_after();
+  cpp_load_after();
 }
 
 void initLogging() {
@@ -70,7 +70,7 @@ extern "C" int cpp_main(void)
   bool m_audioMute = false;
   audioMuteTrigger.Write(m_audioMute);
 
-  load_init();
+  cpp_load_init();
 
 #if TEST_CPP
 	hw.StartAudio(CppVibratoAudioCallback);
