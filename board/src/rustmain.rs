@@ -19,17 +19,14 @@ pub fn main() {
 
     let siner = PostCompose { signal: Arc::new(Sin {}), ff: scale_range(0.3, 0.9) };
     let q = Const { x: 0.95 };
-    gogogo(Box::new(ResoFilter::new(Arc::new(siner), Arc::new(q))));
+    rig_install_patch(Box::new(ResoFilter::new(Arc::new(siner), Arc::new(q))));
 
     hw_init(true, BLOCK_SIZE);
     glep!("hi");
     load_init();
 
     rig_install_callback();
+    patch_main();
 
-    loop {
-        let a = 1;
-        let b = a;
-        let _c = b;
-    }
+    loop {}
 }

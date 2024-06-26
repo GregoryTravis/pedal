@@ -16,7 +16,7 @@ void AudioCallback2(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, 
 extern "C" void cpp_rig_install_callback()
 {
 	hw.StartAudio(AudioCallback2);
-  patch_main();
-  while(1) {} // Just in case we fall through
+  //patch_main();
+  //while(1) {} // Just in case we fall through
 }
 
