@@ -43,7 +43,7 @@ pub struct Rig {
     playhead: Playhead,
 }
 
-pub fn gogogo(box_patch: Box<dyn Patch>) -> i32 {
+pub fn gogogo(box_patch: Box<dyn Patch>) {
     // The audio handler must be installed AFTER this line.
     // TODO is this use of get_patch() an unnecessary copy?
     let rig = Rig {
@@ -56,7 +56,7 @@ pub fn gogogo(box_patch: Box<dyn Patch>) -> i32 {
         playhead : Playhead::new(),
     };
     interrupt::free(|cs| THE_PATCH.borrow(cs).replace(Some(rig)));
-    unsafe { cpp_main() }
+    //unsafe { cpp_main() }
 }
 
 #[no_mangle]
