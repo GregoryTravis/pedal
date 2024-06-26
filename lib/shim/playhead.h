@@ -1,6 +1,6 @@
 #include <math.h>
 
-#define SAMPLE_RATE 48000
+#include "constants.h"
 
 class Playhead {
   public:
