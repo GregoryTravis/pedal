@@ -2,9 +2,12 @@
 
 use core::mem::size_of;
 
+use shared::constants::*;
+
 extern "C" {
     pub fn cpp_hw_get_size_t_size() -> usize;
     pub fn cpp_hw_init(b: bool, block_size: usize);
+    pub fn cpp_hw_kshep_init();
 }
 
 pub fn hw_get_size_t_size() -> usize {
@@ -21,5 +24,10 @@ pub fn hw_sanity_check() {
 pub fn hw_init(b: bool, block_size: usize) {
     unsafe {
         cpp_hw_init(b, block_size);
+    }
+    if KSHEP {
+        unsafe {
+            cpp_hw_kshep_init();
+        }
     }
 }
