@@ -4,6 +4,7 @@ use shared::spew::*;
 
 #[no_mangle]
 pub fn main() {
+    hw_sanity_check();
     hw_Init();
     hw_StartLog(true);
     glep!(2);
