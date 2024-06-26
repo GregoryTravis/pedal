@@ -102,28 +102,26 @@ pub extern "C" fn rust_process_audio_stub(
 
 #[no_mangle]
 pub fn patch_main() {
-    loop {
-        let mut inl: f32 = 0.0;
-        let mut inr: f32 = 0.0;
-        let mut outl: f32 = 0.0;
-        let mut outr: f32 = 0.0;
-        let mut framesize: usize = 0;
-        let mut playhead: Playhead = Playhead::new();
+    let mut inl: f32 = 0.0;
+    let mut inr: f32 = 0.0;
+    let mut outl: f32 = 0.0;
+    let mut outr: f32 = 0.0;
+    let mut framesize: usize = 0;
+    let mut playhead: Playhead = Playhead::new();
 
-        interrupt::free(|cs| {
-            if let Some(ref mut rig) = THE_PATCH.borrow(cs).borrow_mut().deref_mut().as_mut() {
-                inl = rig.inl;
-                inr = rig.inr;
-                outl = rig.outl;
-                outr = rig.outr;
-                framesize = rig.framesize;
-                playhead = rig.playhead;
-            }
-        });
+    interrupt::free(|cs| {
+        if let Some(ref mut rig) = THE_PATCH.borrow(cs).borrow_mut().deref_mut().as_mut() {
+            inl = rig.inl;
+            inr = rig.inr;
+            outl = rig.outl;
+            outr = rig.outr;
+            framesize = rig.framesize;
+            playhead = rig.playhead;
+        }
+    });
 
-        glep!(inl, inr, outl, outr, framesize, playhead.time_in_samples(), playhead.time_in_seconds());
+    glep!(inl, inr, outl, outr, framesize, playhead.time_in_samples(), playhead.time_in_seconds());
 
-        load_spew();
-        delay(500);
-    }
+    load_spew();
+    delay(500);
 }

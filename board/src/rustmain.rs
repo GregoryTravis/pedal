@@ -24,7 +24,8 @@ pub fn main() {
     rig_install_patch(Box::new(ResoFilter::new(Arc::new(siner), Arc::new(q))));
 
     rig_install_callback();
-    patch_main();
 
-    loop {}
+    loop {
+        patch_main();
+    }
 }
