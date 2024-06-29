@@ -9,17 +9,16 @@ use std::vec;
 use std::vec::Vec;
 
 use hound;
+use crate::constants::*;
 use crate::convert::*;
 use crate::patch::Patch;
-use crate::playhead::Playhead;
-
-const BATCH_SIZE: usize = 48;
+use crate::rig::*;
 
 fn print_type_of<T>(_: &T) {
     println!("{}", std::any::type_name::<T>())
 }
 
-pub fn sim_main(input_file: &str, output_file: &str, mut patch: Box<dyn Patch>) {
+pub fn sim_main(input_file: &str, output_file: &str, patch: Box<dyn Patch>) {
     let mut reader = hound::WavReader::open(input_file).unwrap();
     let input_spec = reader.spec();
     assert!(input_spec.channels == 1 || input_spec.channels == 2);
@@ -34,20 +33,20 @@ pub fn sim_main(input_file: &str, output_file: &str, mut patch: Box<dyn Patch>) 
     let mut writer = hound::WavWriter::create(path, output_spec).unwrap();
     assert_eq!(output_spec, writer.spec());
 
-    let mut input_buf: [f32; BATCH_SIZE] = [0.0; BATCH_SIZE];
-    let mut output_buf: [f32; BATCH_SIZE] = [0.0; BATCH_SIZE];
-
-    let mut playhead: Playhead = Playhead::new();
+    let mut input_buf: [f32; BLOCK_SIZE] = [0.0; BLOCK_SIZE];
+    let mut output_buf: [f32; BLOCK_SIZE] = [0.0; BLOCK_SIZE];
 
     let mut num_frames: usize = 0;
+
+    rig_install_patch(patch);
 
     while samples.len() > 0 {
         match input_spec.channels {
             2 => {
                 assert!(samples.len() % 2 == 0);
-                let input_samples_count = min(samples.len(), BATCH_SIZE * 2);
+                let input_samples_count = min(samples.len(), BLOCK_SIZE * 2);
                 num_frames = input_samples_count / 2;
-                assert!(num_frames >= 1 && num_frames <= BATCH_SIZE);
+                assert!(num_frames >= 1 && num_frames <= BLOCK_SIZE);
                 for i in 0..num_frames {
                     input_buf[i] = sample_i16_to_f32(samples.next().unwrap().unwrap());
                     // Skip right channel
@@ -55,9 +54,9 @@ pub fn sim_main(input_file: &str, output_file: &str, mut patch: Box<dyn Patch>) 
                 }
             }
             1 => {
-                let input_samples_count = min(samples.len(), BATCH_SIZE);
+                let input_samples_count = min(samples.len(), BLOCK_SIZE);
                 num_frames = input_samples_count;
-                assert!(num_frames >= 1 && num_frames <= BATCH_SIZE);
+                assert!(num_frames >= 1 && num_frames <= BLOCK_SIZE);
                 for i in 0..num_frames {
                     input_buf[i] = (samples.next().unwrap().unwrap() as f32) / 32768.0;
                 }
@@ -65,37 +64,41 @@ pub fn sim_main(input_file: &str, output_file: &str, mut patch: Box<dyn Patch>) 
             _ => assert!(false),
         }
 
-        patch.rust_process_audio(&input_buf, &mut output_buf, playhead);
+        rust_process_audio_soft(&input_buf, &mut output_buf, BLOCK_SIZE);
 
         for i in 0..num_frames {
             writer
                 .write_sample(sample_f32_to_i16(output_buf[i]))
                 .unwrap();
         }
-
-        playhead.increment_samples(num_frames as u32);
     }
+
+    rig_deinstall_patch();
+
     writer.finalize().unwrap();
 }
 
-pub fn sim_run_patch_on_buffer(mut patch: Box<dyn Patch>, input: &[f32]) -> Box<[f32]> {
+pub fn sim_run_patch_on_buffer(patch: Box<dyn Patch>, input: &[f32]) -> Box<[f32]> {
     let len = input.len();
     let mut output: Vec<f32> = vec![0.0; len];
 
-    let mut playhead: Playhead = Playhead::new();
+    rig_install_patch(patch);
 
     let mut sofar = 0;
     while sofar < len {
         let start = sofar;
-        let end = min(sofar + BATCH_SIZE, len);
+        let end = min(sofar + BLOCK_SIZE, len);
         println!("rpob {} {} {} {}", sofar, len, start, end);
         let sub_input = &input[start..end];
         let mut sub_output: &mut [f32] = &mut output[start..end];
 //let body_slice: &mut [u8] = &mut myvec[10..1034];
-        patch.rust_process_audio(&sub_input, &mut sub_output, playhead);
-        playhead.increment_samples(BATCH_SIZE as u32);
-        sofar += BATCH_SIZE;
+
+        rust_process_audio_soft(&sub_input, &mut sub_output, BLOCK_SIZE);
+
+        sofar += BLOCK_SIZE;
     }
+
+    rig_deinstall_patch();
 
     output.into_boxed_slice()
 }
