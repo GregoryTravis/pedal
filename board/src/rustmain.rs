@@ -37,9 +37,9 @@ fn live_main() {
 fn test_main() {
     hw_init(true, BLOCK_SIZE);
     glep!("reso test running");
-    test_reso();
+    let chk = test_reso();
     //test_reso();
-    glep!("reso ok (board)");
+    glep!("reso ok (board)", chk);
 }
 
 #[no_mangle]

@@ -50,7 +50,15 @@ fn same(a: &[f32], b: &[f32]) -> bool {
     return true;
 }
 
-pub fn test_reso() {
+fn sum(a: &[f32]) -> f32 {
+    let mut sum: f32 = 0.0;
+    for i in 0..a.len() {
+        sum += a[i];
+    }
+    sum
+}
+
+pub fn test_reso() -> f32 {
     /*
     let mut input = vec![0.0; TEST_LEN];
 
@@ -75,4 +83,5 @@ pub fn test_reso() {
 
     let _same: bool = same(&output, &RESO_OUTPUT);
     assert!(same(&output, &RESO_OUTPUT));
+    sum(&output)
 }
