@@ -33,3 +33,4 @@ pub mod test;
 pub mod testdata;
 #[cfg(feature = "for_host")]
 pub mod testdump;
+pub mod testutil;
