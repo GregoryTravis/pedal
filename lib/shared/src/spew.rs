@@ -13,3 +13,4 @@ macro_rules! spew {
         spew_newline();
     }};
 }
+pub use spew;

@@ -3,9 +3,6 @@
 use crate::ds::circbuf::CircBuf;
 
 #[allow(unused_imports)]
-use crate::spew;
-
-#[allow(unused_imports)]
 use crate::spew::*;
 
 const DOT_SIZE: usize = 10;

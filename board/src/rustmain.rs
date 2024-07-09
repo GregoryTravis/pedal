@@ -9,7 +9,6 @@ use shared::signal::base::*;
 use shared::signal::combinators::*;
 use crate::daisy_seed::*;
 use shared::constants::*;
-use shared::spew;
 use shared::load::*;
 use shared::spew::*;
 use shared::test::test_reso;

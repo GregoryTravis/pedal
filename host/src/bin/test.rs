@@ -1,6 +1,5 @@
 extern crate alloc;
 
-use shared::spew;
 use shared::spew::*;
 use shared::test::*;
 

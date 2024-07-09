@@ -5,7 +5,6 @@ use alloc::boxed::Box;
 use core::slice;
 
 //use crate::load::*;
-use crate::spew;
 use crate::spew::*;
 use crate::patch::*;
 use crate::playhead::*;
