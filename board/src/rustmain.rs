@@ -36,9 +36,8 @@ fn live_main() {
 fn test_main() {
     hw_init(true, BLOCK_SIZE);
     spew!("reso test running");
-    let chk = test_reso();
-    //test_reso();
-    spew!("reso ok (board)", chk, chk.to_bits());
+    test_reso();
+    test_reso();
 }
 
 #[no_mangle]

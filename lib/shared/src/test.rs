@@ -17,6 +17,7 @@ use crate::filter::reso::*;
 use crate::rig_util::*;
 use crate::signal::base::*;
 use crate::signal::combinators::*;
+use crate::spew::*;
 use crate::testdata::*;
 //#[allow(unused_imports)]
 //use crate::testdump::*;
@@ -58,7 +59,7 @@ fn sum(a: &[f32]) -> f32 {
     sum
 }
 
-pub fn test_reso() -> f32 {
+pub fn test_reso() {
     /*
     let mut input = vec![0.0; TEST_LEN];
 
@@ -83,5 +84,6 @@ pub fn test_reso() -> f32 {
 
     let _same: bool = same(&output, &RESO_OUTPUT);
     assert!(same(&output, &RESO_OUTPUT));
-    sum(&output)
+    let chk = sum(&output);
+    spew!("reso: ok", chk, chk.to_bits());
 }

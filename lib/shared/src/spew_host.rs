@@ -51,7 +51,7 @@ impl Spewable for &str {
 }
 
 pub fn spew_space() {
-    print!("");
+    print!(" ");
 }
 
 pub fn spew_newline() {
