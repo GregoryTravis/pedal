@@ -1,11 +1,4 @@
-extern crate lazy_static;
-
-use alloc::vec::Vec;
-
-use lazy_static::lazy_static;
-
-lazy_static! {
-pub static ref TEST_INPUT: Vec<f32> = vec![
+pub const TEST_INPUT: &'static [f32] = &[
 0.0,
 0.057564028,
 0.11493716,
@@ -107,10 +100,8 @@ pub static ref TEST_INPUT: Vec<f32> = vec![
 -0.5962244,
 -0.54902285,
 ];
-}
 
-lazy_static! {
-pub static ref RESO_OUTPUT: Vec<f32> = vec![
+pub const RESO_OUTPUT: &'static [f32] = &[
 0.0,
 0.02072348,
 0.074495435,
@@ -212,4 +203,3 @@ pub static ref RESO_OUTPUT: Vec<f32> = vec![
 -0.54832965,
 -0.49911892,
 ];
-}

@@ -14,9 +14,9 @@ use alloc::vec::Vec;
 use crate::filter::reso::*;
 //use crate::patch::Patch;
 //use crate::rig::*;
+use crate::rig_util::*;
 use crate::signal::base::*;
 use crate::signal::combinators::*;
-use crate::sim::sim_run_patch_on_buffer;
 use crate::testdata::*;
 #[allow(unused_imports)]
 use crate::testdump::*;
@@ -69,7 +69,7 @@ pub fn test_reso() {
     let reso = ResoFilter::new(Arc::new(siner), Arc::new(q));
     let reso_box = Box::new(reso);
     let mut output: Vec<f32> = vec![0.0; TEST_INPUT.len()];
-    sim_run_patch_on_buffer(reso_box, &TEST_INPUT, &mut output);
+    rig_run_patch_on_buffer(reso_box, &TEST_INPUT, &mut output);
 
     //test_dump_as_source("RESO_OUTPUT", &output);
 

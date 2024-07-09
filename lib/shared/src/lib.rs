@@ -14,6 +14,7 @@ pub mod panic;
 pub mod patch;
 pub mod playhead;
 pub mod rig;
+pub mod rig_util;
 #[cfg(not(feature = "for_host"))]
 pub mod rig_board;
 #[cfg(feature = "for_host")]
