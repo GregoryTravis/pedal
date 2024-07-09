@@ -24,3 +24,7 @@ pub mod signal;
 pub mod sim;
 pub mod speed_test;
 pub mod spew;
+pub mod test;
+pub mod testdata;
+#[cfg(feature = "for_host")]
+pub mod testdump;

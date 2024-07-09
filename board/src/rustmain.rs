@@ -12,9 +12,10 @@ use shared::constants::*;
 use shared::glep;
 use shared::load::*;
 use shared::spew::*;
+use shared::test::test_reso;
 
 #[no_mangle]
-pub fn main() {
+fn live_main() {
     hw_init(true, BLOCK_SIZE);
     glep!("hi");
     load_init();
@@ -30,4 +31,13 @@ pub fn main() {
         load_spew();
         hw_delay(500);
     }
+}
+
+fn test_main() {
+    test_reso();
+}
+
+pub fn main() {
+    //live_main();
+    test_main();
 }

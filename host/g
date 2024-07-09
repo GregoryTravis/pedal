@@ -1,3 +1,6 @@
+cargo run --bin test --features for_host 2>&1 | tee out
+exit
+
 rm -rf resogen0.wav
 cargo run --bin sim --features for_host -- gen0.wav resogen0.wav 2>&1 | tee out
 exit
