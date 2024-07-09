@@ -5,6 +5,7 @@ use alloc::boxed::Box;
 use core::slice;
 
 //use crate::load::*;
+use crate::spew;
 use crate::spew::*;
 use crate::patch::*;
 use crate::playhead::*;
@@ -13,8 +14,6 @@ use crate::rig_board::*;
 #[cfg(feature = "for_host")]
 use crate::rig_host::*;
 use crate::rig_type::Rig;
-
-use crate::spew;
 
 extern "C" {
     pub fn cpp_rig_install_callback();

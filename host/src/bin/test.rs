@@ -1,8 +1,10 @@
 extern crate alloc;
 
+use shared::spew;
+use shared::spew::*;
 use shared::test::*;
 
 pub fn main() {
     let chk = test_reso();
-    println!("reso: ok {} {}", chk, chk.to_bits());
+    spew!("reso: ok", chk, chk.to_bits());
 }

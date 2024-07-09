@@ -25,6 +25,10 @@ pub mod signal;
 pub mod sim;
 pub mod speed_test;
 pub mod spew;
+#[cfg(not(feature = "for_host"))]
+pub mod spew_board;
+#[cfg(feature = "for_host")]
+pub mod spew_host;
 pub mod test;
 pub mod testdata;
 #[cfg(feature = "for_host")]
