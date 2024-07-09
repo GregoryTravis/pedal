@@ -77,7 +77,7 @@ impl Spewable for &str {
 }
 
 #[macro_export]
-macro_rules! glep {
+macro_rules! spew {
     ($($args:expr),*) => {{
         $($args.do_spew();
           unsafe { spew_space_c(); }

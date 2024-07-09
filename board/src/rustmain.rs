@@ -9,7 +9,7 @@ use shared::signal::base::*;
 use shared::signal::combinators::*;
 use crate::daisy_seed::*;
 use shared::constants::*;
-use shared::glep;
+use shared::spew;
 use shared::load::*;
 use shared::spew::*;
 use shared::test::test_reso;
@@ -17,7 +17,7 @@ use shared::test::test_reso;
 #[allow(dead_code)]
 fn live_main() {
     hw_init(true, BLOCK_SIZE);
-    glep!("hi");
+    spew!("hi");
     load_init();
 
     let siner = PostCompose { signal: Arc::new(Sin {}), ff: scale_range(0.3, 0.9) };
@@ -36,10 +36,10 @@ fn live_main() {
 #[allow(dead_code)]
 fn test_main() {
     hw_init(true, BLOCK_SIZE);
-    glep!("reso test running");
+    spew!("reso test running");
     let chk = test_reso();
     //test_reso();
-    glep!("reso ok (board)", chk, chk.to_bits());
+    spew!("reso ok (board)", chk, chk.to_bits());
 }
 
 #[no_mangle]

@@ -3,7 +3,7 @@
 use crate::ds::circbuf::CircBuf;
 
 #[allow(unused_imports)]
-use crate::glep;
+use crate::spew;
 
 #[allow(unused_imports)]
 use crate::spew::*;

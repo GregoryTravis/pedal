@@ -14,7 +14,7 @@ use crate::rig_board::*;
 use crate::rig_host::*;
 use crate::rig_type::Rig;
 
-use crate::glep;
+use crate::spew;
 
 extern "C" {
     pub fn cpp_rig_install_callback();
@@ -131,5 +131,5 @@ pub fn rig_log() {
         playhead = rig.playhead;
     });
 
-    glep!(inl, inr, outl, outr, framesize, playhead.time_in_samples(), playhead.time_in_seconds());
+    spew!(inl, inr, outl, outr, framesize, playhead.time_in_samples(), playhead.time_in_seconds());
 }
