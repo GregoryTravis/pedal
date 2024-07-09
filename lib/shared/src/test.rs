@@ -1,10 +1,10 @@
 //extern crate std;
 extern crate alloc;
-extern crate lazy_static;
+//extern crate lazy_static;
 
 use alloc::boxed::Box;
 use alloc::sync::Arc;
-//use alloc::vec::Vec;
+use alloc::vec::Vec;
 //use core::f32::consts::PI;
 //use lazy_static::lazy_static;
 //use std::println;
@@ -68,7 +68,8 @@ pub fn test_reso() {
     let q = Const { x: 0.95 };
     let reso = ResoFilter::new(Arc::new(siner), Arc::new(q));
     let reso_box = Box::new(reso);
-    let output = sim_run_patch_on_buffer(reso_box, &TEST_INPUT);
+    let mut output: Vec<f32> = vec![0.0; TEST_INPUT.len()];
+    sim_run_patch_on_buffer(reso_box, &TEST_INPUT, &mut output);
 
     //test_dump_as_source("RESO_OUTPUT", &output);
 

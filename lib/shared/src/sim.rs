@@ -5,8 +5,8 @@ use std::cmp::min;
 use alloc::boxed::Box;
 use std::path::Path;
 use std::println;
-use std::vec;
-use std::vec::Vec;
+//use std::vec;
+//use std::vec::Vec;
 
 use hound;
 use crate::constants::*;
@@ -78,9 +78,8 @@ pub fn sim_main(input_file: &str, output_file: &str, patch: Box<dyn Patch>) {
     writer.finalize().unwrap();
 }
 
-pub fn sim_run_patch_on_buffer(patch: Box<dyn Patch>, input: &[f32]) -> Box<[f32]> {
+pub fn sim_run_patch_on_buffer(patch: Box<dyn Patch>, input: &[f32], output: &mut [f32]) {
     let len = input.len();
-    let mut output: Vec<f32> = vec![0.0; len];
 
     rig_install_patch(patch);
 
@@ -103,17 +102,4 @@ pub fn sim_run_patch_on_buffer(patch: Box<dyn Patch>, input: &[f32]) -> Box<[f32
     }
 
     rig_deinstall_patch();
-
-    output.into_boxed_slice()
-}
-
-pub fn sim_ramp_patch(patch: Box<dyn Patch>, num_samples: usize) {
-    let mut input: Vec<f32> = vec![0.0; num_samples];
-    for i in 0..num_samples {
-        input[i] = i as f32;
-    }
-    let output = sim_run_patch_on_buffer(patch, input.as_slice());
-    for i in 0..num_samples {
-        println!("ramp {} {}", i, output[i]);
-    }
 }
