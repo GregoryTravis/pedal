@@ -39,7 +39,7 @@ fn test_main() {
     glep!("reso test running");
     let chk = test_reso();
     //test_reso();
-    glep!("reso ok (board)", chk);
+    glep!("reso ok (board)", chk, chk.to_bits());
 }
 
 #[no_mangle]
