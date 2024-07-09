@@ -14,7 +14,6 @@ use shared::load::*;
 use shared::spew::*;
 use shared::test::test_reso;
 
-#[no_mangle]
 fn live_main() {
     hw_init(true, BLOCK_SIZE);
     glep!("hi");
@@ -34,9 +33,13 @@ fn live_main() {
 }
 
 fn test_main() {
+    hw_init(true, BLOCK_SIZE);
+    glep!("reso test running");
     test_reso();
+    glep!("reso ok (board)");
 }
 
+#[no_mangle]
 pub fn main() {
     //live_main();
     test_main();

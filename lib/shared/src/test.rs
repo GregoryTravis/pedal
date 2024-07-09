@@ -18,8 +18,8 @@ use crate::rig_util::*;
 use crate::signal::base::*;
 use crate::signal::combinators::*;
 use crate::testdata::*;
-#[allow(unused_imports)]
-use crate::testdump::*;
+//#[allow(unused_imports)]
+//use crate::testdump::*;
 
 /*
  * Unit tests for patches.
