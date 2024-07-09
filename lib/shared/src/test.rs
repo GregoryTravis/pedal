@@ -5,6 +5,7 @@ use alloc::sync::Arc;
 use alloc::vec::Vec;
 
 use crate::filter::reso::*;
+use crate::patch::Patch;
 use crate::rig_util::*;
 use crate::signal::base::*;
 use crate::signal::combinators::*;
@@ -33,16 +34,18 @@ fn sum(a: &[f32]) -> f32 {
     sum
 }
 
+fn test_patch(patch: Box<dyn Patch>, expected_output: &[f32]) {
+    let mut output: Vec<f32> = vec![0.0; TEST_INPUT.len()];
+    rig_run_patch_on_buffer(patch, &TEST_INPUT, &mut output);
+
+    assert!(same(&output, expected_output));
+    let chk = sum(&output);
+    spew!("reso: ok", chk, chk.to_bits());
+}
+
 pub fn test_reso() {
     let siner = PostCompose { signal: Arc::new(Sin {}), ff: scale_range(0.3, 0.9) };
     let q = Const { x: 0.95 };
-    let reso = ResoFilter::new(Arc::new(siner), Arc::new(q));
-    let reso_box = Box::new(reso);
-    let mut output: Vec<f32> = vec![0.0; TEST_INPUT.len()];
-    rig_run_patch_on_buffer(reso_box, &TEST_INPUT, &mut output);
-
-    let _same: bool = same(&output, &RESO_OUTPUT);
-    assert!(same(&output, &RESO_OUTPUT));
-    let chk = sum(&output);
-    spew!("reso: ok", chk, chk.to_bits());
+    let reso = Box::new(ResoFilter::new(Arc::new(siner), Arc::new(q)));
+    test_patch(reso, &RESO_OUTPUT);
 }
