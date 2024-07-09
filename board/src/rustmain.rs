@@ -14,6 +14,7 @@ use shared::load::*;
 use shared::spew::*;
 use shared::test::test_reso;
 
+#[allow(dead_code)]
 fn live_main() {
     hw_init(true, BLOCK_SIZE);
     glep!("hi");
@@ -32,10 +33,12 @@ fn live_main() {
     }
 }
 
+#[allow(dead_code)]
 fn test_main() {
     hw_init(true, BLOCK_SIZE);
     glep!("reso test running");
     test_reso();
+    //test_reso();
     glep!("reso ok (board)");
 }
 

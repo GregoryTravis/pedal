@@ -73,5 +73,6 @@ pub fn test_reso() {
 
     //test_dump_as_source("RESO_OUTPUT", &output);
 
+    let _same: bool = same(&output, &RESO_OUTPUT);
     assert!(same(&output, &RESO_OUTPUT));
 }

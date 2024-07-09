@@ -13,10 +13,17 @@ pub fn rig_set(rig: Rig) {
 
 pub fn rig_clear() {
     interrupt::free(|cs| {
-        if let Some(ref mut _rig) = THE_PATCH.borrow(cs).borrow_mut().deref_mut().as_mut() {
+        //if let Some(ref mut _rig) = THE_PATCH.borrow(cs).borrow_mut().deref_mut().as_mut() {
+            THE_PATCH.borrow(cs).replace(None);
+        //}
+    });
+    /*
+    interrupt::free(|cs| {
+        if let None = THE_PATCH.borrow(cs).borrow_mut().deref_mut().as_mut() {
             THE_PATCH.borrow(cs).replace(None);
         }
     });
+    */
 }
 
 pub fn rig_use<F>(f: F)
