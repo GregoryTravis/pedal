@@ -1,3 +1,18 @@
+// TEST_INPUT generated with:
+
+    /*
+    let mut input = vec![0.0; TEST_LEN];
+
+    for i in 0..TEST_LEN {
+        let freq: f32 = 440.0;
+        let t = (i as f32) / (SAMPLE_RATE as f32);
+        let ph = t * 2.0 * PI * freq;
+        input[i] = libm::sinf(ph);
+    }
+
+    test_dump_as_source("TEST_INPUT", &input);
+    */
+
 pub const TEST_INPUT: &'static [f32] = &[
 0.0,
 0.057564028,
