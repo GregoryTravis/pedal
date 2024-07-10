@@ -19,6 +19,7 @@ use crate::signal::base::*;
 use crate::signal::combinators::*;
 use crate::spew::*;
 use crate::testdata::*;
+#[cfg(feature = "for_host")]
 use crate::testdump::*;
 use crate::testutil::*;
 
@@ -28,12 +29,21 @@ use crate::testutil::*;
 
 const DO_DUMP: bool = false;
 
+#[cfg(feature = "for_host")]
+fn local_test_dump_as_source(var: &str, a: &[f32]) {
+    test_dump_as_source(var, a);
+}
+
+#[cfg(not(feature = "for_host"))]
+fn local_test_dump_as_source(_var: &str, _a: &[f32]) {
+}
+
 fn test_patch(name: &str, patch: Box<dyn Patch>, expected_output: &[f32]) {
     let mut output: Vec<f32> = vec![0.0; TEST_INPUT.len()];
     rig_run_patch_on_buffer(patch, &TEST_INPUT, &mut output);
 
     if DO_DUMP {
-        test_dump_as_source(&(name.to_ascii_uppercase().clone() + "_OUTPUT"), &output);
+        local_test_dump_as_source(&(name.to_ascii_uppercase().clone() + "_OUTPUT"), &output);
     } else {
         assert!(same(&output, expected_output));
         let chk = sum(&output);
@@ -47,7 +57,7 @@ pub fn test_reso() {
     let reso = Box::new(ResoFilter::new(Arc::new(siner), Arc::new(q)));
 
     if DO_DUMP {
-        test_dump_as_source("TEST_INPUT", &TEST_INPUT);
+        local_test_dump_as_source("TEST_INPUT", &TEST_INPUT);
     }
 
     test_patch("low_pass", Box::new(LowPassFilter::new()), LOW_PASS_OUTPUT);
