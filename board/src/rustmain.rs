@@ -37,6 +37,7 @@ fn test_main() {
     hw_init(true, BLOCK_SIZE);
     spew!("reso test running");
     test_reso();
+    spew!("reso test running");
     test_reso();
 }
 

@@ -9,8 +9,8 @@ use crate::ds::circbuf::CircBuf;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
 
-#[cfg(feature = "for_host")]
-use std::println;
+//#[cfg(feature = "for_host")]
+//use std::println;
 
 // The sinc convolution window is twice this.
 const NUM_SINC_TAPS_ONE_SIDE: usize = 3;
@@ -86,10 +86,12 @@ impl Patch for Vibrato {
                 convolution_sum += sinc_value * si_sample;
             }
             convolution_sum /= 2.0;
+            /*
 #[cfg(feature = "for_host")]
             if !(convolution_sum <= 1.0 && convolution_sum >= -1.0) {
                 println!("Overflow {}", convolution_sum);
             }
+            */
             output_slice[i] = convolution_sum;
             playhead.inc();
         }

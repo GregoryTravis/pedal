@@ -63,10 +63,10 @@ pub fn test_reso() {
     test_patch("low_pass", Box::new(LowPassFilter::new()), LOW_PASS_OUTPUT);
     test_patch("high_pass", Box::new(HighPassFilter::new()), HIGH_PASS_OUTPUT);
     test_patch("pass_thru", Box::new(PassThruFilter::new()), PASS_THRU_OUTPUT);
-    test_patch("vibrato", Box::new(Vibrato::new(400, 1.0)), VIBRATO_OUTPUT);
-    test_patch("linear_vibrato", Box::new(LinearVibrato::new(400, 1.0)), LINEAR_VIBRATO_OUTPUT);
+    test_patch("vibrato", Box::new(Vibrato::new(10, 1.0)), VIBRATO_OUTPUT);
+    test_patch("linear_vibrato", Box::new(LinearVibrato::new(10, 1.0)), LINEAR_VIBRATO_OUTPUT);
     //test_patch("speed_test", Box::new(SpeedTest::new()), SPEED_TEST_OUTPUT);
     test_patch("chorus", Box::new(Chorus::new()), CHORUS_OUTPUT);
-    test_patch("sine", Box::new(SineGenerator::new()), SINE_OUTPUT);
+    test_patch("sine", Box::new(SineGenerator::new(440.0)), SINE_OUTPUT);
     test_patch("reso", reso, &RESO_OUTPUT);
 }
