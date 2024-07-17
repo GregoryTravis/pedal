@@ -1,16 +1,14 @@
 extern crate alloc;
 
-//use alloc::string::ToString;
-use core::alloc::{GlobalAlloc, Layout};
-
-use crate::spew::*;
-
 #[global_allocator]
 static ALLOCATOR: emballoc::Allocator<32768> = emballoc::Allocator::new();
 
 // TODO: make spewing never allocate, then make this a logging allocator wrapper, under
 // a flag.
 /*
+use core::alloc::{GlobalAlloc, Layout};
+use crate::spew::*;
+
 struct MyAlloc {
     allocator: emballoc::Allocator<32768>,
 }
