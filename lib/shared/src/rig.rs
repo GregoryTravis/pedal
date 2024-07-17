@@ -18,9 +18,6 @@ extern "C" {
     pub fn cpp_rig_install_callback();
 }
 
-#[global_allocator]
-static ALLOCATOR: emballoc::Allocator<32768> = emballoc::Allocator::new();
-
 pub fn rig_install_patch(box_patch: Box<dyn Patch>) {
     // The audio handler must be installed AFTER this line.
     // TODO is this use of get_patch() an unnecessary copy?

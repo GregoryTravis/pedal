@@ -3,6 +3,7 @@
 #[macro_use]
 extern crate alloc;
 
+pub mod mem;
 pub mod ds;
 pub mod convert;
 pub mod constants;

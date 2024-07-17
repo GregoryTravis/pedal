@@ -66,13 +66,27 @@ impl Spewable for f64 {
     }
 }
 
+// TODO: don't allocate
+// TODO: or if not, then merge this back into Spewable for &str
+fn spew_str(s: &str) {
+    let c_str = CString::new(s).unwrap();
+    let c_world: *const core::ffi::c_char = c_str.as_ptr() as *const core::ffi::c_char;
+    unsafe {
+        spew_string_c(c_world);
+    }
+}
+
 impl Spewable for &str {
     fn do_spew(&self) {
-        let c_str = CString::new(*self).unwrap();
-        let c_world: *const core::ffi::c_char = c_str.as_ptr() as *const core::ffi::c_char;
-        unsafe {
-            spew_string_c(c_world);
-        }
+        spew_str(*self);
+    }
+}
+
+impl Spewable for bool {
+    fn do_spew(&self) {
+        // TODO: do it this way when logging a string doesn't allocate
+        // spew_str(if *self { "true" } else { "false" });
+        (if *self { 1 } else { 0 }).do_spew();
     }
 }
 

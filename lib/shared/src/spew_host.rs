@@ -50,6 +50,12 @@ impl Spewable for &str {
     }
 }
 
+impl Spewable for bool {
+    fn do_spew(&self) {
+        print!("{}", self);
+    }
+}
+
 pub fn spew_space() {
     print!(" ");
 }
