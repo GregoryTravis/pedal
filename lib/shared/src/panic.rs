@@ -1,4 +1,6 @@
+#[cfg(not(feature = "for_host"))]
 use alloc::string::ToString;
+#[cfg(not(feature = "for_host"))]
 use crate::spew::*;
 
 #[cfg(not(feature = "for_host"))]
