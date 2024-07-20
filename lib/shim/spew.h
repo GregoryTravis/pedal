@@ -5,5 +5,6 @@ extern "C" void spew_size_t_c(size_t x);
 extern "C" void spew_float_c(float x);
 extern "C" void spew_double_c(double x);
 extern "C" void spew_string_c(const char *s);
+extern "C" void spew_char_c(const char c);
 extern "C" void spew_space_c();
 extern "C" void spew_newline_c();

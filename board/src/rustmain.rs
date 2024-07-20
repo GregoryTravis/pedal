@@ -43,6 +43,10 @@ fn test_main() {
 
 #[no_mangle]
 pub fn main() {
+    spew!("start of main");
+
     //live_main();
     test_main();
+
+    spew!("end of main");
 }

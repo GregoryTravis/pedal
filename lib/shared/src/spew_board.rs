@@ -1,4 +1,4 @@
-use alloc::ffi::CString;
+//use alloc::ffi::CString;
 
 extern crate alloc;
 
@@ -10,6 +10,7 @@ extern "C" {
     pub fn spew_float_c(x: f32);
     pub fn spew_double_c(x: f64);
     pub fn spew_string_c(s: *const core::ffi::c_char);
+    pub fn spew_char_c(c: core::ffi::c_char);
     pub fn spew_newline_c();
     pub fn spew_space_c();
 }
@@ -66,14 +67,28 @@ impl Spewable for f64 {
     }
 }
 
+impl Spewable for char {
+    fn do_spew(&self) {
+        unsafe {
+            spew_char_c(*self as core::ffi::c_char);
+        }
+    }
+}
+
 // TODO: don't allocate
 // TODO: or if not, then merge this back into Spewable for &str
 fn spew_str(s: &str) {
+    // TODO make this a default for the trait
+    for c in s.chars() {
+        c.do_spew();
+    }
+    /*
     let c_str = CString::new(s).unwrap();
     let c_world: *const core::ffi::c_char = c_str.as_ptr() as *const core::ffi::c_char;
     unsafe {
         spew_string_c(c_world);
     }
+    */
 }
 
 impl Spewable for &str {

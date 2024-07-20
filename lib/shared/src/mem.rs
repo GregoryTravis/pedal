@@ -3,11 +3,16 @@ extern crate alloc;
 #[global_allocator]
 static ALLOCATOR: emballoc::Allocator<32768> = emballoc::Allocator::new();
 
+/*
 // TODO: make spewing never allocate, then make this a logging allocator wrapper, under
 // a flag.
-/*
 use core::alloc::{GlobalAlloc, Layout};
 use crate::spew::*;
+
+extern "C" {
+    pub fn spew_int_c(x: i32);
+    pub fn spew_newline_c();
+}
 
 struct MyAlloc {
     allocator: emballoc::Allocator<32768>,
@@ -25,7 +30,7 @@ unsafe impl GlobalAlloc for MyAlloc {
         spew!(0, layout.size());
         let r = self.allocator.alloc(layout);
         if r.is_null() {
-            spew!(0, 1, 2, 3, layout.size());
+            spew!("oy", 0, 1, 2, 3, layout.size());
             // TODO: enable this when panic's spew doesn't allocate
             // panic!("out of mem");
         }
@@ -34,8 +39,11 @@ unsafe impl GlobalAlloc for MyAlloc {
 
     unsafe fn dealloc(&self, ptr: *mut u8, layout: Layout) {
         // TODO: say "dealloc" instead of "1", when spewing doesn't allocate.
-        spew!(1, layout.size());
+        //spew!(1, layout.size());
         self.allocator.dealloc(ptr, layout);
+        spew_int_c(501);
+        spew_newline_c();
+        //spew!('y');
     }
 }
 

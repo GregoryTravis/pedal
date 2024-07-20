@@ -28,6 +28,10 @@ extern "C" void spew_string_c(const char *s) {
   hw.Print("%s", s);
 }
 
+extern "C" void spew_char_c(const char c) {
+  hw.Print("%c", c);
+}
+
 extern "C" void spew_space_c() {
   hw.Print(" ");
 }
