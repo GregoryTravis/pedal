@@ -2,6 +2,7 @@ extern crate alloc;
 
 // TODO: make spewing never allocate, then make this a logging allocator wrapper, under
 // a flag.
+use alloc::alloc::handle_alloc_error;
 use core::alloc::{GlobalAlloc, Layout};
 use core::cell::{Ref,RefCell,RefMut};
 use cortex_m::interrupt::{self, Mutex};
@@ -83,7 +84,7 @@ unsafe impl GlobalAlloc for MyAlloc {
             (*stats).num_allocations += 1;
 
             if (*stats).currently_allocated > HEAP_SIZE {
-                panic!("Out of memory (0)");
+                handle_alloc_error(layout);
             }
         });
 
@@ -98,7 +99,7 @@ unsafe impl GlobalAlloc for MyAlloc {
             if LOGGING {
                 self.report();
             }
-            panic!("Out of memory (1)");
+            handle_alloc_error(layout);
         }
         r
     }
