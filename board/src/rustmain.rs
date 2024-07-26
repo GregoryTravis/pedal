@@ -41,12 +41,23 @@ fn test_main() {
     test_reso();
 }
 
+// Turn on logging in mem to see this in action.
+#[allow(dead_code)]
+pub fn oom_test() {
+    hw_init(true, BLOCK_SIZE);
+    loop {
+        let _foo = Box::new([0.0; 4*32]);
+        Box::leak(_foo);
+    }
+}
+
 #[no_mangle]
 pub fn main() {
     spew!("start of main");
 
     //live_main();
     test_main();
+    //oom_test();
 
     spew!("end of main");
 }
