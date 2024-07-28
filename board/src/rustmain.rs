@@ -10,6 +10,7 @@ use shared::signal::combinators::*;
 use crate::daisy_seed::*;
 use shared::constants::*;
 use shared::load::*;
+use shared::override::*;
 use shared::spew::*;
 use shared::test::test_reso;
 
@@ -30,6 +31,13 @@ fn live_main() {
         load_spew();
         hw_delay(500);
     }
+}
+
+#[allow(dead_code)]
+fn override_test_main() {
+    hw_init(true, BLOCK_SIZE);
+    // TODO move interrupt install here, once it's possible to do that with no patch installed.
+    run_override_test();
 }
 
 #[allow(dead_code)]
@@ -56,7 +64,8 @@ pub fn main() {
     spew!("start of main");
 
     //live_main();
-    test_main();
+    //test_main();
+    override_test_main();
     //oom_test();
 
     spew!("end of main");

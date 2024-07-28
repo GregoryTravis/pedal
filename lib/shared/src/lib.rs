@@ -11,6 +11,7 @@ pub mod filter;
 #[cfg(feature = "for_host")]
 pub mod graphing;
 pub mod load;
+pub mod override;
 pub mod panic;
 pub mod patch;
 pub mod playhead;
