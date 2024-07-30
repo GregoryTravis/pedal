@@ -37,12 +37,6 @@ pub fn rig_deinstall_patch() {
     rig_clear();
 }
 
-pub fn rig_install_callback() {
-    unsafe {
-        cpp_rig_install_callback();
-    }
-}
-
 // This simulates what the Daisy Seed passes to the audio callback.
 //
 // (libDaisy/src/hid/audio.h)

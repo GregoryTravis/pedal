@@ -44,3 +44,7 @@ where
     }
     */
 }
+
+pub fn rig_install_callback() {
+    // TODO: spawn a thread I guess.
+}

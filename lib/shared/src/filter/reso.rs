@@ -2,6 +2,7 @@ extern crate alloc;
 extern crate libm;
 
 use alloc::sync::Arc;
+use core::any::Any;
 
 use crate::patch::Patch;
 use crate::playhead::Playhead;
@@ -49,4 +50,7 @@ impl Patch for ResoFilter {
             playhead.inc();
         }
     }
+
+    //fn as_any<'a>(&self) -> &(dyn Any + 'a) { self }
+    fn as_any(&self) -> &dyn Any { self }
 }

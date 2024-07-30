@@ -1,6 +1,8 @@
 extern crate alloc;
 extern crate libm;
 
+use core::any::Any;
+
 use circular_buffer::CircularBuffer;
 
 use crate::patch::Patch;
@@ -35,4 +37,7 @@ impl Patch for Delay {
             output_slice[i] = out;
         }
     }
+
+    //fn as_any<'a>(&self) -> &(dyn Any + 'a) { self }
+    fn as_any(&self) -> &dyn Any { self }
 }

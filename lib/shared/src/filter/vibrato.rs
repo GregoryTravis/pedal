@@ -3,6 +3,7 @@ extern crate libm;
 #[cfg(feature = "for_host")]
 extern crate std;
 
+use core::any::Any;
 use core::f32::consts::PI;
 
 use crate::ds::circbuf::CircBuf;
@@ -96,4 +97,7 @@ impl Patch for Vibrato {
             playhead.inc();
         }
     }
+
+    //fn as_any<'a>(&self) -> &(dyn Any + 'a) { self }
+    fn as_any(&self) -> &dyn Any { self }
 }

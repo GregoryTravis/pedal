@@ -35,3 +35,9 @@ where
         }
     });
 }
+
+pub fn rig_install_callback() {
+    unsafe {
+        cpp_rig_install_callback();
+    }
+}

@@ -1,5 +1,6 @@
 extern crate libm;
 
+use core::any::Any;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
 
@@ -29,4 +30,7 @@ impl Patch for SineGenerator {
             playhead.inc();
         }
     }
+
+    //fn as_any<'a>(&self) -> &(dyn Any + 'a) { self }
+    fn as_any(&self) -> &dyn Any { self }
 }

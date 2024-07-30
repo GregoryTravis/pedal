@@ -1,6 +1,8 @@
 use crate::patch::Patch;
 use crate::playhead::Playhead;
 
+use core::any::Any;
+
 pub struct PassThruFilter {}
 
 impl PassThruFilter {
@@ -20,4 +22,7 @@ impl Patch for PassThruFilter {
             output_slice[i] = input_slice[i];
         }
     }
+
+    //fn as_any<'a>(&self) -> &(dyn Any + 'a) { self }
+    fn as_any(&self) -> &dyn Any { self }
 }

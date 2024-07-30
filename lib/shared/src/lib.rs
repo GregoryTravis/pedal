@@ -3,6 +3,7 @@
 #[macro_use]
 extern crate alloc;
 
+#[cfg(not(feature = "for_host"))]
 pub mod mem;
 pub mod ds;
 pub mod convert;
@@ -10,8 +11,10 @@ pub mod constants;
 pub mod filter;
 #[cfg(feature = "for_host")]
 pub mod graphing;
+#[cfg(feature = "for_host")]
+pub mod hw_host;
 pub mod load;
-pub mod override;
+pub mod r#override;
 pub mod panic;
 pub mod patch;
 pub mod playhead;
