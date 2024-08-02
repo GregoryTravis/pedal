@@ -3,7 +3,9 @@ extern crate alloc;
 use alloc::boxed::Box;
 use alloc::sync::Arc;
 
+use shared::filter::linear_vibrato::*;
 use shared::filter::reso::*;
+use shared::filter::seq::*;
 use shared::knob_board::*;
 use shared::rig::*;
 use shared::rig_board::*;
@@ -25,7 +27,10 @@ fn live_main() {
 
     let siner = PostCompose { signal: Arc::new(Sin {}), ff: scale_range(0.3, 0.9) };
     let q = Const { x: 0.95 };
-    rig_install_patch(Box::new(ResoFilter::new(Arc::new(siner), Arc::new(q))));
+    let reso = Box::new(ResoFilter::new(Arc::new(siner), Arc::new(q)));
+    let lvib = Box::new(LinearVibrato::new(400, 10.0));
+    let both = Box::new(Seq::new(BLOCK_SIZE, lvib, reso));
+    rig_install_patch(both);
 
     rig_install_callback();
 
