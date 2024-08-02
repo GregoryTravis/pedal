@@ -5,7 +5,13 @@ extern "C" size_t cpp_hw_get_size_t_size() {
   return sizeof(size_t);
 }
 
+void sanity_check() {
+  assert(sizeof(float) == 4);
+}
+
 extern "C" void cpp_hw_init(bool b, size_t block_size) {
+  sanity_check();
+
 	hw.Init();
   hw.StartLog(b);
   hw.SetAudioBlockSize(block_size);
@@ -25,6 +31,8 @@ extern "C" void cpp_hw_kshep_init() {
   audioBypassTrigger.Write(!m_audioBypass);
   bool m_audioMute = false;
   audioMuteTrigger.Write(m_audioMute);
+
+  hw.adc.Start();
 }
 
 extern "C" void cpp_hw_delay(uint32_t delay_ms) {

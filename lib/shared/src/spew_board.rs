@@ -1,5 +1,3 @@
-//use alloc::ffi::CString;
-
 extern crate alloc;
 
 extern "C" {
@@ -99,9 +97,7 @@ impl Spewable for &str {
 
 impl Spewable for bool {
     fn do_spew(&self) {
-        // TODO: do it this way when logging a string doesn't allocate
-        // spew_str(if *self { "true" } else { "false" });
-        (if *self { 1 } else { 0 }).do_spew();
+        spew_str(if *self { "true" } else { "false" });
     }
 }
 

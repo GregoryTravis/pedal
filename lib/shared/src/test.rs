@@ -1,24 +1,13 @@
 extern crate alloc;
 
 use alloc::boxed::Box;
-use alloc::sync::Arc;
 use alloc::vec::Vec;
 
-use crate::filter::chorus::*;
-use crate::filter::high_pass::*;
-use crate::filter::linear_vibrato::*;
-use crate::filter::low_pass::*;
-use crate::filter::pass_thru::*;
-use crate::filter::reso::*;
-use crate::filter::sine::*;
-//use crate::filter::speed_test::*;
-use crate::filter::vibrato::*;
 use crate::patch::*;
 use crate::rig_util::*;
-use crate::signal::base::*;
-use crate::signal::combinators::*;
 use crate::spew::*;
 use crate::testdata::*;
+use crate::test_cases::*;
 #[cfg(feature = "for_host")]
 use crate::testdump::*;
 use crate::testutil::*;
@@ -38,9 +27,9 @@ fn local_test_dump_as_source(var: &str, a: &[f32]) {
 fn local_test_dump_as_source(_var: &str, _a: &[f32]) {
 }
 
-fn test_patch(name: &str, patch: Box<dyn Patch>, expected_output: &[f32]) {
-    let mut output: Vec<f32> = vec![0.0; TEST_INPUT.len()];
-    rig_run_patch_on_buffer(patch, &TEST_INPUT, &mut output);
+fn test_patch(name: &str, patch: Box<dyn Patch>, canned_input: &[f32], expected_output: &[f32]) {
+    let mut output: Vec<f32> = vec![0.0; canned_input.len()];
+    rig_run_patch_on_buffer(patch, &canned_input, &mut output);
 
     if DO_DUMP {
         local_test_dump_as_source(&(name.to_ascii_uppercase().clone() + "_OUTPUT"), &output);
@@ -51,22 +40,15 @@ fn test_patch(name: &str, patch: Box<dyn Patch>, expected_output: &[f32]) {
     }
 }
 
-pub fn test_reso() {
-    let siner = PostCompose { signal: Arc::new(Sin {}), ff: scale_range(0.3, 0.9) };
-    let q = Const { x: 0.95 };
-    let reso = Box::new(ResoFilter::new(Arc::new(siner), Arc::new(q)));
-
+pub fn test_direct() {
     if DO_DUMP {
         local_test_dump_as_source("TEST_INPUT", &TEST_INPUT);
     }
 
-    test_patch("low_pass", Box::new(LowPassFilter::new()), LOW_PASS_OUTPUT);
-    test_patch("high_pass", Box::new(HighPassFilter::new()), HIGH_PASS_OUTPUT);
-    test_patch("pass_thru", Box::new(PassThruFilter::new()), PASS_THRU_OUTPUT);
-    test_patch("vibrato", Box::new(Vibrato::new(10, 1.0)), VIBRATO_OUTPUT);
-    test_patch("linear_vibrato", Box::new(LinearVibrato::new(10, 1.0)), LINEAR_VIBRATO_OUTPUT);
-    //test_patch("speed_test", Box::new(SpeedTest::new()), SPEED_TEST_OUTPUT);
-    test_patch("chorus", Box::new(Chorus::new()), CHORUS_OUTPUT);
-    test_patch("sine", Box::new(SineGenerator::new(440.0)), SINE_OUTPUT);
-    test_patch("reso", reso, &RESO_OUTPUT);
+    for test_case in get_test_cases() {
+        let patch = test_case.patch;
+        let canned_input = test_case.canned_input;
+        let expected_output = test_case.expected_output;
+        test_patch(test_case.name, patch, canned_input, expected_output);
+    }
 }

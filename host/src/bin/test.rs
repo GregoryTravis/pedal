@@ -5,6 +5,6 @@ use shared::r#override::*;
 use shared::test::*;
 
 pub fn main() {
-    //test_reso();
+    test_direct();
     run_override_test();
 }

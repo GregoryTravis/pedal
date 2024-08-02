@@ -14,10 +14,6 @@ use crate::rig_board::*;
 use crate::rig_host::*;
 use crate::rig_type::Rig;
 
-extern "C" {
-    pub fn cpp_rig_install_callback();
-}
-
 pub fn rig_install_patch(box_patch: Box<dyn Patch>) {
     // The audio handler must be installed AFTER this line.
     // TODO is this use of get_patch() an unnecessary copy?
@@ -49,6 +45,7 @@ pub fn rig_deinstall_patch() {
 pub fn rust_process_audio_soft(
     input_slice: &[f32],
     output_slice: &mut [f32],
+    // TODO why are we taking a len here
     len: usize) {
     // Create dummy left channel arrays
     let left_in_array = vec![0.0f32; len];

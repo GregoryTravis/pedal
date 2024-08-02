@@ -1,8 +1,6 @@
 #[cfg(feature = "for_host")]
 extern crate std;
 
-use core::any::Any;
-
 use crate::filter::linear_vibrato::*;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
@@ -67,8 +65,5 @@ impl Patch for Chorus {
         }
 
     }
-
-    //fn as_any<'a>(&self) -> &(dyn Any + 'a) { self }
-    fn as_any(&self) -> &dyn Any { self }
 }
 

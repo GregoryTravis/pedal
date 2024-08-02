@@ -1,8 +1,6 @@
 use crate::patch::Patch;
 use crate::playhead::Playhead;
 
-use core::any::Any;
-
 pub struct LowPassFilter {
     pub state: f32,
 }
@@ -25,7 +23,4 @@ impl Patch for LowPassFilter {
             self.state = input_slice[i];
         }
     }
-
-    //fn as_any<'a>(&self) -> &(dyn Any + 'a) { self }
-    fn as_any(&self) -> &dyn Any { self }
 }

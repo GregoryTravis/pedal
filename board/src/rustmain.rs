@@ -4,15 +4,18 @@ use alloc::boxed::Box;
 use alloc::sync::Arc;
 
 use shared::filter::reso::*;
+use shared::knob_board::*;
 use shared::rig::*;
+use shared::rig_board::*;
 use shared::signal::base::*;
 use shared::signal::combinators::*;
-use crate::daisy_seed::*;
+#[cfg(not(feature = "for_host"))]
+use shared::daisy_seed_board::*;
 use shared::constants::*;
 use shared::load::*;
-use shared::override::*;
+use shared::r#override::*;
 use shared::spew::*;
-use shared::test::test_reso;
+use shared::test::test_direct;
 
 #[allow(dead_code)]
 fn live_main() {
@@ -35,18 +38,13 @@ fn live_main() {
 
 #[allow(dead_code)]
 fn override_test_main() {
-    hw_init(true, BLOCK_SIZE);
     // TODO move interrupt install here, once it's possible to do that with no patch installed.
     run_override_test();
 }
 
 #[allow(dead_code)]
 fn test_main() {
-    hw_init(true, BLOCK_SIZE);
-    spew!("reso test running");
-    test_reso();
-    spew!("reso test running");
-    test_reso();
+    test_direct();
 }
 
 // Turn on logging in mem to see this in action.
@@ -59,13 +57,29 @@ pub fn oom_test() {
     }
 }
 
+#[allow(dead_code)]
+fn all_tests() {
+    hw_init(true, BLOCK_SIZE);
+    test_main();
+    override_test_main();
+}
+
+fn try_knobs() {
+    hw_init(true, BLOCK_SIZE);
+    loop {
+        knob_process();
+        spew!("knob", knob_get_value(0), knob_get_value(1), knob_get_value(2), knob_get_value(3), knob_get_value(4), knob_get_value(5));
+        hw_delay(200);
+    }
+}
+
 #[no_mangle]
 pub fn main() {
     spew!("start of main");
 
     //live_main();
-    //test_main();
-    override_test_main();
+    //all_tests();
+    try_knobs();
     //oom_test();
 
     spew!("end of main");

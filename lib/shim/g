@@ -1,0 +1,1 @@
+make PEDAL_MAIN=vibrato_main all 2>&1 | tee out

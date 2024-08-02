@@ -1,11 +1,13 @@
 extern crate std;
 extern crate lazy_static;
 
-use crate::rig_type::Rig;
-
-//use core::cell::RefCell;
-use lazy_static::lazy_static;
 use std::sync::Mutex;
+use std::thread;
+use lazy_static::lazy_static;
+
+use crate::constants::BLOCK_SIZE;
+use crate::rig::*;
+use crate::rig_type::Rig;
 
 lazy_static! {
     //static ref THE_PATCH: Mutex<RefCell<Option<Rig>>> = Mutex::new(RefCell::new(None));
@@ -46,5 +48,14 @@ where
 }
 
 pub fn rig_install_callback() {
-    // TODO: spawn a thread I guess.
+    let _handler = thread::spawn(|| {
+        let input: [f32; BLOCK_SIZE] = [0.0; BLOCK_SIZE];
+        let mut output: [f32; BLOCK_SIZE] = [0.0; BLOCK_SIZE];
+        loop {
+            rust_process_audio_soft(&input, &mut output, BLOCK_SIZE);
+        }
+    });
+
+    // TODO stop the thread when done
+    // handler.join().unwrap();
 }

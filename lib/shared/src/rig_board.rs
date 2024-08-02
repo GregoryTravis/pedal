@@ -5,6 +5,10 @@ use core::cell::RefCell;
 use core::ops::DerefMut;
 use cortex_m::interrupt::{self, Mutex};
 
+extern "C" {
+    pub fn cpp_rig_install_callback();
+}
+
 static THE_PATCH: Mutex<RefCell<Option<Rig>>> = Mutex::new(RefCell::new(None));
 
 pub fn rig_set(rig: Rig) {

@@ -8,9 +8,15 @@ pub mod mem;
 pub mod ds;
 pub mod convert;
 pub mod constants;
+#[cfg(not(feature = "for_host"))]
+pub mod daisy_seed_board;
 pub mod filter;
 #[cfg(feature = "for_host")]
 pub mod graphing;
+#[cfg(feature = "for_host")]
+pub mod knob_host;
+#[cfg(not(feature = "for_host"))]
+pub mod knob_board;
 #[cfg(feature = "for_host")]
 pub mod hw_host;
 pub mod load;
@@ -35,6 +41,7 @@ pub mod spew_board;
 #[cfg(feature = "for_host")]
 pub mod spew_host;
 pub mod test;
+pub mod test_cases;
 pub mod testdata;
 #[cfg(feature = "for_host")]
 pub mod testdump;

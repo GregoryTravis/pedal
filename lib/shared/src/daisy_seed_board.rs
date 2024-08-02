@@ -2,7 +2,8 @@
 
 use core::mem::size_of;
 
-use shared::constants::*;
+use crate::constants::*;
+use crate::knob_board::*;
 
 extern "C" {
     pub fn cpp_hw_get_size_t_size() -> usize;
@@ -31,6 +32,8 @@ pub fn hw_init(b: bool, block_size: usize) {
     }
 
     if KSHEP {
+        knob_init();
+
         unsafe {
             cpp_hw_kshep_init();
         }
