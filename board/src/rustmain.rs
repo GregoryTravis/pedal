@@ -14,7 +14,7 @@ use shared::signal::combinators::*;
 #[cfg(not(feature = "for_host"))]
 use shared::daisy_seed_board::*;
 use shared::constants::*;
-use shared::load::*;
+use shared::load_board::*;
 use shared::r#override::*;
 use shared::spew::*;
 use shared::test::test_direct;
@@ -83,8 +83,8 @@ fn try_knobs() {
 pub fn main() {
     spew!("start of main");
 
-    live_main();
-    //all_tests();
+    //live_main();
+    all_tests();
     //try_knobs();
     //oom_test();
 

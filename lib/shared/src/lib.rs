@@ -19,7 +19,10 @@ pub mod knob_host;
 pub mod knob_board;
 #[cfg(feature = "for_host")]
 pub mod hw_host;
-pub mod load;
+#[cfg(not(feature = "for_host"))]
+pub mod load_board;
+#[cfg(feature = "for_host")]
+pub mod load_host;
 pub mod r#override;
 pub mod panic;
 pub mod patch;

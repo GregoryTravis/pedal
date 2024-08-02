@@ -4,7 +4,10 @@ use alloc::boxed::Box;
 //use core::ops::DerefMut;
 use core::slice;
 
-use crate::load::*;
+#[cfg(not(feature = "for_host"))]
+use crate::load_board::*;
+#[cfg(feature = "for_host")]
+use crate::load_host::*;
 use crate::spew::*;
 use crate::patch::*;
 use crate::playhead::*;
