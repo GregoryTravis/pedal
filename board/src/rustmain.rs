@@ -77,9 +77,9 @@ fn try_knobs() {
 pub fn main() {
     spew!("start of main");
 
-    //live_main();
+    live_main();
     //all_tests();
-    try_knobs();
+    //try_knobs();
     //oom_test();
 
     spew!("end of main");
