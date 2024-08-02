@@ -4,7 +4,7 @@ use alloc::boxed::Box;
 //use core::ops::DerefMut;
 use core::slice;
 
-//use crate::load::*;
+use crate::load::*;
 use crate::spew::*;
 use crate::patch::*;
 use crate::playhead::*;
@@ -72,7 +72,7 @@ pub extern "C" fn rig_process_audio_callback(
     in_ptr: *const *const f32,
     out_ptr: *const *mut f32,
     len: usize) {
-    //load_before();
+    load_before();
     rig_use(|rig| {
         // Mono pedal, so left_input_slice  is unused, except that we dump a value
         let left_input_slice = unsafe { slice::from_raw_parts(*(in_ptr.wrapping_add(0)), len) };
@@ -97,7 +97,7 @@ pub extern "C" fn rig_process_audio_callback(
         rig.framesize = len;
         rig.playhead.increment_samples(len as u32);
     });
-    //load_after();
+    load_after();
 }
 
 pub fn rig_log() {
