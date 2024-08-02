@@ -64,6 +64,7 @@ fn all_tests() {
     override_test_main();
 }
 
+#[allow(dead_code)]
 fn try_knobs() {
     hw_init(true, BLOCK_SIZE);
     loop {
@@ -77,8 +78,8 @@ fn try_knobs() {
 pub fn main() {
     spew!("start of main");
 
-    live_main();
-    //all_tests();
+    //live_main();
+    all_tests();
     //try_knobs();
     //oom_test();
 

@@ -3,6 +3,7 @@ extern crate libm;
 
 use alloc::sync::Arc;
 
+//use crate::knob_board::*;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
 use crate::signal::Signal;
@@ -34,6 +35,20 @@ impl Patch for ResoFilter {
         output_slice: &mut [f32],
         mut playhead: Playhead,
     ) {
+        /*
+        knob_process();
+        let freq_knob_value = knob_get_value(0);
+        let q_knob_value = knob_get_value(4);
+
+        let freq_lo = 0.3;
+        let freq_hi = 0.9;
+        let oscf = freq_lo + (freq_knob_value * (freq_hi - freq_lo));
+
+        let q_lo = 0.4;
+        let q_hi = 0.99;
+        let q = q_lo + (q_knob_value * (q_hi - q_lo));
+        */
+
         for i in 0..input_slice.len() {
             // Rolls over every 68 years
             let t = playhead.time_in_seconds() as f32;
