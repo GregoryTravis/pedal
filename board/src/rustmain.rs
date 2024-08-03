@@ -5,7 +5,13 @@ use alloc::boxed::Box;
 #[allow(unused_imports)]
 use shared::filter::chorus::*;
 #[allow(unused_imports)]
+use shared::filter::high_pass::*;
+#[allow(unused_imports)]
+use shared::filter::interp::*;
+#[allow(unused_imports)]
 use shared::filter::linear_vibrato::*;
+#[allow(unused_imports)]
+use shared::filter::low_pass::*;
 #[allow(unused_imports)]
 use shared::filter::reso::*;
 #[allow(unused_imports)]
@@ -28,12 +34,16 @@ fn live_main() {
     spew!("hi");
     load_init();
 
+    let hp = Box::new(HighPassFilter::new());
+    let lp = Box::new(LowPassFilter::new());
+    let high_low = Box::new(Interp::new(BLOCK_SIZE, hp, lp, 2));
+
     //let reso = Box::new(ResoFilter::new(0, 3));
-    let lvib = Box::new(LinearVibrato::new(400, 10.0, 1));
+    //let lvib = Box::new(LinearVibrato::new(400, 10.0, 1));
     //let both = Box::new(Seq::new(BLOCK_SIZE, lvib, reso));
     //let chorus = Box::new(Chorus::new());
     let knobs = Box::new(BoardKnobs { });
-    rig_install_patch(lvib, knobs);
+    rig_install_patch(high_low, knobs);
 
     rig_install_callback();
 
