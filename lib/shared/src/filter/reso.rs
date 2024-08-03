@@ -1,9 +1,11 @@
 extern crate alloc;
 extern crate libm;
 
+use alloc::boxed::Box;
 use alloc::sync::Arc;
 
 //use crate::knob_board::*;
+use crate::knob::Knobs;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
 use crate::signal::Signal;
@@ -33,12 +35,12 @@ impl Patch for ResoFilter {
         &mut self,
         input_slice: &[f32],
         output_slice: &mut [f32],
+        _knobs: &Box<dyn Knobs>,
         mut playhead: Playhead,
     ) {
         /*
-        knob_process();
-        let freq_knob_value = knob_get_value(0);
-        let q_knob_value = knob_get_value(4);
+        let freq_knob_value = knobs.read(0);
+        let q_knob_value = knobs.read(3);
 
         let freq_lo = 0.3;
         let freq_hi = 0.9;
@@ -54,6 +56,7 @@ impl Patch for ResoFilter {
             let t = playhead.time_in_seconds() as f32;
             let oscf = self.siner.f(t);
             let q = self.q_sig.f(t);
+
             //let _qq = add(&self.q_sig, &self.q_sig);
             let fb = q + q / (1.0 - oscf);
             let inp = input_slice[i];

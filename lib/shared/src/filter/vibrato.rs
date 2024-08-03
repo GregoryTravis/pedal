@@ -3,9 +3,11 @@ extern crate libm;
 #[cfg(feature = "for_host")]
 extern crate std;
 
+use alloc::boxed::Box;
 use core::f32::consts::PI;
 
 use crate::ds::circbuf::CircBuf;
+use crate::knob::Knobs;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
 
@@ -62,6 +64,7 @@ impl Patch for Vibrato {
         &mut self,
         input_slice: &[f32],
         output_slice: &mut [f32],
+        _knobs: &Box<dyn Knobs>,
         mut playhead: Playhead,
     ) {
         for i in 0..input_slice.len() {

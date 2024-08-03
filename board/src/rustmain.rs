@@ -6,6 +6,7 @@ use alloc::sync::Arc;
 use shared::filter::linear_vibrato::*;
 use shared::filter::reso::*;
 use shared::filter::seq::*;
+use shared::knob::Knobs;
 use shared::knob_board::*;
 use shared::rig::*;
 use shared::rig_board::*;
@@ -30,7 +31,7 @@ fn live_main() {
     let reso = Box::new(ResoFilter::new(Arc::new(siner), Arc::new(q)));
     let lvib = Box::new(LinearVibrato::new(400, 10.0));
     let both = Box::new(Seq::new(BLOCK_SIZE, lvib, reso));
-    rig_install_patch(both);
+    rig_install_patch(both, Box::new(BoardKnobs { }));
 
     rig_install_callback();
 
@@ -72,9 +73,10 @@ fn all_tests() {
 #[allow(dead_code)]
 fn try_knobs() {
     hw_init(true, BLOCK_SIZE);
+    let knobs = BoardKnobs { };
     loop {
-        knob_process();
-        spew!("knob", knob_get_value(0), knob_get_value(1), knob_get_value(2), knob_get_value(3), knob_get_value(4), knob_get_value(5));
+        knobs.process();
+        spew!("knobs", knobs.read(0), knobs.read(1), knobs.read(2), knobs.read(3), knobs.read(4), knobs.read(5));
         hw_delay(200);
     }
 }

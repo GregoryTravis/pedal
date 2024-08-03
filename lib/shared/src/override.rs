@@ -6,6 +6,8 @@ use core::cmp::min;
 use crate::daisy_seed_board::hw_delay;
 #[cfg(feature = "for_host")]
 use crate::hw_host::hw_delay;
+use crate::knob::Knobs;
+use crate::knob_dummy::DummyKnobs;
 use crate::patch::*;
 use crate::playhead::Playhead;
 use crate::rig::*;
@@ -57,6 +59,7 @@ impl <'a> Patch for Override<'a> {
         &mut self,
         input_slice: &[f32],
         output_slice: &mut [f32],
+        knobs: &Box<dyn Knobs>,
         playhead: Playhead,
     ) {
         assert!(self.sofar <= self.canned_input.len());
@@ -74,7 +77,7 @@ impl <'a> Patch for Override<'a> {
         let sub_canned_input: &[f32] = &self.canned_input[self.sofar..(self.sofar+process_this_round)];
         let sub_expected_output: &[f32] = &self.expected_output[self.sofar..(self.sofar+process_this_round)];
         let actual_output: &mut [f32] = &mut output_slice[0..process_this_round];
-        self.patch.rust_process_audio(sub_canned_input, actual_output, playhead);
+        self.patch.rust_process_audio(sub_canned_input, actual_output, knobs, playhead);
         for it in sub_expected_output.iter().zip(actual_output.iter()) {
             let (expected_sample, actual_sample) = it;
             if expected_sample != actual_sample {
@@ -100,7 +103,7 @@ pub fn run_override_test() {
         let expected_output = test_case.expected_output;
         let r#override = Override::new(patch, canned_input, expected_output);
 
-        rig_install_patch(Box::new(r#override));
+        rig_install_patch(Box::new(r#override), Box::new(DummyKnobs { }));
         rig_install_callback();
 
         let mut done: bool = false;

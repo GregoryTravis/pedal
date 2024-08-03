@@ -1,3 +1,6 @@
+use alloc::boxed::Box;
+
+use crate::knob::Knobs;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
 
@@ -14,6 +17,7 @@ impl Patch for PassThruFilter {
         &mut self,
         input_slice: &[f32],
         output_slice: &mut [f32],
+        _knobs: &Box<dyn Knobs>,
         mut _playhead: Playhead,
     ) {
         for i in 0..input_slice.len() {

@@ -13,8 +13,8 @@ pub mod daisy_seed_board;
 pub mod filter;
 #[cfg(feature = "for_host")]
 pub mod graphing;
-#[cfg(feature = "for_host")]
-pub mod knob_host;
+pub mod knob;
+pub mod knob_dummy;
 #[cfg(not(feature = "for_host"))]
 pub mod knob_board;
 #[cfg(feature = "for_host")]

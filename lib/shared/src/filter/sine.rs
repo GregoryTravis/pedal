@@ -1,5 +1,8 @@
 extern crate libm;
 
+use alloc::boxed::Box;
+
+use crate::knob::Knobs;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
 
@@ -20,6 +23,7 @@ impl Patch for SineGenerator {
         &mut self,
         _input_slice: &[f32],
         output_slice: &mut [f32],
+        _knobs: &Box<dyn Knobs>,
         mut playhead: Playhead,
     ) {
         for i in 0..output_slice.len() {

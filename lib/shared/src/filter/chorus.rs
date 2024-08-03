@@ -1,12 +1,14 @@
 #[cfg(feature = "for_host")]
 extern crate std;
 
-use crate::filter::linear_vibrato::*;
-use crate::patch::Patch;
-use crate::playhead::Playhead;
-
+use alloc::boxed::Box;
 #[cfg(feature = "for_host")]
 use std::println;
+
+use crate::filter::linear_vibrato::*;
+use crate::knob::Knobs;
+use crate::patch::Patch;
+use crate::playhead::Playhead;
 
 const BATCH_SIZE: usize = 48;
 
@@ -33,15 +35,16 @@ impl Patch for Chorus {
         &mut self,
         input_slice: &[f32],
         output_slice: &mut [f32],
+        knobs: &Box<dyn Knobs>,
         playhead: Playhead,
     ) {
         let mut temp: [f32; BATCH_SIZE] = [0.0; BATCH_SIZE];
-        self.vibrato_a.rust_process_audio(input_slice, output_slice, playhead);
-        self.vibrato_b.rust_process_audio(input_slice, &mut temp, playhead);
+        self.vibrato_a.rust_process_audio(input_slice, output_slice, knobs, playhead);
+        self.vibrato_b.rust_process_audio(input_slice, &mut temp, knobs, playhead);
         for i in 0..input_slice.len() {
             output_slice[i] += temp[i];
         }
-        self.vibrato_c.rust_process_audio(input_slice, &mut temp, playhead);
+        self.vibrato_c.rust_process_audio(input_slice, &mut temp, knobs, playhead);
         for i in 0..input_slice.len() {
             output_slice[i] += temp[i];
         }
@@ -52,9 +55,9 @@ impl Patch for Chorus {
         let mut temp0: [f32; BATCH_SIZE] = [0.0; BATCH_SIZE];
         let mut temp1: [f32; BATCH_SIZE] = [0.0; BATCH_SIZE];
         let mut temp2: [f32; BATCH_SIZE] = [0.0; BATCH_SIZE];
-        self.vibrato_a.rust_process_audio(input_slice, &mut temp0, playhead);
-        self.vibrato_b.rust_process_audio(input_slice, &mut temp1, playhead);
-        self.vibrato_c.rust_process_audio(input_slice, &mut temp2, playhead);
+        self.vibrato_a.rust_process_audio(input_slice, &mut temp0, knobs, playhead);
+        self.vibrato_b.rust_process_audio(input_slice, &mut temp1, knobs, playhead);
+        self.vibrato_c.rust_process_audio(input_slice, &mut temp2, knobs, playhead);
         for i in 0..input_slice.len() {
             output_slice[i] /= 3.0;
             if output_slice[i] < -1.0 || output_slice[i] > 1.0 {

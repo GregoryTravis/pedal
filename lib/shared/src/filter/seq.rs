@@ -6,6 +6,7 @@ extern crate std;
 use alloc::boxed::Box;
 use alloc::vec::Vec;
 
+use crate::knob::Knobs;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
 
@@ -30,12 +31,13 @@ impl Patch for Seq {
         &mut self,
         input_slice: &[f32],
         output_slice: &mut [f32],
+        knobs: &Box<dyn Knobs>,
         playhead: Playhead,
     ) {
         assert!(input_slice.len() == self.buf.len());
 
         let first_playhead = playhead.clone();
-        self.patch0.rust_process_audio(input_slice, &mut self.buf, first_playhead);
-        self.patch1.rust_process_audio(&self.buf, output_slice, playhead);
+        self.patch0.rust_process_audio(input_slice, &mut self.buf, knobs, first_playhead);
+        self.patch1.rust_process_audio(&self.buf, output_slice, knobs, playhead);
     }
 }

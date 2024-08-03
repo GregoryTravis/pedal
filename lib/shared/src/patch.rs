@@ -1,6 +1,7 @@
-//use alloc::boxed::Box;
+use alloc::boxed::Box;
 use core::marker::Send;
 
+use crate::knob::Knobs;
 use crate::playhead::*;
 
 pub trait Patch: Send {
@@ -8,6 +9,7 @@ pub trait Patch: Send {
         &mut self,
         input_slice: &[f32],
         output_slice: &mut [f32],
+        knobs: &Box<dyn Knobs>,
         playhead: Playhead,
     );
 

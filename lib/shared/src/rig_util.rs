@@ -4,13 +4,14 @@ use alloc::boxed::Box;
 use core::cmp::min;
 
 use crate::constants::*;
+use crate::knob_dummy::DummyKnobs;
 use crate::patch::Patch;
 use crate::rig::*;
 
 pub fn rig_run_patch_on_buffer(patch: Box<dyn Patch>, input: &[f32], output: &mut [f32]) {
     let len = input.len();
 
-    rig_install_patch(patch);
+    rig_install_patch(patch, Box::new(DummyKnobs { }));
 
     let mut sofar = 0;
     while sofar < len {

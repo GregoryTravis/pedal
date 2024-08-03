@@ -11,6 +11,7 @@ use std::println;
 use hound;
 use crate::constants::*;
 use crate::convert::*;
+use crate::knob_dummy::DummyKnobs;
 use crate::patch::Patch;
 use crate::rig::*;
 
@@ -38,7 +39,7 @@ pub fn sim_main(input_file: &str, output_file: &str, patch: Box<dyn Patch>) {
 
     let mut num_frames: usize = 0;
 
-    rig_install_patch(patch);
+    rig_install_patch(patch, Box::new(DummyKnobs { }));
 
     while samples.len() > 0 {
         match input_spec.channels {

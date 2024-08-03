@@ -4,6 +4,7 @@ use alloc::boxed::Box;
 //use core::ops::DerefMut;
 use core::slice;
 
+use crate::knob::Knobs;
 #[cfg(not(feature = "for_host"))]
 use crate::load_board::*;
 #[cfg(feature = "for_host")]
@@ -17,11 +18,12 @@ use crate::rig_board::*;
 use crate::rig_host::*;
 use crate::rig_type::Rig;
 
-pub fn rig_install_patch(box_patch: Box<dyn Patch>) {
+pub fn rig_install_patch(box_patch: Box<dyn Patch>, knobs: Box<dyn Knobs>) {
     // The audio handler must be installed AFTER this line.
     // TODO is this use of get_patch() an unnecessary copy?
     let rig = Rig {
         patch: box_patch,
+        knobs: knobs,
         inl: 0.0,
         inr: 0.0,
         outl: 0.0,
@@ -86,8 +88,10 @@ pub extern "C" fn rig_process_audio_callback(
         let right_output_slice =
             unsafe { slice::from_raw_parts_mut(*(out_ptr.wrapping_add(1)), len) };
 
+        rig.knobs.process();
+
         rig.patch
-            .rust_process_audio(right_input_slice, right_output_slice, rig.playhead);
+            .rust_process_audio(right_input_slice, right_output_slice, &rig.knobs, rig.playhead);
 
         // Mono pedal, so copy right output to left output. Left and right outputs are mixed to
         // the analog mono out, so I'm told.
