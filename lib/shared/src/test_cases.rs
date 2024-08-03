@@ -26,10 +26,6 @@ pub struct TestCase {
 pub fn get_test_cases() -> Vec<Box<TestCase>> {
     let siner = PostCompose { signal: Arc::new(Sin {}), ff: scale_range(0.3, 0.9) };
     let q = Const { x: 0.95 };
-    let reso = Box::new(ResoFilter::new(Arc::new(siner), Arc::new(q)));
-
-    let siner = PostCompose { signal: Arc::new(Sin {}), ff: scale_range(0.3, 0.9) };
-    let q = Const { x: 0.95 };
     let sweep = Box::new(SweepFilter::new(Arc::new(siner), Arc::new(q)));
 
     vec![Box::new(TestCase {
@@ -76,7 +72,7 @@ pub fn get_test_cases() -> Vec<Box<TestCase>> {
         }),
         Box::new(TestCase {
             name: "reso",
-            patch: reso,
+            patch: Box::new(ResoFilter::new()),
             canned_input: TEST_INPUT,
             expected_output: RESO_OUTPUT,
         }),

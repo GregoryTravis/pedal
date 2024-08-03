@@ -1,17 +1,16 @@
 extern crate alloc;
 
 use alloc::boxed::Box;
-use alloc::sync::Arc;
 
+#[allow(unused_imports)]
 use shared::filter::linear_vibrato::*;
 use shared::filter::reso::*;
+#[allow(unused_imports)]
 use shared::filter::seq::*;
 use shared::knob::Knobs;
 use shared::knob_board::*;
 use shared::rig::*;
 use shared::rig_board::*;
-use shared::signal::base::*;
-use shared::signal::combinators::*;
 #[cfg(not(feature = "for_host"))]
 use shared::daisy_seed_board::*;
 use shared::constants::*;
@@ -26,18 +25,20 @@ fn live_main() {
     spew!("hi");
     load_init();
 
-    let siner = PostCompose { signal: Arc::new(Sin {}), ff: scale_range(0.3, 0.9) };
-    let q = Const { x: 0.95 };
-    let reso = Box::new(ResoFilter::new(Arc::new(siner), Arc::new(q)));
-    let lvib = Box::new(LinearVibrato::new(400, 10.0));
-    let both = Box::new(Seq::new(BLOCK_SIZE, lvib, reso));
-    rig_install_patch(both, Box::new(BoardKnobs { }));
+    let reso = Box::new(ResoFilter::new());
+    //let lvib = Box::new(LinearVibrato::new(400, 10.0));
+    //let both = Box::new(Seq::new(BLOCK_SIZE, lvib, reso));
+    let knobs = Box::new(BoardKnobs { });
+    rig_install_patch(reso, knobs);
 
     rig_install_callback();
 
+    // TODO don't duplicate this.
+    let knobs2 = Box::new(BoardKnobs { });
     loop {
         rig_log();
         load_spew();
+        knobs2.spew();
         hw_delay(500);
     }
 }
@@ -76,6 +77,7 @@ fn try_knobs() {
     let knobs = BoardKnobs { };
     loop {
         knobs.process();
+        knobs.spew();
         spew!("knobs", knobs.read(0), knobs.read(1), knobs.read(2), knobs.read(3), knobs.read(4), knobs.read(5));
         hw_delay(200);
     }
