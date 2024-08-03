@@ -28,12 +28,12 @@ fn live_main() {
     spew!("hi");
     load_init();
 
-    //let reso = Box::new(ResoFilter::new());
+    let reso = Box::new(ResoFilter::new(0, 3));
     //let lvib = Box::new(LinearVibrato::new(400, 10.0));
     //let both = Box::new(Seq::new(BLOCK_SIZE, lvib, reso));
+    //let chorus = Box::new(Chorus::new());
     let knobs = Box::new(BoardKnobs { });
-    let chorus = Box::new(Chorus::new());
-    rig_install_patch(chorus, knobs);
+    rig_install_patch(reso, knobs);
 
     rig_install_callback();
 

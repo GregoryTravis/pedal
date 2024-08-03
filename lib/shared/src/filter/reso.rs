@@ -8,14 +8,18 @@ use crate::patch::Patch;
 use crate::playhead::Playhead;
 
 pub struct ResoFilter {
+    pub freq_knob_id: usize,
+    pub q_knob_id: usize,
     pub buf0: f32,
     pub buf1: f32,
 }
 
 // From https://www.musicdsp.org/en/latest/Filters/29-resonant-filter.html
 impl ResoFilter {
-    pub fn new() -> ResoFilter {
+    pub fn new(freq_knob_id: usize, q_knob_id: usize) -> ResoFilter {
         ResoFilter {
+            freq_knob_id: freq_knob_id,
+            q_knob_id: q_knob_id,
             buf0: 0.0,
             buf1: 0.0,
         }
@@ -30,8 +34,8 @@ impl Patch for ResoFilter {
         knobs: &Box<dyn Knobs>,
         mut playhead: Playhead,
     ) {
-        let freq_knob_value = knobs.read(0);
-        let q_knob_value = knobs.read(3);
+        let freq_knob_value = knobs.read(self.freq_knob_id);
+        let q_knob_value = knobs.read(self.q_knob_id);
 
         let freq_lo = 0.3;
         let freq_hi = 0.9;

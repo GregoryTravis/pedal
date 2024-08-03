@@ -72,7 +72,7 @@ pub fn get_test_cases() -> Vec<Box<TestCase>> {
         }),
         Box::new(TestCase {
             name: "reso",
-            patch: Box::new(ResoFilter::new()),
+            patch: Box::new(ResoFilter::new(0, 0)),
             canned_input: TEST_INPUT,
             expected_output: RESO_OUTPUT,
         }),
