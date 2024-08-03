@@ -3,6 +3,7 @@ use alloc::sync::Arc;
 use alloc::vec::Vec;
 
 use crate::filter::chorus::*;
+use crate::filter::delay::*;
 use crate::filter::high_pass::*;
 use crate::filter::linear_vibrato::*;
 use crate::filter::low_pass::*;
@@ -81,6 +82,12 @@ pub fn get_test_cases() -> Vec<Box<TestCase>> {
             patch: sweep,
             canned_input: TEST_INPUT,
             expected_output: SWEEP_OUTPUT,
+        }),
+        Box::new(TestCase {
+            name: "delay",
+            patch: Box::new(Delay::new()),
+            canned_input: TEST_INPUT,
+            expected_output: DELAY_OUTPUT,
         }),
     ]
 }
