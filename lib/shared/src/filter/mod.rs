@@ -8,4 +8,5 @@ pub mod reso;
 pub mod seq;
 pub mod sine;
 pub mod speed_test;
+pub mod sweep;
 pub mod vibrato;

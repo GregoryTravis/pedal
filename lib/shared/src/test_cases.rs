@@ -9,6 +9,7 @@ use crate::filter::low_pass::*;
 use crate::filter::pass_thru::*;
 use crate::filter::reso::*;
 use crate::filter::sine::*;
+use crate::filter::sweep::*;
 use crate::filter::vibrato::*;
 use crate::patch::Patch;
 use crate::signal::base::*;
@@ -27,13 +28,11 @@ pub fn get_test_cases() -> Vec<Box<TestCase>> {
     let q = Const { x: 0.95 };
     let reso = Box::new(ResoFilter::new(Arc::new(siner), Arc::new(q)));
 
+    let siner = PostCompose { signal: Arc::new(Sin {}), ff: scale_range(0.3, 0.9) };
+    let q = Const { x: 0.95 };
+    let sweep = Box::new(SweepFilter::new(Arc::new(siner), Arc::new(q)));
+
     vec![Box::new(TestCase {
-            name: "low_pass",
-            patch: Box::new(LowPassFilter::new()),
-            canned_input: TEST_INPUT,
-            expected_output: LOW_PASS_OUTPUT,
-        }),
-        Box::new(TestCase {
             name: "low_pass",
             patch: Box::new(LowPassFilter::new()),
             canned_input: TEST_INPUT,
@@ -80,6 +79,12 @@ pub fn get_test_cases() -> Vec<Box<TestCase>> {
             patch: reso,
             canned_input: TEST_INPUT,
             expected_output: RESO_OUTPUT,
+        }),
+        Box::new(TestCase {
+            name: "sweep",
+            patch: sweep,
+            canned_input: TEST_INPUT,
+            expected_output: SWEEP_OUTPUT,
         }),
     ]
 }
