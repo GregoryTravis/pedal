@@ -3,7 +3,10 @@ extern crate alloc;
 use alloc::boxed::Box;
 
 #[allow(unused_imports)]
+use shared::filter::chorus::*;
+#[allow(unused_imports)]
 use shared::filter::linear_vibrato::*;
+#[allow(unused_imports)]
 use shared::filter::reso::*;
 #[allow(unused_imports)]
 use shared::filter::seq::*;
@@ -25,11 +28,12 @@ fn live_main() {
     spew!("hi");
     load_init();
 
-    let reso = Box::new(ResoFilter::new());
+    //let reso = Box::new(ResoFilter::new());
     //let lvib = Box::new(LinearVibrato::new(400, 10.0));
     //let both = Box::new(Seq::new(BLOCK_SIZE, lvib, reso));
     let knobs = Box::new(BoardKnobs { });
-    rig_install_patch(reso, knobs);
+    let chorus = Box::new(Chorus::new());
+    rig_install_patch(chorus, knobs);
 
     rig_install_callback();
 

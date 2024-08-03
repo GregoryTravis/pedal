@@ -3,6 +3,7 @@ extern crate std;
 
 use alloc::boxed::Box;
 #[cfg(feature = "for_host")]
+#[allow(unused_imports)]
 use std::println;
 
 use crate::filter::linear_vibrato::*;
@@ -52,6 +53,7 @@ impl Patch for Chorus {
             output_slice[i] /= 3.0;
         }
 
+        /*
         let mut temp0: [f32; BATCH_SIZE] = [0.0; BATCH_SIZE];
         let mut temp1: [f32; BATCH_SIZE] = [0.0; BATCH_SIZE];
         let mut temp2: [f32; BATCH_SIZE] = [0.0; BATCH_SIZE];
@@ -66,7 +68,7 @@ impl Patch for Chorus {
                     output_slice[i], temp0[i], temp1[i], temp2[i]);
             }
         }
-
+        */
     }
 }
 
