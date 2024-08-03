@@ -17,6 +17,7 @@ pub struct Chorus {
     vibrato_a: LinearVibrato,
     vibrato_b: LinearVibrato,
     vibrato_c: LinearVibrato,
+    buffer: [f32; BATCH_SIZE],
 }
 
 impl Chorus {
@@ -27,6 +28,7 @@ impl Chorus {
             vibrato_a: LinearVibrato::new(20, n-d),
             vibrato_b: LinearVibrato::new(22, n),
             vibrato_c: LinearVibrato::new(18, n+d),
+            buffer: [0.0; BATCH_SIZE],
         }
     }
 }
@@ -39,21 +41,21 @@ impl Patch for Chorus {
         knobs: &Box<dyn Knobs>,
         playhead: Playhead,
     ) {
-        let mut temp: [f32; BATCH_SIZE] = [0.0; BATCH_SIZE];
         self.vibrato_a.rust_process_audio(input_slice, output_slice, knobs, playhead);
-        self.vibrato_b.rust_process_audio(input_slice, &mut temp, knobs, playhead);
+        self.vibrato_b.rust_process_audio(input_slice, &mut self.buffer, knobs, playhead);
         for i in 0..input_slice.len() {
-            output_slice[i] += temp[i];
+            output_slice[i] += self.buffer[i];
         }
-        self.vibrato_c.rust_process_audio(input_slice, &mut temp, knobs, playhead);
+        self.vibrato_c.rust_process_audio(input_slice, &mut self.buffer, knobs, playhead);
         for i in 0..input_slice.len() {
-            output_slice[i] += temp[i];
+            output_slice[i] += self.buffer[i];
         }
         for i in 0..input_slice.len() {
             output_slice[i] /= 3.0;
         }
 
-        /*
+        /* This was for figuring out why it was clipping, but it doesn't seem to be
+         * clipping now.
         let mut temp0: [f32; BATCH_SIZE] = [0.0; BATCH_SIZE];
         let mut temp1: [f32; BATCH_SIZE] = [0.0; BATCH_SIZE];
         let mut temp2: [f32; BATCH_SIZE] = [0.0; BATCH_SIZE];
