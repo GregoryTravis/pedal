@@ -54,7 +54,7 @@ pub fn get_test_cases() -> Vec<Box<TestCase>> {
         }),
         Box::new(TestCase {
             name: "linear_vibrato",
-            patch: Box::new(LinearVibrato::new(10, 1.0)),
+            patch: Box::new(LinearVibrato::new(10, 1.0, 0)),
             canned_input: TEST_INPUT,
             expected_output: LINEAR_VIBRATO_OUTPUT,
         }),

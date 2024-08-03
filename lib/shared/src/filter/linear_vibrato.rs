@@ -22,6 +22,7 @@ const NUM_SINC_TAPS_ONE_SIDE: usize = 3;
 const GUARD_SAMPLES: usize = 1;
 
 pub struct LinearVibrato {
+    deviation_knob_id: usize,
     // The fractional playhead can only deviate from the regular one by this much on either side.
     // Range is *exclusive*. -- TODO ??
     max_sample_deviation: usize,
@@ -33,11 +34,12 @@ pub struct LinearVibrato {
 }
 
 impl LinearVibrato {
-    pub fn new(max_sample_deviation: usize, vibrato_frequency: f32) -> LinearVibrato {
+    pub fn new(max_sample_deviation: usize, vibrato_frequency: f32, deviation_knob_id: usize) -> LinearVibrato {
         let buffer_length: usize = 2 * (max_sample_deviation + NUM_SINC_TAPS_ONE_SIDE + GUARD_SAMPLES) + 1;
         let now_index: usize = max_sample_deviation + NUM_SINC_TAPS_ONE_SIDE + GUARD_SAMPLES;
 
         let vibrato = LinearVibrato {
+            deviation_knob_id: deviation_knob_id,
             max_sample_deviation: max_sample_deviation,
             vibrato_frequency: vibrato_frequency,
             now_index: now_index,
@@ -52,14 +54,15 @@ impl Patch for LinearVibrato {
         &mut self,
         input_slice: &[f32],
         output_slice: &mut [f32],
-        _knobs: &Box<dyn Knobs>,
+        knobs: &Box<dyn Knobs>,
         mut playhead: Playhead,
     ) {
         for i in 0..input_slice.len() {
             self.cbuf.push(input_slice[i]);
             let tis = playhead.time_in_seconds();
+            let deviation = knobs.read(self.deviation_knob_id) * (self.max_sample_deviation as f32);
             let vibrato_deviation = libm::sinf(
-                tis * self.vibrato_frequency as f32 * 2.0 * PI as f32) * (self.max_sample_deviation as f32);
+                tis * self.vibrato_frequency as f32 * 2.0 * PI as f32) * deviation;
             // Fractional playhead
             let fph = (self.now_index as f32) + vibrato_deviation as f32;
             let fph_floor = libm::floorf(fph) as usize;
