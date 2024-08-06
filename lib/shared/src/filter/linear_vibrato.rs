@@ -10,6 +10,7 @@ use crate::ds::circbuf::CircBuf;
 use crate::knob::Knobs;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
+use crate::filter::sine_table::*;
 
 //#[cfg(feature = "for_host")]
 //use std::println;
@@ -61,7 +62,8 @@ impl Patch for LinearVibrato {
             self.cbuf.push(input_slice[i]);
             let tis = playhead.time_in_seconds();
             let deviation = knobs.read(self.deviation_knob_id) * (self.max_sample_deviation as f32);
-            let vibrato_deviation = libm::sinf(
+            //let vibrato_deviation = libm::sinf(
+            let vibrato_deviation = table_sin(
                 tis * self.vibrato_frequency as f32 * 2.0 * PI as f32) * deviation;
             // Fractional playhead
             let fph = (self.now_index as f32) + vibrato_deviation as f32;

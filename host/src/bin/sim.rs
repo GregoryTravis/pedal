@@ -7,7 +7,7 @@ use alloc::sync::Arc;
 use shared::filter::chorus::*;
 use shared::filter::delay::*;
 use shared::filter::pass_thru::*;
-use shared::filter::reso::*;
+use shared::filter::sweep::*;
 use shared::filter::vibrato::*;
 use shared::filter::linear_vibrato::*;
 use shared::signal::base::*;
@@ -15,10 +15,10 @@ use shared::signal::combinators::*;
 use shared::sim::*;
 
 #[allow(dead_code)]
-fn reso(input_file: &str, output_file: &str) {
+fn sweep(input_file: &str, output_file: &str) {
     let siner = PostCompose { signal: Arc::new(Sin {}), ff: scale_range(0.3, 0.9) };
     let q = Const { x: 0.95 };
-    sim_main(input_file, output_file, Box::new(ResoFilter::new(Arc::new(siner), Arc::new(q))));
+    sim_main(input_file, output_file, Box::new(SweepFilter::new(Arc::new(siner), Arc::new(q))));
 }
 
 #[allow(dead_code)]
@@ -38,7 +38,7 @@ fn vibrato(input_file: &str, output_file: &str) {
 
 #[allow(dead_code)]
 fn linear_vibrato(input_file: &str, output_file: &str) {
-    sim_main(input_file, output_file, Box::new(LinearVibrato::new(400, 1.0)));
+    sim_main(input_file, output_file, Box::new(LinearVibrato::new(400, 1.0, 0)));
 }
 
 #[allow(dead_code)]
@@ -51,5 +51,5 @@ pub fn main() {
     assert!(args.len() == 3);
     let input_file = &args[1];
     let output_file = &args[2];
-    reso(input_file, output_file);
+    chorus(input_file, output_file);
 }
