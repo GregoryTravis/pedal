@@ -33,34 +33,11 @@ impl Patch for WaveShaper {
         mut _playhead: Playhead,
     ) {
         for i in 0..input_slice.len() {
-            let mut s = input_slice[i];
-            s *= 3.0;
-
-            /*
-            if s >= 0.0 {
-                output_slice[i] = s*s;
-            } else {
-                output_slice[i] = -s*s;
-            }
-            output_slice[i] *= 10.0;
-            */
-
-            /*
-            // x -3.75 .. 1.75 (totes 5.50)
-            // / 12
-            let s_0_1 = (s + 1.0) / 2.0;
-            let x = (s_0_1 * 5.5) - 3.75;
-            let mut y = x*x*x + 3.0*x*x - 3.0*x + 1.0;
-            y = (y / 6.0) - 1.0;
-            output_slice[i] = y;
-            */
-
-            let lo = -3.825;
-            let hi = 1.85;
-            // -3.75..2
-            let x = (s * (hi - lo)) + lo;
-            let y = ((x*x*x + 3.0*x*x - 3.0*x + 1.0) / 6.0) - 1.0;
-
+            let s = input_slice[i];
+            let input_gain = 3.0; // Adjust this so that the min/max below is close to 1
+            let gain = 7.5;
+            let x = s * input_gain * 10.0 + gain;
+            let y = x / (1.0 + libm::fabsf(x));
             output_slice[i] = y;
 
             let mut wider = false;
