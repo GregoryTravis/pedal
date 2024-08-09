@@ -6,10 +6,11 @@ use alloc::sync::Arc;
 
 use shared::filter::chorus::*;
 use shared::filter::delay::*;
+use shared::filter::linear_vibrato::*;
 use shared::filter::pass_thru::*;
 use shared::filter::sweep::*;
 use shared::filter::vibrato::*;
-use shared::filter::linear_vibrato::*;
+use shared::filter::waveshaper::*;
 use shared::signal::base::*;
 use shared::signal::combinators::*;
 use shared::sim::*;
@@ -46,10 +47,15 @@ fn chorus(input_file: &str, output_file: &str) {
     sim_main(input_file, output_file, Box::new(Chorus::new()));
 }
 
+#[allow(dead_code)]
+fn waveshaper(input_file: &str, output_file: &str) {
+    sim_main(input_file, output_file, Box::new(WaveShaper::new()));
+}
+
 pub fn main() {
     let args: Vec<String> = env::args().collect();
     assert!(args.len() == 3);
     let input_file = &args[1];
     let output_file = &args[2];
-    chorus(input_file, output_file);
+    waveshaper(input_file, output_file);
 }

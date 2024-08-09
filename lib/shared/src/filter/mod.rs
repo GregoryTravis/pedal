@@ -12,3 +12,4 @@ pub mod sine_table;
 pub mod speed_test;
 pub mod sweep;
 pub mod vibrato;
+pub mod waveshaper;
