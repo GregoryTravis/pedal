@@ -4,15 +4,12 @@ extern crate libm;
 extern crate std;
 
 use alloc::boxed::Box;
-use std::println;
 
 use crate::knob::Knobs;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
 
 pub struct Fuzz {
-    min: f32,
-    max: f32,
     last_x: f32,
     last_y: f32,
     attack_eagerness: f32,
@@ -22,8 +19,6 @@ pub struct Fuzz {
 impl Fuzz {
     pub fn new() -> Fuzz {
         Fuzz {
-            min: 0.0,
-            max: 0.0,
             last_x: 0.0,
             last_y: 0.0,
             attack_eagerness: 0.90,
@@ -69,18 +64,6 @@ impl Patch for Fuzz {
             let wet = 0.1;
             let mix_y = (wet * y) + ((1.0 - wet) * x);
             output_slice[i] = mix_y;
-
-            let mut wider = false;
-            if x < self.min {
-                self.min = x;
-                wider = true;
-            } else if x > self.max {
-                self.max = x;
-                wider = true;
-            }
-            if wider {
-                println!("min max {} {}", self.min, self.max);
-            }
 
             //playhead.inc();
         }

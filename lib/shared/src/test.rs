@@ -49,6 +49,7 @@ pub fn test_direct() {
         let patch = test_case.patch;
         let canned_input = test_case.canned_input;
         let expected_output = test_case.expected_output;
+        //spew!(test_case.name);
         test_patch(test_case.name, patch, canned_input, expected_output);
     }
 }

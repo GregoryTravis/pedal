@@ -4,6 +4,7 @@ extern crate libm;
 extern crate std;
 
 use alloc::boxed::Box;
+#[cfg(feature = "for_host")]
 use std::println;
 
 use crate::knob::Knobs;
@@ -11,14 +12,18 @@ use crate::patch::Patch;
 use crate::playhead::Playhead;
 
 pub struct WaveShaper {
+#[cfg(feature = "for_host")]
     min: f32,
+#[cfg(feature = "for_host")]
     max: f32,
 }
 
 impl WaveShaper {
     pub fn new() -> WaveShaper {
         WaveShaper {
+#[cfg(feature = "for_host")]
             min: 0.0,
+#[cfg(feature = "for_host")]
             max: 0.0,
         }
     }
@@ -40,16 +45,19 @@ impl Patch for WaveShaper {
             let y = x / (1.0 + libm::fabsf(x));
             output_slice[i] = y;
 
-            let mut wider = false;
-            if s < self.min {
-                self.min = s;
-                wider = true;
-            } else if s > self.max {
-                self.max = s;
-                wider = true;
-            }
-            if wider {
-                println!("min max {} {}", self.min, self.max);
+#[cfg(feature = "for_host")]
+            {
+                let mut wider = false;
+                if s < self.min {
+                    self.min = s;
+                    wider = true;
+                } else if s > self.max {
+                    self.max = s;
+                    wider = true;
+                }
+                if wider {
+                    println!("min max {} {}", self.min, self.max);
+                }
             }
 
             //playhead.inc();
