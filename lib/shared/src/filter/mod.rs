@@ -1,5 +1,6 @@
 pub mod chorus;
 pub mod delay;
+pub mod envelope_follower;
 pub mod high_pass;
 pub mod interp;
 pub mod linear_vibrato;

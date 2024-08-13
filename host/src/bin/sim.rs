@@ -4,10 +4,14 @@ use std::env;
 use alloc::boxed::Box;
 use alloc::sync::Arc;
 
+use shared::constants::*;
 use shared::filter::chorus::*;
 use shared::filter::delay::*;
+use shared::filter::envelope_follower::*;
 use shared::filter::linear_vibrato::*;
+use shared::filter::low_pass::*;
 use shared::filter::pass_thru::*;
+use shared::filter::seq::*;
 use shared::filter::sweep::*;
 use shared::filter::vibrato::*;
 use shared::filter::waveshaper::*;
@@ -52,10 +56,17 @@ fn waveshaper(input_file: &str, output_file: &str) {
     sim_main(input_file, output_file, Box::new(WaveShaper::new()));
 }
 
+#[allow(dead_code)]
+fn envelope_follower(input_file: &str, output_file: &str) {
+    let filter = Seq::new(BLOCK_SIZE, Box::new(LowPassFilter::new()), Box::new(Seq::new(BLOCK_SIZE, Box::new(LowPassFilter::new()), Box::new(LowPassFilter::new()))));
+    let patch = Seq::new(BLOCK_SIZE, Box::new(EnvelopeFollower::new()), Box::new(filter));
+    sim_main(input_file, output_file, Box::new(patch));
+}
+
 pub fn main() {
     let args: Vec<String> = env::args().collect();
     assert!(args.len() == 3);
     let input_file = &args[1];
     let output_file = &args[2];
-    waveshaper(input_file, output_file);
+    envelope_follower(input_file, output_file);
 }
