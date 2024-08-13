@@ -8,6 +8,7 @@ use shared::constants::*;
 use shared::filter::chorus::*;
 use shared::filter::delay::*;
 use shared::filter::envelope_follower::*;
+use shared::filter::fuzz::*;
 use shared::filter::linear_vibrato::*;
 use shared::filter::low_pass::*;
 use shared::filter::pass_thru::*;
@@ -57,6 +58,11 @@ fn waveshaper(input_file: &str, output_file: &str) {
 }
 
 #[allow(dead_code)]
+fn fuzz(input_file: &str, output_file: &str) {
+    sim_main(input_file, output_file, Box::new(Fuzz::new()));
+}
+
+#[allow(dead_code)]
 fn envelope_follower(input_file: &str, output_file: &str) {
     let filter = Seq::new(BLOCK_SIZE, Box::new(LowPassFilter::new()), Box::new(Seq::new(BLOCK_SIZE, Box::new(LowPassFilter::new()), Box::new(LowPassFilter::new()))));
     let patch = Seq::new(BLOCK_SIZE, Box::new(EnvelopeFollower::new()), Box::new(filter));
@@ -68,5 +74,6 @@ pub fn main() {
     assert!(args.len() == 3);
     let input_file = &args[1];
     let output_file = &args[2];
-    envelope_follower(input_file, output_file);
+    //envelope_follower(input_file, output_file);
+    fuzz(input_file, output_file);
 }
