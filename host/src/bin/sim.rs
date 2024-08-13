@@ -12,6 +12,7 @@ use shared::filter::fuzz::*;
 use shared::filter::linear_vibrato::*;
 use shared::filter::low_pass::*;
 use shared::filter::pass_thru::*;
+use shared::filter::reso::*;
 use shared::filter::seq::*;
 use shared::filter::sweep::*;
 use shared::filter::vibrato::*;
@@ -59,7 +60,11 @@ fn waveshaper(input_file: &str, output_file: &str) {
 
 #[allow(dead_code)]
 fn fuzz(input_file: &str, output_file: &str) {
-    sim_main(input_file, output_file, Box::new(Fuzz::new()));
+    let patch = Seq::new(BLOCK_SIZE,
+                         Box::new(Fuzz::new()),
+                         Box::new(ResoFilter::new(0, 0)),
+                         );
+    sim_main(input_file, output_file, Box::new(patch));
 }
 
 #[allow(dead_code)]
