@@ -1,5 +1,7 @@
 extern crate alloc;
 
+use crate::constants::PROD;
+
 extern "C" {
     pub fn spew_int_c(x: i32);
     pub fn spew_ulonglong_c(x: u64);
@@ -19,56 +21,70 @@ pub trait Spewable {
 
 impl Spewable for i32 {
     fn do_spew(&self) {
-        unsafe {
-            spew_int_c(*self);
+        if !PROD {
+            unsafe {
+                spew_int_c(*self);
+            }
         }
     }
 }
 
 impl Spewable for u32 {
     fn do_spew(&self) {
-        unsafe {
-            spew_ulong_c(*self);
+        if !PROD {
+            unsafe {
+                spew_ulong_c(*self);
+            }
         }
     }
 }
 
 impl Spewable for u64 {
     fn do_spew(&self) {
-        unsafe {
-            spew_ulonglong_c(*self);
+        if !PROD {
+            unsafe {
+                spew_ulonglong_c(*self);
+            }
         }
     }
 }
 
 impl Spewable for usize {
     fn do_spew(&self) {
-        unsafe {
-            spew_size_t_c(*self);
+        if !PROD {
+            unsafe {
+                spew_size_t_c(*self);
+            }
         }
     }
 }
 
 impl Spewable for f32 {
     fn do_spew(&self) {
-        unsafe {
-            spew_float_c(*self);
+        if !PROD {
+            unsafe {
+                spew_float_c(*self);
+            }
         }
     }
 }
 
 impl Spewable for f64 {
     fn do_spew(&self) {
-        unsafe {
-            spew_double_c(*self);
+        if !PROD {
+            unsafe {
+                spew_double_c(*self);
+            }
         }
     }
 }
 
 impl Spewable for char {
     fn do_spew(&self) {
-        unsafe {
-            spew_char_c(*self as core::ffi::c_char);
+        if !PROD {
+            unsafe {
+                spew_char_c(*self as core::ffi::c_char);
+            }
         }
     }
 }
@@ -91,24 +107,32 @@ fn spew_str(s: &str) {
 
 impl Spewable for &str {
     fn do_spew(&self) {
-        spew_str(*self);
+        if !PROD {
+            spew_str(*self);
+        }
     }
 }
 
 impl Spewable for bool {
     fn do_spew(&self) {
-        spew_str(if *self { "true" } else { "false" });
+        if !PROD {
+            spew_str(if *self { "true" } else { "false" });
+        }
     }
 }
 
 pub fn spew_space() {
-    unsafe {
-        spew_space_c();
+    if !PROD {
+        unsafe {
+            spew_space_c();
+        }
     }
 }
 
 pub fn spew_newline() {
-    unsafe {
-        spew_newline_c();
+    if !PROD {
+        unsafe {
+            spew_newline_c();
+        }
     }
 }

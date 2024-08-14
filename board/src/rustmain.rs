@@ -30,7 +30,7 @@ use shared::test::test_direct;
 
 #[allow(dead_code)]
 fn live_main() {
-    hw_init(true, BLOCK_SIZE);
+    hw_init(!PROD, BLOCK_SIZE);
     spew!("hi");
     load_init();
 
@@ -102,8 +102,8 @@ fn try_knobs() {
 pub fn main() {
     spew!("start of main");
 
-    //live_main();
-    all_tests();
+    live_main();
+    //all_tests();
     //try_knobs();
     //oom_test();
 
