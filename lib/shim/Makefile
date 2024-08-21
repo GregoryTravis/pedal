@@ -21,7 +21,26 @@ clean_pedal_dependent_o:
 	rm -f build/pedal.o
 
 # Sources
-CPP_SOURCES = spew.cpp hw.cpp load.cpp vibrato.cpp playhead.cpp circbuf.cpp patch.cpp speed_test.cpp daisy_seed.cpp rig.cpp knob.cpp
+CPP_SOURCES = spew.cpp hw.cpp load.cpp vibrato.cpp playhead.cpp circbuf.cpp patch.cpp speed_test.cpp daisy_seed.cpp rig.cpp knob.cpp fft.cpp
+
+ASM_SOURCES += \
+$(LIBDAISY_DIR)/Drivers/CMSIS/DSP/Source/TransformFunctions/arm_bitreversal2.s
+
+C_SOURCES += \
+$(LIBDAISY_DIR)/Drivers/CMSIS/DSP/Source/TransformFunctions/arm_rfft_fast_f32.c \
+$(LIBDAISY_DIR)/Drivers/CMSIS/DSP/Source/TransformFunctions/arm_rfft_fast_init_f32.c \
+$(LIBDAISY_DIR)/Drivers/CMSIS/DSP/Source/TransformFunctions/arm_cfft_f32.c \
+$(LIBDAISY_DIR)/Drivers/CMSIS/DSP/Source/TransformFunctions/arm_cfft_radix8_f32.c \
+$(LIBDAISY_DIR)/Drivers/CMSIS/DSP/Source/CommonTables/arm_const_structs.c \
+$(LIBDAISY_DIR)/Drivers/CMSIS/DSP/Source/CommonTables/arm_common_tables.c
+
+C_DEFS += \
+-DUSE_ARM_FFT \
+
+#OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES:.s=.o)))
+#vpath %.s $(sort $(dir $(ASM_SOURCES)))
+OBJECTS += $(addprefix $(BUILD_DIR)/,$(ASM_SOURCES:.s=.o))
+vpath %.s $(sort $(dir $(ASM_SOURCES)))
 
 # Library Locations
 DAISY_EXAMPLES = ../../../DaisyExamples

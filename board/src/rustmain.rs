@@ -28,6 +28,10 @@ use shared::r#override::*;
 use shared::spew::*;
 use shared::test::test_direct;
 
+extern "C" {
+    pub fn do_fft();
+}
+
 #[allow(dead_code)]
 fn live_main() {
     hw_init(!PROD, BLOCK_SIZE);
@@ -102,10 +106,14 @@ fn try_knobs() {
 pub fn main() {
     spew!("start of main");
 
-    live_main();
+    //live_main();
     //all_tests();
     //try_knobs();
     //oom_test();
+    hw_init(true, BLOCK_SIZE);
+    unsafe {
+        do_fft();
+    }
 
     spew!("end of main");
 }
