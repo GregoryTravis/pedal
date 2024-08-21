@@ -10,7 +10,7 @@ using namespace daisy;
 using namespace daisysp;
 
 #define SIZE 2048
-#define EXTRA (SIZE*3)
+#define EXTRA 0
 
 float32_t in[SIZE+EXTRA];
 float32_t fftBuffer[SIZE+EXTRA];
