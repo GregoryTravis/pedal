@@ -18,11 +18,12 @@ pub fn benchmark<F>(duration: f32, code: F) -> BenchmarkResults
         code();
         count += 1;
         /*
-        if (count % 100) == 0 {
+        if (count % 1000) == 0 {
             spew!("hmm", timer.elapsed(), count);
         }
         */
     }
+    //spew!("hmm done", count);
     let total_duration = timer.elapsed();
     BenchmarkResults {
         requested_duration: duration,

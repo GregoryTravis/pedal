@@ -71,6 +71,8 @@ extern "C" void do_arm_fft() {
   }
   float avg_diff = total_diff / ARM_SIZE;
   if (verbose) { hw.PrintLine("AAA tot %f avg %f\n", total_diff, avg_diff); }
+
+  delete fftInstance;
 }
 
 #define SHY_SIZE 2048
