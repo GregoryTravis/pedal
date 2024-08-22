@@ -4,7 +4,7 @@
 extern crate alloc;
 
 #[cfg(not(feature = "for_host"))]
-pub mod mem;
+pub mod bench;
 pub mod ds;
 pub mod convert;
 pub mod constants;
@@ -23,6 +23,7 @@ pub mod hw_host;
 pub mod load_board;
 #[cfg(feature = "for_host")]
 pub mod load_host;
+pub mod mem;
 pub mod r#override;
 pub mod panic;
 pub mod patch;

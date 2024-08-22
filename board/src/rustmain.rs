@@ -2,6 +2,7 @@ extern crate alloc;
 
 use alloc::boxed::Box;
 
+use shared::bench::benchmark;
 #[allow(unused_imports)]
 use shared::filter::chorus::*;
 #[allow(unused_imports)]
@@ -103,6 +104,24 @@ fn try_knobs() {
     }
 }
 
+#[allow(dead_code)]
+fn benchmark_fft() {
+    hw_init(true, BLOCK_SIZE);
+
+    let dur = 1.0;
+    let arm_bench = benchmark(dur, || {
+        unsafe {
+            do_arm_fft();
+        }
+    });
+    let shy_bench = benchmark(dur, || {
+        unsafe {
+            do_shy_fft();
+        }
+    });
+    spew!("arm", arm_bench.execution_count, arm_bench.avg_time, "shy", shy_bench.execution_count, shy_bench.avg_time);
+}
+
 #[no_mangle]
 pub fn main() {
     spew!("start of main");
@@ -111,11 +130,7 @@ pub fn main() {
     //all_tests();
     //try_knobs();
     //oom_test();
-    hw_init(true, BLOCK_SIZE);
-    unsafe {
-        do_arm_fft();
-        do_shy_fft();
-    }
+    benchmark_fft();
 
     spew!("end of main");
 }

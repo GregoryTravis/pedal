@@ -16,44 +16,52 @@ using namespace daisysp;
 #define ARM_SIZE 2048
 #define EXTRA 0
 
+static bool verbose = false;
+
 extern "C" void do_arm_fft() {
   static float32_t in[ARM_SIZE+EXTRA];
   static float32_t in_copy[ARM_SIZE+EXTRA];
   static float32_t fftBuffer[ARM_SIZE+EXTRA];
   static float32_t out[ARM_SIZE+EXTRA];
 
-  hw.PrintLine("arm_fft %d\n", ARM_SIZE);
+  if (verbose) { hw.PrintLine("arm_fft %d\n", ARM_SIZE); }
 
   arm_rfft_fast_instance_f32* fftInstance = new arm_rfft_fast_instance_f32;
 
-  hw.PrintLine("instance %p\n", fftInstance);
+  if (verbose) { hw.PrintLine("instance %p\n", fftInstance); }
 
   arm_status status = arm_rfft_fast_init_f32(fftInstance, ARM_SIZE);
 
-  hw.PrintLine("status %d\n", status);
+  if (verbose) { hw.PrintLine("status %d\n", status); }
 
   for (size_t i = 0; i < ARM_SIZE; ++i) {
     in[i] = ((float32_t)i) / ((float32_t)ARM_SIZE);
     in_copy[i] = in[i];
   }
 
-  hw.PrintLine("AAA before");
-  for (size_t i = 0; i < ARM_SIZE; ++i) {
-    hw.PrintLine("%d %f %f %f\n", i, in[i], fftBuffer[i], out[i]);
+  if (verbose) {
+    hw.PrintLine("AAA before");
+    for (size_t i = 0; i < ARM_SIZE; ++i) {
+      hw.PrintLine("%d %f %f %f\n", i, in[i], fftBuffer[i], out[i]);
+    }
   }
 
   arm_rfft_fast_f32(fftInstance, in, fftBuffer, 0);
 
-  hw.PrintLine("AAA after fft");
-  for (size_t i = 0; i < ARM_SIZE; ++i) {
-    hw.PrintLine("%d %f %f %f\n", i, in[i], fftBuffer[i], out[i]);
+  if (verbose) {
+    hw.PrintLine("AAA after fft");
+    for (size_t i = 0; i < ARM_SIZE; ++i) {
+      hw.PrintLine("%d %f %f %f\n", i, in[i], fftBuffer[i], out[i]);
+    }
   }
 
   arm_rfft_fast_f32(fftInstance, fftBuffer, out, 1);
 
-  hw.PrintLine("AAA after ifft");
-  for (size_t i = 0; i < ARM_SIZE; ++i) {
-    hw.PrintLine("%d %f %f %f\n", i, in[i], fftBuffer[i], out[i]);
+  if (verbose) {
+    hw.PrintLine("AAA after ifft");
+    for (size_t i = 0; i < ARM_SIZE; ++i) {
+      hw.PrintLine("%d %f %f %f\n", i, in[i], fftBuffer[i], out[i]);
+    }
   }
 
   // Avergate difference
@@ -62,10 +70,10 @@ extern "C" void do_arm_fft() {
     total_diff += (out[i] - in_copy[i]);
   }
   float avg_diff = total_diff / ARM_SIZE;
-  hw.PrintLine("AAA tot %f avg %f\n", total_diff, avg_diff);
+  if (verbose) { hw.PrintLine("AAA tot %f avg %f\n", total_diff, avg_diff); }
 }
 
-#define SHY_SIZE 16
+#define SHY_SIZE 2048
 
 typedef ShyFFT<float, SHY_SIZE, RotationPhasor> FFT;
 
@@ -75,7 +83,7 @@ extern "C" void do_shy_fft() {
   static float32_t fftBuffer[SHY_SIZE+EXTRA];
   static float32_t out[SHY_SIZE+EXTRA];
 
-  hw.PrintLine("shy_fft %d\n", SHY_SIZE);
+  if (verbose) { hw.PrintLine("shy_fft %d\n", SHY_SIZE); }
 
   FFT fft;
   fft.Init();
@@ -85,23 +93,29 @@ extern "C" void do_shy_fft() {
     in_copy[i] = in[i];
   }
 
-  hw.PrintLine("AAA before");
-  for (size_t i = 0; i < SHY_SIZE; ++i) {
-    hw.PrintLine("%d %f %f %f\n", i, in[i], fftBuffer[i], out[i]);
+  if (verbose) {
+    hw.PrintLine("AAA before");
+    for (size_t i = 0; i < SHY_SIZE; ++i) {
+      hw.PrintLine("%d %f %f %f\n", i, in[i], fftBuffer[i], out[i]);
+    }
   }
 
   fft.Direct(in, fftBuffer);
 
-  hw.PrintLine("AAA after fft");
-  for (size_t i = 0; i < SHY_SIZE; ++i) {
-    hw.PrintLine("%d %f %f %f\n", i, in[i], fftBuffer[i], out[i]);
+  if (verbose) {
+    hw.PrintLine("AAA after fft");
+    for (size_t i = 0; i < SHY_SIZE; ++i) {
+      hw.PrintLine("%d %f %f %f\n", i, in[i], fftBuffer[i], out[i]);
+    }
   }
 
   fft.Inverse(fftBuffer, out);
 
-  hw.PrintLine("AAA after ifft");
-  for (size_t i = 0; i < SHY_SIZE; ++i) {
-    hw.PrintLine("%d %f %f %f\n", i, in[i], fftBuffer[i], out[i]);
+  if (verbose) {
+    hw.PrintLine("AAA after ifft");
+    for (size_t i = 0; i < SHY_SIZE; ++i) {
+      hw.PrintLine("%d %f %f %f\n", i, in[i], fftBuffer[i], out[i]);
+    }
   }
 
   // Avergate difference
@@ -111,5 +125,5 @@ extern "C" void do_shy_fft() {
     total_diff += ((out[i] / SHY_SIZE) - in_copy[i]);
   }
   float avg_diff = total_diff / ARM_SIZE;
-  hw.PrintLine("AAA tot %f avg %f\n", total_diff, avg_diff);
+  if (verbose) { hw.PrintLine("AAA tot %f avg %f\n", total_diff, avg_diff); }
 }
