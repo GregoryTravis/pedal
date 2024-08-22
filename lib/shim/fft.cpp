@@ -18,6 +18,8 @@ using namespace daisysp;
 
 static bool verbose = false;
 
+static bool arm_initted = false;
+
 extern "C" void do_arm_fft() {
   static float32_t in[ARM_SIZE+EXTRA];
   static float32_t in_copy[ARM_SIZE+EXTRA];
@@ -26,13 +28,15 @@ extern "C" void do_arm_fft() {
 
   if (verbose) { hw.PrintLine("arm_fft %d\n", ARM_SIZE); }
 
-  arm_rfft_fast_instance_f32* fftInstance = new arm_rfft_fast_instance_f32;
+  static arm_rfft_fast_instance_f32 fftInstance;
 
-  if (verbose) { hw.PrintLine("instance %p\n", fftInstance); }
+  if (verbose) { hw.PrintLine("instance %p\n", &fftInstance); }
 
-  arm_status status = arm_rfft_fast_init_f32(fftInstance, ARM_SIZE);
-
-  if (verbose) { hw.PrintLine("status %d\n", status); }
+  if (!arm_initted) {
+    arm_status status = arm_rfft_fast_init_f32(&fftInstance, ARM_SIZE);
+    arm_initted = true;
+    if (verbose) { hw.PrintLine("status %d\n", status); }
+  }
 
   for (size_t i = 0; i < ARM_SIZE; ++i) {
     in[i] = ((float32_t)i) / ((float32_t)ARM_SIZE);
@@ -46,7 +50,7 @@ extern "C" void do_arm_fft() {
     }
   }
 
-  arm_rfft_fast_f32(fftInstance, in, fftBuffer, 0);
+  arm_rfft_fast_f32(&fftInstance, in, fftBuffer, 0);
 
   if (verbose) {
     hw.PrintLine("AAA after fft");
@@ -55,7 +59,7 @@ extern "C" void do_arm_fft() {
     }
   }
 
-  arm_rfft_fast_f32(fftInstance, fftBuffer, out, 1);
+  arm_rfft_fast_f32(&fftInstance, fftBuffer, out, 1);
 
   if (verbose) {
     hw.PrintLine("AAA after ifft");
@@ -71,13 +75,13 @@ extern "C" void do_arm_fft() {
   }
   float avg_diff = total_diff / ARM_SIZE;
   if (verbose) { hw.PrintLine("AAA tot %f avg %f\n", total_diff, avg_diff); }
-
-  delete fftInstance;
 }
 
-#define SHY_SIZE 2048
+#define SHY_SIZE 512
 
 typedef ShyFFT<float, SHY_SIZE, RotationPhasor> FFT;
+
+static bool shy_initted = false;
 
 extern "C" void do_shy_fft() {
   static float32_t in[SHY_SIZE+EXTRA];
@@ -87,8 +91,12 @@ extern "C" void do_shy_fft() {
 
   if (verbose) { hw.PrintLine("shy_fft %d\n", SHY_SIZE); }
 
-  FFT fft;
-  fft.Init();
+  static FFT fft;
+
+  if (!shy_initted) {
+    fft.Init();
+    shy_initted = true;
+  }
 
   for (size_t i = 0; i < SHY_SIZE; ++i) {
     in[i] = ((float32_t)i) / ((float32_t)SHY_SIZE);
