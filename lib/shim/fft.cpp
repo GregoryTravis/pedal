@@ -1,5 +1,3 @@
-//#include <chrono>
-
 #include "daisy_seed.h"
 #include "daisysp.h"
 
@@ -19,20 +17,6 @@ using namespace daisysp;
 #define EXTRA 0
 
 extern "C" void do_arm_fft() {
-  /*
-  auto now = chrono::system_clock::now();
-  auto duration = now.time_since_epoch();
-
-  // Convert duration to milliseconds
-  auto milliseconds
-      = chrono::duration_cast<chrono::milliseconds>(
-            duration)
-            .count();
-  long ms = milliseconds;
-  hw.PrintLine("time %d\n", ms);
-  return;
-  */
-
   static float32_t in[ARM_SIZE+EXTRA];
   static float32_t in_copy[ARM_SIZE+EXTRA];
   static float32_t fftBuffer[ARM_SIZE+EXTRA];

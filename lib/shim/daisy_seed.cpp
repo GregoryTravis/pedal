@@ -42,3 +42,8 @@ extern "C" void cpp_hw_kshep_init() {
 extern "C" void cpp_hw_delay(uint32_t delay_ms) {
   System::Delay(delay_ms);
 }
+
+// Returns a relative time in milliseconds.
+extern "C" uint32_t cpp_relative_time_ms() {
+  return hw.system.GetNow();
+}

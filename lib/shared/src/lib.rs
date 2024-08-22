@@ -49,3 +49,8 @@ pub mod testdata;
 #[cfg(feature = "for_host")]
 pub mod testdump;
 pub mod testutil;
+pub mod time;
+#[cfg(not(feature = "for_host"))]
+pub mod time_board;
+#[cfg(feature = "for_host")]
+pub mod time_host;
