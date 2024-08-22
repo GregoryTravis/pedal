@@ -29,7 +29,8 @@ use shared::spew::*;
 use shared::test::test_direct;
 
 extern "C" {
-    pub fn do_fft();
+    pub fn do_arm_fft();
+    pub fn do_shy_fft();
 }
 
 #[allow(dead_code)]
@@ -112,7 +113,8 @@ pub fn main() {
     //oom_test();
     hw_init(true, BLOCK_SIZE);
     unsafe {
-        do_fft();
+        do_arm_fft();
+        do_shy_fft();
     }
 
     spew!("end of main");
