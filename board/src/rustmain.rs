@@ -111,7 +111,7 @@ fn benchmark_fft() {
     let dur = 1.0;
     let arm_bench = benchmark(dur, || {
         unsafe {
-            do_arm_fft();
+            //do_arm_fft();
         }
     });
     let shy_bench = benchmark(dur, || {

@@ -74,10 +74,16 @@ extern "C" void do_arm_fft() {
     total_diff += (out[i] - in_copy[i]);
   }
   float avg_diff = total_diff / ARM_SIZE;
-  if (verbose) { hw.PrintLine("AAA tot %f avg %f\n", total_diff, avg_diff); }
+  if (verbose) { hw.PrintLine("AAA diff tot %f avg %f\n", total_diff, avg_diff); }
+
+  float total_fft = 0;
+  for (size_t i = 0; i < ARM_SIZE; ++i) {
+    total_fft += fftBuffer[i];
+  }
+  if (verbose) { hw.PrintLine("AAA fft tot %f\n", total_fft); }
 }
 
-#define SHY_SIZE 512
+#define SHY_SIZE 2048
 
 typedef ShyFFT<float, SHY_SIZE, RotationPhasor> FFT;
 
@@ -85,7 +91,7 @@ static bool shy_initted = false;
 
 extern "C" void do_shy_fft() {
   static float32_t in[SHY_SIZE+EXTRA];
-  static float32_t in_copy[ARM_SIZE+EXTRA];
+  static float32_t in_copy[SHY_SIZE+EXTRA];
   static float32_t fftBuffer[SHY_SIZE+EXTRA];
   static float32_t out[SHY_SIZE+EXTRA];
 
@@ -134,6 +140,12 @@ extern "C" void do_shy_fft() {
     // Shy does not normalize
     total_diff += ((out[i] / SHY_SIZE) - in_copy[i]);
   }
-  float avg_diff = total_diff / ARM_SIZE;
+  float avg_diff = total_diff / SHY_SIZE;
   if (verbose) { hw.PrintLine("AAA tot %f avg %f\n", total_diff, avg_diff); }
+
+  float total_fft = 0;
+  for (size_t i = 0; i < SHY_SIZE; ++i) {
+    total_fft += fftBuffer[i];
+  }
+  if (verbose) { hw.PrintLine("AAA fft tot %f\n", total_fft); }
 }
