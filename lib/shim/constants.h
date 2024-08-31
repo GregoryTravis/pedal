@@ -8,4 +8,6 @@
 #define BLOCK_SIZE 48
 #define PROD false
 
+#define FFT_SIZE 2048
+
 #endif // _constants_h_

@@ -4,6 +4,8 @@ use alloc::boxed::Box;
 
 use shared::bench::benchmark;
 #[allow(unused_imports)]
+use shared::fft::fft_test;
+#[allow(unused_imports)]
 use shared::filter::chorus::*;
 #[allow(unused_imports)]
 use shared::filter::high_pass::*;
@@ -28,11 +30,6 @@ use shared::load_board::*;
 use shared::r#override::*;
 use shared::spew::*;
 use shared::test::test_direct;
-
-extern "C" {
-    pub fn do_arm_fft();
-    pub fn do_shy_fft();
-}
 
 #[allow(dead_code)]
 fn live_main() {
@@ -109,17 +106,10 @@ fn benchmark_fft() {
     hw_init(true, BLOCK_SIZE);
 
     let dur = 1.0;
-    let arm_bench = benchmark(dur, || {
-        unsafe {
-            do_arm_fft();
-        }
+    let bench = benchmark(dur, || {
+        fft_test();
     });
-    let shy_bench = benchmark(dur, || {
-        unsafe {
-            //do_shy_fft();
-        }
-    });
-    spew!("arm", arm_bench.execution_count, arm_bench.avg_time, "shy", shy_bench.execution_count, shy_bench.avg_time);
+    spew!("arm", bench.execution_count, bench.avg_time);
 }
 
 #[no_mangle]

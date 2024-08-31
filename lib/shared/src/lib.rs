@@ -10,6 +10,9 @@ pub mod convert;
 pub mod constants;
 #[cfg(not(feature = "for_host"))]
 pub mod daisy_seed_board;
+pub mod fft;
+#[cfg(not(feature = "for_host"))]
+pub mod fft_board;
 pub mod filter;
 #[cfg(feature = "for_host")]
 pub mod graphing;

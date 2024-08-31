@@ -1,75 +1,28 @@
-#include "hw.h"
 #include "shy_fft.h"
 
-// NOTE: this is not part of shy_fft.h; it merely uses it.
+#include "constants.h"
+#include "hw.h"
 
 using namespace std;
 
-#define SHY_SIZE 2048
-
-static bool verbose = false;
-
-typedef ShyFFT<float, SHY_SIZE, RotationPhasor> FFT;
+typedef ShyFFT<float, FFT_SIZE, RotationPhasor> FFT;
 
 static bool shy_initted = false;
+static FFT fft;
 
-extern "C" void do_shy_fft() {
-  static float in[SHY_SIZE];
-  static float in_copy[SHY_SIZE];
-  static float fftBuffer[SHY_SIZE];
-  static float out[SHY_SIZE];
-
-  if (verbose) { hw.PrintLine("shy_fft %d\n", SHY_SIZE); }
-
-  static FFT fft;
-
+inline void init_if_not() {
   if (!shy_initted) {
     fft.Init();
     shy_initted = true;
   }
+}
 
-  for (size_t i = 0; i < SHY_SIZE; ++i) {
-    in[i] = ((float)i) / ((float)SHY_SIZE);
-    in_copy[i] = in[i];
-  }
+extern "C" void do_shy_fft(float *input, float *output) {
+  init_if_not();
+  fft.Direct(input, output);
+}
 
-  if (verbose) {
-    hw.PrintLine("AAA before");
-    for (size_t i = 0; i < SHY_SIZE; ++i) {
-      hw.PrintLine("%d %f %f %f\n", i, in[i], fftBuffer[i], out[i]);
-    }
-  }
-
-  fft.Direct(in, fftBuffer);
-
-  if (verbose) {
-    hw.PrintLine("AAA after fft");
-    for (size_t i = 0; i < SHY_SIZE; ++i) {
-      hw.PrintLine("%d %f %f %f\n", i, in[i], fftBuffer[i], out[i]);
-    }
-  }
-
-  fft.Inverse(fftBuffer, out);
-
-  if (verbose) {
-    hw.PrintLine("AAA after ifft");
-    for (size_t i = 0; i < SHY_SIZE; ++i) {
-      hw.PrintLine("%d %f %f %f\n", i, in[i], fftBuffer[i], out[i]);
-    }
-  }
-
-  // Avergate difference
-  float total_diff = 0;
-  for (size_t i = 0; i < SHY_SIZE; ++i) {
-    // Shy does not normalize
-    total_diff += ((out[i] / SHY_SIZE) - in_copy[i]);
-  }
-  float avg_diff = total_diff / SHY_SIZE;
-  if (verbose) { hw.PrintLine("AAA tot %f avg %f\n", total_diff, avg_diff); }
-
-  float total_fft = 0;
-  for (size_t i = 0; i < SHY_SIZE; ++i) {
-    total_fft += fftBuffer[i];
-  }
-  if (verbose) { hw.PrintLine("AAA fft tot %f\n", total_fft); }
+extern "C" void do_shy_ifft(float *input, float *output) {
+  init_if_not();
+  fft.Inverse(input, output);
 }
