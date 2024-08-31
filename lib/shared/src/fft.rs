@@ -1,3 +1,5 @@
+extern crate libm;
+
 use crate::constants::*;
 use crate::spew::*;
 
@@ -24,7 +26,7 @@ pub fn fft_test() {
         // Difference
         let diff: f32 = input.iter().zip(output.iter()).map(|pr| {
             let (ix, ox) = pr;
-            ix + ox
+            libm::fabsf(ix - ox)
         }).sum();
         // FFT sum
         let fft_sum: f32 = fft_buffer.iter().sum();
