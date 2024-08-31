@@ -21,7 +21,7 @@ clean_pedal_dependent_o:
 	rm -f build/pedal.o
 
 # Sources
-CPP_SOURCES = spew.cpp hw.cpp load.cpp vibrato.cpp playhead.cpp circbuf.cpp patch.cpp speed_test.cpp daisy_seed.cpp rig.cpp knob.cpp fft.cpp
+CPP_SOURCES = spew.cpp hw.cpp load.cpp vibrato.cpp playhead.cpp circbuf.cpp patch.cpp speed_test.cpp daisy_seed.cpp rig.cpp knob.cpp arm_fft.cpp shy_fft.cpp
 
 ASM_SOURCES += \
 $(LIBDAISY_DIR)/Drivers/CMSIS/DSP/Source/TransformFunctions/arm_bitreversal2.s
