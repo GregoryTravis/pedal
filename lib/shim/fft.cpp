@@ -3,7 +3,6 @@
 
 #include "arm_math.h"
 #include "shy_fft.h"
-#include "stmlib/stmlib.h"
 
 #include "hw.h"
 
