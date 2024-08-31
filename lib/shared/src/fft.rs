@@ -6,7 +6,7 @@ use crate::spew::*;
 #[cfg(not(feature = "for_host"))]
 use crate::fft_board::*;
 
-const VERBOSE: bool = true;
+const VERBOSE: bool = false;
 
 pub fn fft_test() {
     let mut input: [f32; FFT_SIZE] = [0.0; FFT_SIZE];
@@ -23,10 +23,16 @@ pub fn fft_test() {
     ifft(&mut fft_buffer, &mut output);
 
     if VERBOSE {
+        /*
+        for (i, (ix, ox)) in input.iter().zip(output.iter()).enumerate() {
+            spew!("diff", i, ix, ox, ix-ox);
+        }
+        */
+
         // Difference
         let diff: f32 = input.iter().zip(output.iter()).map(|pr| {
             let (ix, ox) = pr;
-            libm::fabsf(ix - ox)
+            libm::fabsf(ix - ox/(FFT_SIZE as f32))
         }).sum();
         // FFT sum
         let fft_sum: f32 = fft_buffer.iter().sum();
