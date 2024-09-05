@@ -11,6 +11,7 @@ pub mod constants;
 #[cfg(not(feature = "for_host"))]
 pub mod daisy_seed_board;
 pub mod fft;
+pub mod fft_bench;
 #[cfg(not(feature = "for_host"))]
 pub mod fft_board;
 pub mod filter;

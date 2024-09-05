@@ -2,9 +2,10 @@ extern crate alloc;
 
 use alloc::boxed::Box;
 
+#[allow(unused_imports)]
 use shared::bench::benchmark;
 #[allow(unused_imports)]
-use shared::fft::fft_test;
+use shared::fft_bench::*;
 #[allow(unused_imports)]
 use shared::filter::chorus::*;
 #[allow(unused_imports)]
@@ -102,14 +103,9 @@ fn try_knobs() {
 }
 
 #[allow(dead_code)]
-fn benchmark_fft() {
+pub fn benchmark_fft() {
     hw_init(true, BLOCK_SIZE);
-
-    let dur = 1.0;
-    let bench = benchmark(dur, || {
-        fft_test();
-    });
-    spew!("arm", bench.execution_count, bench.avg_time);
+    do_benchmark_fft();
 }
 
 #[no_mangle]

@@ -10,7 +10,7 @@ typedef ShyFFT<float, FFT_SIZE, RotationPhasor> FFT;
 static bool shy_initted = false;
 static FFT fft;
 
-inline void init_if_not() {
+inline void shy_init_if_not() {
   if (!shy_initted) {
     fft.Init();
     shy_initted = true;
@@ -18,11 +18,11 @@ inline void init_if_not() {
 }
 
 extern "C" void do_shy_fft(float *input, float *output) {
-  init_if_not();
+  shy_init_if_not();
   fft.Direct(input, output);
 }
 
 extern "C" void do_shy_ifft(float *input, float *output) {
-  init_if_not();
+  shy_init_if_not();
   fft.Inverse(input, output);
 }

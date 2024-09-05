@@ -1,11 +1,11 @@
 extern crate libm;
 
 use crate::constants::*;
-use crate::spew::*;
 
 #[cfg(not(feature = "for_host"))]
 use crate::fft_board::*;
 
+/*
 const VERBOSE: bool = false;
 
 pub fn fft_test() {
@@ -39,6 +39,7 @@ pub fn fft_test() {
         spew!("fft diff", diff, "sum", fft_sum);
     }
 }
+*/
 
 // NOTE: stomps its input
 pub fn fft(input: &mut [f32; FFT_SIZE], output: &mut [f32; FFT_SIZE]) {

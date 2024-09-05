@@ -1,5 +1,7 @@
 use crate::constants::*;
 
+// ARM FFT only supports 2048 or higher (or maybe 1024 or higher)
+
 extern "C" {
     //pub fn do_arm_fft(input: *mut f32, output: *mut f32);
     //pub fn do_arm_ifft(input: *mut f32, output: *mut f32);

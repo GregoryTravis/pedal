@@ -10,8 +10,8 @@ pub struct BenchmarkResults {
     pub avg_time: f32,
 }
 
-pub fn benchmark<F>(duration: f32, code: F) -> BenchmarkResults 
-    where F: Fn() {
+pub fn benchmark<F>(duration: f32, mut code: F) -> BenchmarkResults 
+    where F: FnMut() {
     let timer = Timer::new();
     let mut count = 0;
     while timer.elapsed() < duration {
