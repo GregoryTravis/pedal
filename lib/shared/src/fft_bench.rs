@@ -14,5 +14,5 @@ pub fn do_benchmark_fft() {
         fft(&mut input, &mut fft_buffer);
         ifft(&mut fft_buffer, &mut output);
     });
-    spew!("arm", bench.execution_count, bench.avg_time);
+    spew!("fft", bench.execution_count, bench.avg_time);
 }
