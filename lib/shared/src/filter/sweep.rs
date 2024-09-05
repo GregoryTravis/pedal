@@ -8,6 +8,8 @@ use alloc::sync::Arc;
 use crate::knob::Knobs;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
+use crate::signal::base::*;
+use crate::signal::combinators::*;
 use crate::signal::Signal;
 //use crate::signal::combinators::*;
 
@@ -27,6 +29,12 @@ impl SweepFilter {
             q_sig: q_sig,
             siner: siner,
         }
+    }
+
+    pub fn example() -> SweepFilter {
+        let siner = PostCompose { signal: Arc::new(Sin {}), ff: scale_range(0.3, 0.9) };
+        let q = Const { x: 0.95 };
+        SweepFilter::new(Arc::new(siner), Arc::new(q))
     }
 }
 

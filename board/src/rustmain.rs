@@ -20,6 +20,8 @@ use shared::filter::low_pass::*;
 use shared::filter::reso::*;
 #[allow(unused_imports)]
 use shared::filter::seq::*;
+#[allow(unused_imports)]
+use shared::filter::sweep::SweepFilter;
 use shared::knob::Knobs;
 use shared::knob_board::*;
 use shared::rig::*;
@@ -47,6 +49,7 @@ fn live_main() {
     let chorus = Box::new(Chorus::new());
     let both0 = Box::new(Seq::new(BLOCK_SIZE, chorus, reso));
     let triple = Box::new(Seq::new(BLOCK_SIZE, both0, high_low));
+    //let sweep = Box::new(SweepFilter::example());
     let knobs = Box::new(BoardKnobs { });
     rig_install_patch(triple, knobs);
 
@@ -112,8 +115,8 @@ pub fn benchmark_fft() {
 pub fn main() {
     spew!("start of main");
 
-    //live_main();
-    all_tests();
+    live_main();
+    //all_tests();
     //try_knobs();
     //oom_test();
     //benchmark_fft();
