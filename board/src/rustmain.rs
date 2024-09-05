@@ -113,10 +113,10 @@ pub fn main() {
     spew!("start of main");
 
     //live_main();
-    //all_tests();
+    all_tests();
     //try_knobs();
     //oom_test();
-    benchmark_fft();
+    //benchmark_fft();
 
     spew!("end of main");
 }
