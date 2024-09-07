@@ -4,6 +4,8 @@ use crate::constants::*;
 
 #[cfg(not(feature = "for_host"))]
 use crate::fft_board::*;
+#[cfg(feature = "for_host")]
+use crate::fft_host::*;
 
 // NOTE: stomps its input
 pub fn fft(input: &mut [f32; FFT_SIZE], output: &mut [f32; FFT_SIZE]) {

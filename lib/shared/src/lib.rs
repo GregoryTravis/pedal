@@ -11,9 +11,12 @@ pub mod constants;
 #[cfg(not(feature = "for_host"))]
 pub mod daisy_seed_board;
 pub mod fft;
+#[cfg(not(feature = "for_host"))]
 pub mod fft_bench;
 #[cfg(not(feature = "for_host"))]
 pub mod fft_board;
+#[cfg(feature = "for_host")]
+pub mod fft_host;
 pub mod filter;
 #[cfg(feature = "for_host")]
 pub mod graphing;
@@ -27,6 +30,7 @@ pub mod hw_host;
 pub mod load_board;
 #[cfg(feature = "for_host")]
 pub mod load_host;
+#[cfg(not(feature = "for_host"))]
 pub mod mem;
 pub mod r#override;
 pub mod panic;
