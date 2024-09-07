@@ -9,6 +9,7 @@ use shared::filter::chorus::*;
 use shared::filter::delay::*;
 use shared::filter::envelope_follower::*;
 use shared::filter::fuzz::*;
+use shared::filter::harmoneer::*;
 use shared::filter::linear_vibrato::*;
 use shared::filter::low_pass::*;
 use shared::filter::pass_thru::*;
@@ -74,11 +75,15 @@ fn envelope_follower(input_file: &str, output_file: &str) {
     sim_main(input_file, output_file, Box::new(patch));
 }
 
+#[allow(dead_code)]
+fn harmoneer(input_file: &str, output_file: &str) {
+    sim_main(input_file, output_file, Box::new(Harmoneer::new()));
+}
+
 pub fn main() {
     let args: Vec<String> = env::args().collect();
     assert!(args.len() == 3);
     let input_file = &args[1];
     let output_file = &args[2];
-    //envelope_follower(input_file, output_file);
-    fuzz(input_file, output_file);
+    harmoneer(input_file, output_file);
 }
