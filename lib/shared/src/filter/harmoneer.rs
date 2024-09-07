@@ -17,12 +17,12 @@ pub struct Harmoneer {
 }
 
 impl Harmoneer {
-    pub fn new() -> Harmoneer {
+    pub fn new(ratio: f32) -> Harmoneer {
         // TODO use a static assertion for this.
         assert!(SIZE > 1);
 
         Harmoneer {
-            ratio: 1.5,
+            ratio: ratio,
             read_head: 1.0,
             write_head: 0,
             buf: [0.0; SIZE],
@@ -55,9 +55,7 @@ impl Patch for Harmoneer {
                 self.read_head -= SIZE as f32;
             }
 
-            let mixed = 0.5 * inp + 0.5 * out;
-
-            output_slice[i] = mixed;
+            output_slice[i] = out;
             playhead.inc();
         }
     }

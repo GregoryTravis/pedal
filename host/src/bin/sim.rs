@@ -12,6 +12,7 @@ use shared::filter::fuzz::*;
 use shared::filter::harmoneer::*;
 use shared::filter::linear_vibrato::*;
 use shared::filter::low_pass::*;
+use shared::filter::mixer::*;
 use shared::filter::pass_thru::*;
 use shared::filter::reso::*;
 use shared::filter::seq::*;
@@ -77,7 +78,16 @@ fn envelope_follower(input_file: &str, output_file: &str) {
 
 #[allow(dead_code)]
 fn harmoneer(input_file: &str, output_file: &str) {
-    sim_main(input_file, output_file, Box::new(Harmoneer::new()));
+    let orig = PassThruFilter {};
+    let h0 = Harmoneer::new(1.25);
+    let h1 = Harmoneer::new(1.5);
+    let channels = vec![
+        MixerChannel(0.5, Box::new(orig)),
+        MixerChannel(1.0, Box::new(h0)),
+        MixerChannel(1.0, Box::new(h1)),
+    ];
+    let mixer = Mixer::new(channels);
+    sim_main(input_file, output_file, Box::new(mixer));
 }
 
 pub fn main() {

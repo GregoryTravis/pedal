@@ -6,7 +6,7 @@ use crate::knob::Knobs;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
 
-pub struct MixerChannel(f32, Box<dyn Patch>);
+pub struct MixerChannel(pub f32, pub Box<dyn Patch>);
 
 pub struct Mixer {
     channels: Vec<MixerChannel>,
