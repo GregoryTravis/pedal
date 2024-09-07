@@ -7,6 +7,7 @@ pub mod high_pass;
 pub mod interp;
 pub mod linear_vibrato;
 pub mod low_pass;
+pub mod mixer;
 pub mod pass_thru;
 pub mod reso;
 pub mod seq;
