@@ -7,7 +7,7 @@ use crate::knob::Knobs;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
 
-const SIZE: usize = 256;
+const SIZE: usize = 4096;
 
 pub struct Harmoneer {
     ratio: f32,

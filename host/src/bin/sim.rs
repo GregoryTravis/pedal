@@ -79,8 +79,8 @@ fn envelope_follower(input_file: &str, output_file: &str) {
 #[allow(dead_code)]
 fn harmoneer(input_file: &str, output_file: &str) {
     let orig = PassThruFilter {};
-    let h0 = Harmoneer::new(1.25);
-    let h1 = Harmoneer::new(1.5);
+    let h0 = Harmoneer::new(1.26);
+    let h1 = Harmoneer::new(1.498);
     let channels = vec![
         MixerChannel(0.5, Box::new(orig)),
         MixerChannel(1.0, Box::new(h0)),
