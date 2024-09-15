@@ -60,21 +60,6 @@ impl Harmoneer {
     }
 }
 
-/*
-
-   TODO
-
-   remove ts
-   don't let heads grow indeinitly (subtract mult of 4k sometimes?)
-   reduce # of conversions (e.g. don't convert to usize everywhere)
-   inline buf() calls -- faster?
-   Use shift instead of % in buf()s
-   note: subtraction of usize has negativity check
-
-   check out smash bug
-
-*/
-
 impl Patch for Harmoneer {
     fn rust_process_audio(
         &mut self,
