@@ -17,6 +17,8 @@ pub mod fft_bench;
 pub mod fft_board;
 #[cfg(feature = "for_host")]
 pub mod fft_host;
+#[cfg(feature = "for_host")]
+pub mod file;
 pub mod filter;
 #[cfg(feature = "for_host")]
 pub mod graphing;

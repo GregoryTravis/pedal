@@ -1,3 +1,6 @@
+cargo build --bin compare_wavs --features for_host 2>&1 | tee out
+exit
+
 cargo build --lib --features for_host 2>&1 | tee out
 cargo build --lib --target thumbv7em-none-eabihf 2>&1 | tee out
 cargo build --bin compare_wavs --features for_host 2>&1 | tee out

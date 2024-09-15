@@ -3,37 +3,25 @@ extern crate std;
 use std::env;
 use std::println;
 
-use hound;
-
-use shared::convert::*;
+use shared::file::*;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
     assert_eq!(args.len(), 3);
-    let mut reader0 = hound::WavReader::open(&args[1]).unwrap();
-    let mut reader1 = hound::WavReader::open(&args[2]).unwrap();
-    let input_spec0 = reader0.spec();
-    let input_spec1 = reader1.spec();
-    assert!(input_spec0 == input_spec1);
-    assert!(input_spec0.channels == 1);
-    let mut samples0 = reader0.samples::<i16>();
-    let mut samples1 = reader1.samples::<i16>();
+    let mut total_diff_squared: f32 = 0.0;
+    let samples0 = file_read(&args[1]);
+    let samples1 = file_read(&args[2]);
 
-    match input_spec0.channels {
-        1 => {
-            let mut total_diff_squared: f32 = 0.0;
-            let num_samples = samples0.len();
+    assert!(samples0.len() == samples1.len());
 
-            while samples0.len() > 0 {
-                assert!(samples0.len() == samples1.len());
-                let sample0: f32 = sample_i16_to_f32(samples0.next().unwrap().unwrap());
-                let sample1: f32 = sample_i16_to_f32(samples1.next().unwrap().unwrap());
-                let diff = sample0 - sample1;
-                total_diff_squared += diff * diff;
-            }
-            let rms = (total_diff_squared / num_samples as f32).sqrt();
-            println!("RMS {}", rms);
-        }
-        _ => assert!(false),
+    let num_samples = samples0.len();
+
+    for i in 0..samples0.len() {
+        let sample0: f32 = samples0[i];
+        let sample1: f32 = samples1[i];
+        let diff = sample0 - sample1;
+        total_diff_squared += diff * diff;
     }
+    let rms = (total_diff_squared / num_samples as f32).sqrt();
+    println!("RMS {}", rms);
 }
