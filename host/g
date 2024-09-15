@@ -1,6 +1,7 @@
 rm -rf simout.wav
 cargo run --bin sim --features for_host -- simin.wav simout.wav 2>&1 | tee out
-#p simout.wav
+../lib/shared/target/debug/compare_wavs golden.simout.wav simout.wav
+../lib/shared/target/debug/compare_wavs simin.wav simout.wav
 exit
 
 cargo run --bin graph --features for_host 2>&1 | tee out
