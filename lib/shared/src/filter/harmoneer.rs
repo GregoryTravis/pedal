@@ -9,8 +9,8 @@ use crate::playhead::Playhead;
 use crate::spew::*;
 
 const SIZE: usize = 4096;
-const RAMPLEN: usize = 48 * 4;
-const ALT_BUMP: usize = 3;
+const RAMPLEN: usize = 48;
+const ALT_BUMP: usize = 2;
 
 pub struct Harmoneer {
     ts: usize,
@@ -33,11 +33,39 @@ impl Harmoneer {
             ts: 0,
             ratio: ratio,
             read_head: 1.0,
-            write_head: 0,
+            write_head: SIZE,
             buf: [0.0; SIZE],
         }
     }
+
+    fn buf_f(&self, r: f32) -> f32 {
+        let r_0: usize = libm::floorf(r) as usize;
+        let r_1: usize = r_0 + 1;
+        let alpha: f32 = (r - r_0 as f32) / ((r_1 - r_0) as f32);
+        let beta: f32 = 1.0 - alpha;
+        (beta * self.buf(r_0)) + (alpha * self.buf(r_1))
+    }
+
+    fn buf(&self, r: usize) -> f32 {
+        self.buf[r % SIZE]
+    }
+
+    fn write_buf(&mut self, w: usize, x: f32) {
+        self.buf[w % SIZE] = x;
+    }
 }
+
+/*
+
+   TODO
+
+   remove ts
+   don't let heads grow indeinitly (subtract mult of 4k sometimes?)
+   reduce # of conversions (e.g. don't convert to usize everywhere)
+   inline buf() calls -- faster?
+   Use shift instead of % in buf()s
+
+*/
 
 impl Patch for Harmoneer {
     fn rust_process_audio(
@@ -50,62 +78,57 @@ impl Patch for Harmoneer {
         for i in 0..input_slice.len() {
             let inp = input_slice[i];
 
-            /*
-            let mut read_to_write_dist = (self.write_head as f32) - self.read_head;
-            if read_to_write_dist < 0 {
-                read_to_write_dist += SIZE;
-            }
-            */
+            // This all only works for ratio >= 1.
 
-            let mut ramp_start: isize = self.write_head as isize - RAMPLEN as isize;
-            if ramp_start < 0 {
-                ramp_start += SIZE as isize;
-            }
-            let ramp_start: isize = ramp_start;
+            // Write, but don't advance head until the end.
+            //self.buf[self.write_head] = inp;
+            self.write_buf(self.write_head, inp);
 
-            let mut dist_into_ramp: f32 = self.read_head - (ramp_start as f32);
-            /*
-            if dist_into_ramp < 0.0 {
-                dist_into_ramp += SIZE as f32;
-            }
-            */
-            if dist_into_ramp >= RAMPLEN as f32 {
-                dist_into_ramp -= SIZE as f32;
-            }
-            let dist_into_ramp: f32 = dist_into_ramp;
+            let r_now: f32 = self.read_head;
+            let w_now: usize = self.write_head;
+            let p: f32 = self.ratio;
 
-            let mut alpha: f32 = dist_into_ramp / (RAMPLEN as f32);
-            assert!(alpha <= 1.0);
-            if alpha < 0.0 {
-                alpha = 0.0;
-            }
-            let alpha = alpha;
+            //////
 
-            let mut alt_read_head: f32 = self.read_head - (((SIZE - RAMPLEN) - ALT_BUMP) as f32);
-            if alt_read_head < 0.0 {
-                alt_read_head += SIZE as f32;
-            }
-            let alt_read_head: f32 = alt_read_head;
-            let main_out: f32 = self.buf[libm::floorf(self.read_head) as usize];
-            let alt_out: f32 = self.buf[libm::floorf(alt_read_head) as usize];
-            let out: f32 = ((1.0 - alpha) * main_out) + (alpha * alt_out);
-            spew!("AAA", "ts", self.ts, "wh", self.write_head, "rh", self.read_head, "arh", alt_read_head, "mo", main_out, "ao", alt_out, "o", out);
+            let delta_t_m: f32 = (w_now as f32 - r_now) / (p - 1.0);
 
-            self.read_head += self.ratio;
+            let w_m: f32 = w_now as f32 + delta_t_m;  // == r_m
+            let w_e: usize = libm::floorf(w_m) as usize;
+            let r_e: f32 = r_now + (p * (w_e - w_now) as f32);
+            let delta_t_rampdur: usize = RAMPLEN;
+            let delta_t_ramplen: usize = libm::ceilf(delta_t_rampdur as f32 * self.ratio) as usize;
+            let w_s: usize = w_e + (delta_t_ramplen - 1);
+            let r_s: f32 = r_now + (p * ((w_s - w_now) as f32));
+            spew!("r_now", r_now, "w_now", w_now, "delta_t_m", delta_t_m, "w_m", w_m, "r_s", r_s, "w_s", w_s, "r_e", r_e, "w_e", w_e);
+            let alpha_prime: f32 = (r_now - r_s) / (r_e - r_s);
+            let alpha: f32 = if alpha_prime < 0.0 { 0.0 } else { alpha_prime };
+            let beta: f32 = 1.0 - alpha;
+            //let w_s_hat: isize = (w_s as isize) - (SIZE as isize);
+            let w_s_hat: usize = w_s - SIZE;
+            let fudge: usize = ALT_BUMP;
+            let r_s_prime: f32 = (w_s_hat + fudge) as f32;
+            let delta_r_alt: f32 = r_s - r_s_prime;
+            let r_now_prime: f32 = r_now - delta_r_alt;
+            let out: f32 = (beta * self.buf_f(r_now)) + (alpha * self.buf_f(r_now_prime));
 
-            if libm::floorf(self.read_head) >= self.write_head as f32 {
-                self.read_head = alt_read_head;
-                spew!("AAA jump", "rh", self.read_head);
+            let mut r_now = r_now;
+            let mut w_now = w_now;
+
+            ////// Move the read head to the alt read head if we're at the end of the ramp.
+
+            if w_now == w_e {
+                r_now = r_now_prime;
             }
 
-            self.buf[self.write_head] = inp;
+            //////
 
-            self.write_head += 1;
-            assert!(self.write_head <= SIZE);
-            if self.write_head >= SIZE {
-                // Or just set to 0?
-                self.write_head -= SIZE;
-            }
+            r_now += self.ratio;
+            w_now += 1;
+
+            //////
+
+            self.read_head = r_now;
+            self.write_head = w_now;
 
             output_slice[i] = out;
             playhead.inc();
