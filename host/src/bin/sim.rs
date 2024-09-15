@@ -80,13 +80,14 @@ fn envelope_follower(input_file: &str, output_file: &str) {
 fn harmoneer(input_file: &str, output_file: &str) {
     #[allow(unused)]
     let orig = PassThruFilter {};
+    #[allow(unused)]
     let h0 = Harmoneer::new(1.26);
     #[allow(unused)]
     let h1 = Harmoneer::new(1.498);
     let channels = vec![
-        //MixerChannel(0.5, Box::new(orig)),
-        MixerChannel(1.0, Box::new(h0)),
-        //MixerChannel(1.0, Box::new(h1)),
+        MixerChannel(0.5, Box::new(orig)),
+        //MixerChannel(1.0, Box::new(h0)),
+        MixerChannel(1.0, Box::new(h1)),
     ];
     let mixer = Mixer::new(channels);
     sim_main(input_file, output_file, Box::new(mixer));

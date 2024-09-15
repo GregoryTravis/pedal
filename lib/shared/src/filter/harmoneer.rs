@@ -43,6 +43,11 @@ impl Harmoneer {
         let r_1: usize = r_0 + 1;
         let alpha: f32 = (r - r_0 as f32) / ((r_1 - r_0) as f32);
         let beta: f32 = 1.0 - alpha;
+        if !(0.0 <= alpha && alpha <= 1.0) {
+            spew!("buf_f", "r", r, "r_0", r_0, "r_1", r_1, "alpha", alpha, "beta", beta);
+        }
+        assert!(0.0 <= alpha && alpha <= 1.0);
+        assert!(0.0 <= beta && beta <= 1.0);
         (beta * self.buf(r_0)) + (alpha * self.buf(r_1))
     }
 
@@ -64,6 +69,9 @@ impl Harmoneer {
    reduce # of conversions (e.g. don't convert to usize everywhere)
    inline buf() calls -- faster?
    Use shift instead of % in buf()s
+   note: subtraction of usize has negativity check
+
+   check out smash bug
 
 */
 
@@ -97,9 +105,12 @@ impl Patch for Harmoneer {
             let r_e: f32 = r_now + (p * (w_e - w_now) as f32);
             let delta_t_rampdur: usize = RAMPLEN;
             let delta_t_ramplen: usize = libm::ceilf(delta_t_rampdur as f32 * self.ratio) as usize;
-            let w_s: usize = w_e + (delta_t_ramplen - 1);
-            let r_s: f32 = r_now + (p * ((w_s - w_now) as f32));
-            spew!("r_now", r_now, "w_now", w_now, "delta_t_m", delta_t_m, "w_m", w_m, "r_s", r_s, "w_s", w_s, "r_e", r_e, "w_e", w_e);
+            let w_s: usize = w_e - (delta_t_ramplen - 1);
+            //spew!("main", "r_now", r_now, "w_now", w_now, "delta_t_m", delta_t_m, "w_m", w_m, "w_s", w_s, "r_e", r_e, "w_e", w_e);
+            let r_s: f32 = r_now + (p * ((w_s as isize - w_now as isize) as f32));
+            //spew!("main", "r_now", r_now, "w_now", w_now, "delta_t_m", delta_t_m, "w_m", w_m, "r_s", r_s, "w_s", w_s, "r_e", r_e, "w_e", w_e);
+            //spew!("r_s", r_s);
+            //spew!("w_s", w_s);
             let alpha_prime: f32 = (r_now - r_s) / (r_e - r_s);
             let alpha: f32 = if alpha_prime < 0.0 { 0.0 } else { alpha_prime };
             let beta: f32 = 1.0 - alpha;
@@ -109,7 +120,14 @@ impl Patch for Harmoneer {
             let r_s_prime: f32 = (w_s_hat + fudge) as f32;
             let delta_r_alt: f32 = r_s - r_s_prime;
             let r_now_prime: f32 = r_now - delta_r_alt;
-            let out: f32 = (beta * self.buf_f(r_now)) + (alpha * self.buf_f(r_now_prime));
+            let out: f32 = if alpha == 0.0 {
+                // Not ramping
+                let out: f32 = self.buf_f(r_now);
+                out
+            } else {
+                let out: f32 = (beta * self.buf_f(r_now)) + (alpha * self.buf_f(r_now_prime));
+                out
+            };
 
             let mut r_now = r_now;
             let mut w_now = w_now;
