@@ -128,10 +128,12 @@ impl Patch for Harmoneer {
             r_now += self.ratio;
             w_now += 1;
 
-            if r_now >= (SIZE * 16) as f32 && w_now >= SIZE * 16 {
+            /*
+            if r_now >= ((SIZE * 2) as f32) && w_now >= (SIZE * 2) {
                 r_now -= SIZE as f32;
                 w_now -= SIZE;
             }
+            */
 
             //////
 

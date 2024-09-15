@@ -30,5 +30,9 @@ name = "compare_wavs"
 required-features = ["hound"]
 
 [[bin]]
+name = "diff_wavs"
+required-features = ["hound"]
+
+[[bin]]
 name = "dump"
 required-features = ["hound"]
