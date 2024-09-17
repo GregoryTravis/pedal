@@ -1,4 +1,5 @@
 cargo build --bin compare_wavs --features for_host 2>&1 | tee out
+cargo build --bin diff_wavs --features for_host 2>&1 | tee out
 exit
 
 cargo build --lib --features for_host 2>&1 | tee out

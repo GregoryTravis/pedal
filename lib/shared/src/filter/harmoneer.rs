@@ -10,13 +10,18 @@ use crate::spew::*;
 
 const SIZE: usize = 4096;
 const RAMPLEN: usize = 48;
-const ALT_BUMP: usize = 2;
+const ALT_BUMP: usize = 8;
 
 pub struct Harmoneer {
-    ts: usize,
-    ratio: f32,
-    read_head: f32,
-    write_head: usize,
+    p: f32,
+    r_now: f32,
+    alt_r_now: f32,
+    alpha: f32,
+    delta_alpha: f32,
+    ramping: bool,
+    w_now: usize,
+    w_s: usize,
+    w_e: usize,
     buf: [f32; SIZE],
 }
 
@@ -30,10 +35,16 @@ impl Harmoneer {
         assert!(RAMPLEN * 2 < SIZE);
 
         Harmoneer {
-            ts: 0,
-            ratio: ratio,
-            read_head: 1.0,
-            write_head: SIZE,
+            p: ratio,
+            r_now: 0.0, // Doesn't matter, will be set before use
+            alt_r_now: ALT_BUMP as f32, // will be the first read head beacuse of the first jump on
+                                        // the first sample
+            alpha: 0.0, // WBS
+            delta_alpha: 0.0, // WBS
+            ramping: true, // So that we (re-) initialize the first time through
+            w_now: SIZE,
+            w_e: SIZE, // Setting w_now == w_e means we trigger a jump on the first sample
+            w_s: 0, // Doesn't matter, will be set before use
             buf: [0.0; SIZE],
         }
     }
@@ -75,75 +86,57 @@ impl Patch for Harmoneer {
 
             // Write, but don't advance head until the end.
             //self.buf[self.write_head] = inp;
-            self.write_buf(self.write_head, inp);
-
-            let r_now: f32 = self.read_head;
-            let w_now: usize = self.write_head;
-            let p: f32 = self.ratio;
+            self.write_buf(self.w_now, inp);
 
             //////
 
-            let delta_t_m: f32 = (w_now as f32 - r_now) / (p - 1.0);
+            if self.w_now == self.w_e {
+                assert!(self.ramping == true);
 
-            let w_m: f32 = w_now as f32 + delta_t_m;  // == r_m
-            let w_e: usize = libm::floorf(w_m) as usize;
-            let r_e: f32 = r_now + (p * (w_e - w_now) as f32);
-            let delta_t_rampdur: usize = RAMPLEN;
-            let delta_t_ramplen: usize = libm::ceilf(delta_t_rampdur as f32 * self.ratio) as usize;
-            let w_s: usize = w_e - (delta_t_ramplen - 1);
-            //spew!("main", "r_now", r_now, "w_now", w_now, "delta_t_m", delta_t_m, "w_m", w_m, "w_s", w_s, "r_e", r_e, "w_e", w_e);
-            let r_s: f32 = r_now + (p * ((w_s as isize - w_now as isize) as f32));
-            //spew!("main", "r_now", r_now, "w_now", w_now, "delta_t_m", delta_t_m, "w_m", w_m, "r_s", r_s, "w_s", w_s, "r_e", r_e, "w_e", w_e);
-            //spew!("r_s", r_s);
-            //spew!("w_s", w_s);
-            let alpha_prime: f32 = (r_now - r_s) / (r_e - r_s);
-            let alpha: f32 = if alpha_prime < 0.0 { 0.0 } else { alpha_prime };
-            let beta: f32 = 1.0 - alpha;
-            //let w_s_hat: isize = (w_s as isize) - (SIZE as isize);
-            let w_s_hat: usize = w_s - SIZE;
-            let fudge: usize = ALT_BUMP;
-            let r_s_prime: f32 = (w_s_hat + fudge) as f32;
-            let delta_r_alt: f32 = r_s - r_s_prime;
-            let r_now_prime: f32 = r_now - delta_r_alt;
-            let out: f32 = if alpha == 0.0 {
-                // Not ramping
-                let out: f32 = self.buf_f(r_now);
-                out
+                spew!("JUMP");
+
+                // Jump
+                self.r_now = self.alt_r_now;
+                self.ramping = false;
+
+                let delta_t_m: f32 = (self.w_now as f32 - self.r_now) / (self.p - 1.0);
+
+                let w_m: f32 = self.w_now as f32 + delta_t_m;  // == r_m
+                self.w_e = libm::floorf(w_m) as usize;
+                let delta_t_rampdur: usize = RAMPLEN;
+                let delta_t_ramplen: usize = libm::ceilf(delta_t_rampdur as f32 * self.p) as usize;
+                self.w_s = self.w_e - (delta_t_ramplen - 1);
+
+                self.alpha = (self.r_now - (self.w_s as f32)) / ((self.w_e - self.w_s) as f32);
+                let num_steps_til_next_jump: usize = self.w_e - self.w_now;
+                self.delta_alpha = (1.0 - self.alpha) / (num_steps_til_next_jump as f32);
+            }
+
+            // Start ramping if we cross the ramp start
+            if !self.ramping && self.alpha >= 0.0 {
+                spew!("START RAMP");
+                self.ramping = true;
+                self.alt_r_now = (self.w_now - SIZE + ALT_BUMP) as f32;
+                assert!(self.alt_r_now > 0.0);
+            }
+
+            // Calculate output sample, ramped or no
+            let out = if !self.ramping {
+                self.buf_f(self.r_now)
             } else {
-                let out: f32 = (beta * self.buf_f(r_now)) + (alpha * self.buf_f(r_now_prime));
-                out
+                let beta = 1.0 - self.alpha;
+                (beta * self.buf_f(self.r_now)) + (self.alpha * self.buf_f(self.alt_r_now))
             };
+            spew!("JUMP", "out", out, "ramping", self.ramping, "w_now", self.w_now, "r_now", self.r_now, "alt_r_now", self.alt_r_now, "w_s", self.w_s, "w_e", self.w_e, "alpha", self.alpha, "delta_alpha", self.delta_alpha);
 
-            let mut r_now = r_now;
-            let mut w_now = w_now;
-
-            ////// Move the read head to the alt read head if we're at the end of the ramp.
-
-            if w_now == w_e {
-                r_now = r_now_prime;
-            }
-
-            //////
-
-            r_now += self.ratio;
-            w_now += 1;
-
-            /*
-            if r_now >= ((SIZE * 2) as f32) && w_now >= (SIZE * 2) {
-                r_now -= SIZE as f32;
-                w_now -= SIZE;
-            }
-            */
-
-            //////
-
-            self.read_head = r_now;
-            self.write_head = w_now;
+            // Increment counters
+            self.r_now += self.p;
+            self.alt_r_now += self.p;
+            self.w_now += 1;
+            self.alpha += self.delta_alpha;
 
             output_slice[i] = out;
             playhead.inc();
-
-            self.ts += 1;
         }
     }
 }

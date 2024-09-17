@@ -86,7 +86,7 @@ fn harmoneer(input_file: &str, output_file: &str) {
     let h1 = Harmoneer::new(1.498);
     let channels = vec![
         MixerChannel(0.5, Box::new(orig)),
-        //MixerChannel(1.0, Box::new(h0)),
+        MixerChannel(1.0, Box::new(h0)),
         MixerChannel(1.0, Box::new(h1)),
     ];
     let mixer = Mixer::new(channels);
