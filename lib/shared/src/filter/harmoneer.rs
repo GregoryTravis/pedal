@@ -8,12 +8,12 @@ use crate::patch::Patch;
 use crate::playhead::Playhead;
 use crate::spew::*;
 
+// Must be even.
 const SIZE: usize = 4096;
 const RAMPLEN: usize = 48;
-const ALT_BUMP: usize = 2;
+const JUMP_MARGIN: f32 = 2.0;
 
 pub struct Harmoneer {
-    ts: usize,
     ratio: f32,
     read_head: f32,
     write_head: usize,
@@ -30,9 +30,8 @@ impl Harmoneer {
         assert!(RAMPLEN * 2 < SIZE);
 
         Harmoneer {
-            ts: 0,
             ratio: ratio,
-            read_head: 1.0,
+            read_head: (SIZE / 2) as f32,
             write_head: SIZE,
             buf: [0.0; SIZE],
         }
@@ -71,79 +70,74 @@ impl Patch for Harmoneer {
         for i in 0..input_slice.len() {
             let inp = input_slice[i];
 
-            // This all only works for ratio >= 1.
-
             // Write, but don't advance head until the end.
-            //self.buf[self.write_head] = inp;
             self.write_buf(self.write_head, inp);
 
-            let r_now: f32 = self.read_head;
-            let w_now: usize = self.write_head;
-            let p: f32 = self.ratio;
+            let mut r = self.read_head;
+            let mut w = self.write_head;
+            let p = self.ratio;
 
-            //////
+            // ====
 
-            let delta_t_m: f32 = (w_now as f32 - r_now) / (p - 1.0);
+            let n_f: f32 = ((w as f32) - r) / (p - 1.0);
+            let t_f: f32 = (w as f32) + n_f;
+            // TODO try size/p-1
+            let n_r: f32 = ((w as f32) - r - (SIZE as f32)) / (p - 1.0);
+            let t_r: f32 = (w - SIZE) as f32 + n_r;
 
-            let w_m: f32 = w_now as f32 + delta_t_m;  // == r_m
-            let w_e: usize = libm::floorf(w_m) as usize;
-            let r_e: f32 = r_now + (p * (w_e - w_now) as f32);
-            let delta_t_rampdur: usize = RAMPLEN;
-            let delta_t_ramplen: usize = libm::ceilf(delta_t_rampdur as f32 * self.ratio) as usize;
-            let w_s: usize = w_e - (delta_t_ramplen - 1);
-            //spew!("main", "r_now", r_now, "w_now", w_now, "delta_t_m", delta_t_m, "w_m", w_m, "w_s", w_s, "r_e", r_e, "w_e", w_e);
-            let r_s: f32 = r_now + (p * ((w_s as isize - w_now as isize) as f32));
-            //spew!("main", "r_now", r_now, "w_now", w_now, "delta_t_m", delta_t_m, "w_m", w_m, "r_s", r_s, "w_s", w_s, "r_e", r_e, "w_e", w_e);
-            //spew!("r_s", r_s);
-            //spew!("w_s", w_s);
-            let alpha_prime: f32 = (r_now - r_s) / (r_e - r_s);
-            let alpha: f32 = if alpha_prime < 0.0 { 0.0 } else { alpha_prime };
-            let beta: f32 = 1.0 - alpha;
-            //let w_s_hat: isize = (w_s as isize) - (SIZE as isize);
-            let w_s_hat: usize = w_s - SIZE;
-            let fudge: usize = ALT_BUMP;
-            let r_s_prime: f32 = (w_s_hat + fudge) as f32;
-            let delta_r_alt: f32 = r_s - r_s_prime;
-            let r_now_prime: f32 = r_now - delta_r_alt;
-            let out: f32 = if alpha == 0.0 {
-                // Not ramping
-                let out: f32 = self.buf_f(r_now);
-                out
+            let forward_ramp_start: f32 = t_f - RAMPLEN as f32;
+            let forward_ramp_end: f32 = t_f;
+            let backward_ramp_start: f32 = t_r;
+            let backward_ramp_end: f32 = t_r + RAMPLEN as f32;
+
+            let inside_forward_ramp = forward_ramp_start <= w as f32 && w as f32 <= forward_ramp_end;
+            let inside_backward_ramp = backward_ramp_start <= w as f32 && w as f32 <= backward_ramp_end;
+            assert!(!inside_forward_ramp || !inside_backward_ramp);
+
+            let mut should_flip = false;
+
+            let out: f32 = if inside_forward_ramp {
+                let alpha_unclipped = (w as f32 - forward_ramp_start) / (backward_ramp_end - backward_ramp_start);
+                assert!(alpha_unclipped <= 1.0);
+                let alpha = if alpha_unclipped < 0.0 { 0.0 } else { alpha_unclipped  };
+                let beta = 1.0 - alpha;
+                let alt_r = r - ((SIZE / 2) as f32);
+                if forward_ramp_end - (w as f32) < JUMP_MARGIN {
+                    should_flip = true;
+                }
+                beta * self.buf_f(r) + alpha * self.buf_f(alt_r)
+            } else if inside_backward_ramp {
+                let alpha_unclipped = (w as f32 - backward_ramp_start) / (backward_ramp_end - backward_ramp_start);
+                assert!(alpha_unclipped >= 0.0);
+                let alpha = if alpha_unclipped > 1.0 { 1.0 } else { alpha_unclipped };
+                let beta = 1.0 - alpha;
+                let alt_r = r + ((SIZE / 2) as f32);
+                if (w as f32) - backward_ramp_start < JUMP_MARGIN {
+                    should_flip = true;
+                }
+                alpha * self.buf_f(r) + beta * self.buf_f(alt_r)
             } else {
-                let out: f32 = (beta * self.buf_f(r_now)) + (alpha * self.buf_f(r_now_prime));
-                out
+                self.buf_f(r)
             };
 
-            let mut r_now = r_now;
-            let mut w_now = w_now;
-
-            ////// Move the read head to the alt read head if we're at the end of the ramp.
-
-            if w_now == w_e {
-                r_now = r_now_prime;
+            if should_flip {
+                if p >= 1.0 {
+                    r -= (SIZE/2) as f32;
+                } else {
+                    r += (SIZE/2) as f32;
+                }
             }
 
-            //////
+            r += p;
+            w += 1;
 
-            r_now += self.ratio;
-            w_now += 1;
+            // ====
 
-            /*
-            if r_now >= ((SIZE * 2) as f32) && w_now >= (SIZE * 2) {
-                r_now -= SIZE as f32;
-                w_now -= SIZE;
-            }
-            */
-
-            //////
-
-            self.read_head = r_now;
-            self.write_head = w_now;
+            self.read_head = r;
+            self.write_head = w;
 
             output_slice[i] = out;
             playhead.inc();
-
-            self.ts += 1;
         }
     }
 }
