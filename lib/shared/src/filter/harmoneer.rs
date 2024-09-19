@@ -96,6 +96,9 @@ impl Patch for Harmoneer {
 
             let mut should_flip = false;
 
+            let dbg_lo = 12235;
+            let dbg_hi = 12245;
+
             let out: f32 = if inside_forward_ramp {
                 let alpha_unclipped = (w as f32 - forward_ramp_start) / (backward_ramp_end - backward_ramp_start);
                 assert!(alpha_unclipped <= 1.0);
@@ -104,6 +107,9 @@ impl Patch for Harmoneer {
                 let alt_r = r - ((SIZE / 2) as f32);
                 if forward_ramp_end - (w as f32) < JUMP_MARGIN {
                     should_flip = true;
+                }
+                if w >= dbg_lo && w <= dbg_hi {
+                    spew!("ab", alpha, beta);
                 }
                 beta * self.buf_f(r) + alpha * self.buf_f(alt_r)
             } else if inside_backward_ramp {
@@ -115,10 +121,17 @@ impl Patch for Harmoneer {
                 if (w as f32) - backward_ramp_start < JUMP_MARGIN {
                     should_flip = true;
                 }
+                if w >= dbg_lo && w <= dbg_hi {
+                    spew!("ab", alpha, beta);
+                }
                 alpha * self.buf_f(r) + beta * self.buf_f(alt_r)
             } else {
                 self.buf_f(r)
             };
+
+            if w >= dbg_lo && w <= dbg_hi {
+                spew!("r", r, "w", w, "t", t_f, t_r, "fr", forward_ramp_start, forward_ramp_end, "br", backward_ramp_start, backward_ramp_end, "in f", inside_forward_ramp, "in r", inside_backward_ramp);
+            }
 
             if should_flip {
                 if p >= 1.0 {
