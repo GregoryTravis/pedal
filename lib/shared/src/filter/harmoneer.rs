@@ -84,7 +84,7 @@ impl Patch for Harmoneer {
             // ====
 
             let dbg_lo = 0;
-            let dbg_hi = 0;
+            let dbg_hi = 8192;
 
             let mut should_flip = false;
 
@@ -96,8 +96,10 @@ impl Patch for Harmoneer {
                 let forward_ramp_end: f32 = t_f;
 
                 let mut alpha = (w as f32 - forward_ramp_start) / (forward_ramp_end - forward_ramp_start);
+                let a0 = alpha;
                 assert!(alpha <= 1.0);
                 alpha = if alpha < 0.0 { 0.0 } else { alpha  };
+                let a1 = alpha;
                 let alpha_difference = alpha - self.last_alpha;
                 let alpha_difference = if alpha_difference > RAMPLEN_CUTOFF || alpha_difference < -RAMPLEN_CUTOFF { RAMPLEN as f32 } else { alpha_difference };
                 let alpha = self.last_alpha + alpha_difference;
@@ -107,10 +109,11 @@ impl Patch for Harmoneer {
                 if forward_ramp_end - (w as f32) < JUMP_MARGIN {
                     should_flip = true;
                 }
+                let out = beta * self.buf_f(r) + alpha * self.buf_f(alt_r);
                 if w >= dbg_lo && w <= dbg_hi {
-                    spew!("ab", alpha, beta);
+                    spew!("r", r, "w", w, "t_f", t_f, "ramp", forward_ramp_start, forward_ramp_end, "alpha", a0, a1, alpha, "out", out);
                 }
-                beta * self.buf_f(r) + alpha * self.buf_f(alt_r)
+                out
             } else {
                 // TODO try size/p-1
                 let n_r: f32 = ((w as f32) - r - (SIZE as f32)) / (p - 1.0);
@@ -120,9 +123,10 @@ impl Patch for Harmoneer {
                 let backward_ramp_end: f32 = t_r + RAMPLEN as f32;
 
                 let mut alpha = (w as f32 - backward_ramp_start) / (backward_ramp_end - backward_ramp_start);
+                let a0 = alpha;
                 assert!(alpha >= 0.0);
                 alpha = if alpha > 1.0 { 1.0 } else { alpha };
-
+                let a1 = alpha;
                 let alpha_difference = alpha - self.last_alpha;
                 let alpha_difference = if alpha_difference > RAMPLEN_CUTOFF || alpha_difference < -RAMPLEN_CUTOFF { RAMPLEN as f32 } else { alpha_difference };
                 let alpha = self.last_alpha + alpha_difference;
@@ -132,10 +136,11 @@ impl Patch for Harmoneer {
                 if (w as f32) - backward_ramp_start < JUMP_MARGIN {
                     should_flip = true;
                 }
+                let out = alpha * self.buf_f(r) + beta * self.buf_f(alt_r);
                 if w >= dbg_lo && w <= dbg_hi {
-                    spew!("ab", alpha, beta);
+                    spew!("r", r, "w", w, "t_r", t_r, "ramp", backward_ramp_start, backward_ramp_end, "alpha", a0, a1, alpha, "out", out);
                 }
-                alpha * self.buf_f(r) + beta * self.buf_f(alt_r)
+                out
             };
 
 
