@@ -16,6 +16,7 @@ const RAMPLEN_CUTOFF: f32 = (RAMPLEN as f32) + RAMPLEN_EXTRA;
 const JUMP_MARGIN: f32 = 2.0;
 
 pub struct Harmoneer {
+    ts: usize,
     ratio: f32,
     read_head: f32,
     write_head: usize,
@@ -33,6 +34,7 @@ impl Harmoneer {
         assert!(RAMPLEN * 2 < SIZE);
 
         Harmoneer {
+            ts: 0,
             ratio: ratio,
             read_head: (SIZE / 2) as f32,
             write_head: SIZE,
@@ -83,8 +85,8 @@ impl Patch for Harmoneer {
 
             // ====
 
-            let dbg_lo = 0;
-            let dbg_hi = 8192;
+            let dbg_lo = 12180;
+            let dbg_hi = 12246;
 
             let mut should_flip = false;
 
@@ -110,19 +112,22 @@ impl Patch for Harmoneer {
                     should_flip = true;
                 }
                 let out = beta * self.buf_f(r) + alpha * self.buf_f(alt_r);
-                if w >= dbg_lo && w <= dbg_hi {
-                    spew!("r", r, "w", w, "t_f", t_f, "ramp", forward_ramp_start, forward_ramp_end, "alpha", a0, a1, alpha, "out", out);
+                if self.ts >= dbg_lo && self.ts <= dbg_hi {
+                    spew!("ts", self.ts, "r", r, "w", w, "t_f", t_f, "ramp", forward_ramp_start, forward_ramp_end, "alpha", a0, a1, alpha, "out", out);
                 }
                 out
             } else {
+                let w_hat = w - SIZE;
                 // TODO try size/p-1
-                let n_r: f32 = ((w as f32) - r - (SIZE as f32)) / (p - 1.0);
-                let t_r: f32 = (w - SIZE) as f32 + n_r;
+                let n_r: f32 = (w_hat as f32 - r) / (p - 1.0);
+                let t_r: f32 = w_hat as f32 + n_r;
 
-                let backward_ramp_start: f32 = t_r;
-                let backward_ramp_end: f32 = t_r + RAMPLEN as f32;
+                // -2 is because we want to stop a little early, because we sample at r by taking
+                // the floor and floor + 1, so we don't want to cross the discontinuity.
+                let backward_ramp_end: f32 = t_r - 2.0;
+                let backward_ramp_start: f32 = backward_ramp_end - RAMPLEN as f32;
 
-                let mut alpha = (w as f32 - backward_ramp_start) / (backward_ramp_end - backward_ramp_start);
+                let mut alpha = (w_hat as f32 - backward_ramp_end) / (backward_ramp_start - backward_ramp_end);
                 let a0 = alpha;
                 assert!(alpha >= 0.0);
                 alpha = if alpha > 1.0 { 1.0 } else { alpha };
@@ -133,12 +138,16 @@ impl Patch for Harmoneer {
 
                 let beta = 1.0 - alpha;
                 let alt_r = r + ((SIZE / 2) as f32);
-                if (w as f32) - backward_ramp_start < JUMP_MARGIN {
+                if backward_ramp_end - (w_hat as f32) < JUMP_MARGIN {
+                //if (w as f32) - backward_ramp_start < JUMP_MARGIN {
                     should_flip = true;
                 }
                 let out = alpha * self.buf_f(r) + beta * self.buf_f(alt_r);
-                if w >= dbg_lo && w <= dbg_hi {
-                    spew!("r", r, "w", w, "t_r", t_r, "ramp", backward_ramp_start, backward_ramp_end, "alpha", a0, a1, alpha, "out", out);
+                if self.ts == 12239 {
+                    spew!("hmm", self.buf(12238), self.buf(12239), self.buf(12240));
+                }
+                if self.ts >= dbg_lo && self.ts <= dbg_hi {
+                    spew!("ts", self.ts, "r", r, "w", w, "w_hat", w_hat, "t_r", t_r, "ramp", backward_ramp_start, backward_ramp_end, "alpha", a0, a1, alpha, "main out", self.buf_f(r), "alt out", self.buf_f(alt_r), "out", out);
                 }
                 out
             };
@@ -156,6 +165,7 @@ impl Patch for Harmoneer {
 
             r += p;
             w += 1;
+            self.ts += 1;
 
             // ====
 
