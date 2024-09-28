@@ -86,7 +86,7 @@ fn harmoneer(input_file: &str, output_file: &str) {
     #[allow(unused)]
     let orig = PassThruFilter {};
     #[allow(unused)]
-    let h0 = Harmoneer::new(1.26);
+    let h0 = Harmoneer::new(2.0);
     #[allow(unused)]
     let h1 = Harmoneer::new(0.5);
     let channels = vec![

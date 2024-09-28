@@ -1,6 +1,7 @@
 extern crate alloc;
 
 use alloc::boxed::Box;
+use alloc::vec;
 #[allow(unused)]
 use alloc::vec::Vec;
 
@@ -32,6 +33,7 @@ use shared::filter::seq::*;
 use shared::filter::sweep::SweepFilter;
 use shared::knob::Knobs;
 use shared::knob_board::*;
+use shared::patch::Patch;
 use shared::rig::*;
 use shared::rig_board::*;
 #[cfg(not(feature = "for_host"))]
@@ -43,12 +45,24 @@ use shared::spew::*;
 use shared::test::test_direct;
 
 #[allow(dead_code)]
-fn live_main() {
-    hw_init(!PROD, BLOCK_SIZE);
-    spew!("hi");
-    load_init();
+fn harmoneer() -> Box<dyn Patch> {
+    #[allow(unused)]
+    let orig = PassThruFilter {};
+    #[allow(unused)]
+    let h0 = Harmoneer::new(2.0);
+    #[allow(unused)]
+    let h1 = Harmoneer::new(0.5);
+    let channels = vec![
+        MixerChannel(0.5, Box::new(orig)),
+        MixerChannel(1.0, Box::new(h0)),
+        MixerChannel(1.0, Box::new(h1)),
+    ];
+    let mixer = Mixer::new(channels);
+    Box::new(mixer)
+}
 
-    /*
+#[allow(dead_code)]
+fn rubin() -> Box<dyn Patch> {
     let hp = Box::new(HighPassFilter::new());
     let lp = Box::new(LowPassFilter::new());
     let high_low = Box::new(Interp::new(BLOCK_SIZE, lp, hp, 2));
@@ -59,25 +73,21 @@ fn live_main() {
     let both0 = Box::new(Seq::new(BLOCK_SIZE, chorus, reso));
     let triple = Box::new(Seq::new(BLOCK_SIZE, both0, high_low));
     //let sweep = Box::new(SweepFilter::example());
-    let knobs = Box::new(BoardKnobs { });
-    rig_install_patch(triple, knobs);
-    */
 
-    //#[allow(unused)]
-    //let orig = PassThruFilter {};
-    #[allow(unused)]
-    let h0 = Harmoneer::new(1.26);
-    //#[allow(unused)]
-    //let h1 = Harmoneer::new(1.498);
-    /*
-    let mut channels = Vec::with_capacity(3);
-    channels.push(MixerChannel(0.5, Box::new(orig)));
-    channels.push(MixerChannel(1.0, Box::new(h0)));
-    channels.push(MixerChannel(1.0, Box::new(h1)));
-    let mixer = Mixer::new(channels);
-    */
+    triple
+}
+
+#[allow(dead_code)]
+fn live_main() {
+    hw_init(!PROD, BLOCK_SIZE);
+    spew!("hi");
+    load_init();
+
+    //let patch = harmoneer();
+    let patch = rubin();
+
     let knobs = Box::new(BoardKnobs { });
-    rig_install_patch(Box::new(h0), knobs);
+    rig_install_patch(patch, knobs);
 
     rig_install_callback();
 
