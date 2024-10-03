@@ -6,10 +6,10 @@ use alloc::boxed::Box;
 use crate::knob::Knobs;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
-use crate::spew::*;
+//use crate::spew::*;
 
 // Must be even.
-const SIZE: usize = 256;
+const SIZE: usize = 4096;
 const RAMPLEN: usize = 48;
 const RAMPLEN_EXTRA: f32 = 10.0; // todo try smaller
 const RAMPLEN_CUTOFF: f32 = (RAMPLEN as f32) + RAMPLEN_EXTRA;
@@ -48,9 +48,11 @@ impl Harmoneer {
         let r_1: usize = r_0 + 1;
         let alpha: f32 = (r - r_0 as f32) / ((r_1 - r_0) as f32);
         let beta: f32 = 1.0 - alpha;
+        /*
         if !(0.0 <= alpha && alpha <= 1.0) {
             spew!("buf_f", "r", r, "r_0", r_0, "r_1", r_1, "alpha", alpha, "beta", beta);
         }
+        */
         assert!(0.0 <= alpha && alpha <= 1.0);
         assert!(0.0 <= beta && beta <= 1.0);
         (beta * self.buf(r_0)) + (alpha * self.buf(r_1))
@@ -85,8 +87,8 @@ impl Patch for Harmoneer {
 
             // ====
 
-            let dbg_lo = 12180;
-            let dbg_hi = 12246;
+            //let dbg_lo = 12180;
+            //let dbg_hi = 12246;
 
             let mut should_flip = false;
 
@@ -98,10 +100,10 @@ impl Patch for Harmoneer {
                 let forward_ramp_end: f32 = t_f;
 
                 let mut alpha = (w as f32 - forward_ramp_start) / (forward_ramp_end - forward_ramp_start);
-                let a0 = alpha;
+                //let a0 = alpha;
                 assert!(alpha <= 1.0);
                 alpha = if alpha < 0.0 { 0.0 } else { alpha  };
-                let a1 = alpha;
+                //let a1 = alpha;
                 let alpha_difference = alpha - self.last_alpha;
                 let alpha_difference = if alpha_difference > RAMPLEN_CUTOFF || alpha_difference < -RAMPLEN_CUTOFF { RAMPLEN as f32 } else { alpha_difference };
                 let alpha = self.last_alpha + alpha_difference;
@@ -112,9 +114,11 @@ impl Patch for Harmoneer {
                     should_flip = true;
                 }
                 let out = beta * self.buf_f(r) + alpha * self.buf_f(alt_r);
+                /*
                 if self.ts >= dbg_lo && self.ts <= dbg_hi {
                     spew!("ts", self.ts, "r", r, "w", w, "t_f", t_f, "ramp", forward_ramp_start, forward_ramp_end, "alpha", a0, a1, alpha, "out", out);
                 }
+                */
                 out
             } else {
                 let w_hat = w - SIZE;
@@ -128,10 +132,10 @@ impl Patch for Harmoneer {
                 let backward_ramp_start: f32 = backward_ramp_end - RAMPLEN as f32;
 
                 let mut alpha = (w_hat as f32 - backward_ramp_end) / (backward_ramp_start - backward_ramp_end);
-                let a0 = alpha;
+                //let a0 = alpha;
                 assert!(alpha >= 0.0);
                 alpha = if alpha > 1.0 { 1.0 } else { alpha };
-                let a1 = alpha;
+                //let a1 = alpha;
                 let alpha_difference = alpha - self.last_alpha;
                 let alpha_difference = if alpha_difference > RAMPLEN_CUTOFF || alpha_difference < -RAMPLEN_CUTOFF { RAMPLEN as f32 } else { alpha_difference };
                 let alpha = self.last_alpha + alpha_difference;
@@ -143,12 +147,14 @@ impl Patch for Harmoneer {
                     should_flip = true;
                 }
                 let out = alpha * self.buf_f(r) + beta * self.buf_f(alt_r);
+                /*
                 if self.ts == 12239 {
                     spew!("hmm", self.buf(12238), self.buf(12239), self.buf(12240));
                 }
                 if self.ts >= dbg_lo && self.ts <= dbg_hi {
                     spew!("ts", self.ts, "r", r, "w", w, "w_hat", w_hat, "t_r", t_r, "ramp", backward_ramp_start, backward_ramp_end, "alpha", a0, a1, alpha, "main out", self.buf_f(r), "alt out", self.buf_f(alt_r), "out", out);
                 }
+                */
                 out
             };
 
