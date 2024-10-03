@@ -5,4 +5,6 @@ pub const BLOCK_SIZE: usize = 48;
 pub const KSHEP: bool = true;
 pub const PROD: bool = false;
 
+pub const SDRAM_SIZE_BYTES: usize = 64 * 1024;
+
 pub const FFT_SIZE: usize = 512;

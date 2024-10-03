@@ -8,6 +8,8 @@
 #define BLOCK_SIZE 48
 #define PROD false
 
+#define SDRAM_SIZE_BYTES (64 * 1024)
+
 #define FFT_SIZE 512
 
 #endif // _constants_h_

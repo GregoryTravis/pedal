@@ -36,6 +36,7 @@ use shared::knob_board::*;
 use shared::patch::Patch;
 use shared::rig::*;
 use shared::rig_board::*;
+use shared::sdram::*;
 #[cfg(not(feature = "for_host"))]
 use shared::daisy_seed_board::*;
 use shared::constants::*;
@@ -82,6 +83,10 @@ fn live_main() {
     hw_init(!PROD, BLOCK_SIZE);
     spew!("hi");
     load_init();
+
+    let sdram: SDRAM = SDRAM::new();
+    let fooie: &[f32] = sdram.alloc(16);
+    spew!("got", fooie.len()u, fooie[0]);
 
     //let patch = harmoneer();
     let patch = rubin();
