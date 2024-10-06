@@ -84,12 +84,13 @@ fn live_main() {
     spew!("hi");
     load_init();
 
-    let sdram: SDRAM = SDRAM::new();
+    let mut sdram: SDRAM = SDRAM::new();
     let fooie: &[f32] = sdram.alloc(16);
-    spew!("got", fooie.len()u, fooie[0]);
+    let ptr_int = fooie.as_ptr() as u32;
+    spew!("got", ptr_int, fooie.len(), fooie[0]);
 
-    //let patch = harmoneer();
-    let patch = rubin();
+    let patch = harmoneer();
+    //let patch = rubin();
 
     let knobs = Box::new(BoardKnobs { });
     rig_install_patch(patch, knobs);

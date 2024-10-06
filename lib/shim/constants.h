@@ -8,7 +8,8 @@
 #define BLOCK_SIZE 48
 #define PROD false
 
-#define SDRAM_SIZE_BYTES (64 * 1024)
+#define SDRAM_SIZE_BYTES (64 * 1024 * 1024)
+#define SDRAM_SIZE_F32 (SDRAM_SIZE_BYTES / sizeof(float))
 
 #define FFT_SIZE 512
 

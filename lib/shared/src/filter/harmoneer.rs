@@ -9,7 +9,7 @@ use crate::playhead::Playhead;
 //use crate::spew::*;
 
 // Must be even.
-const SIZE: usize = 4096;
+const SIZE: usize = 256;
 const RAMPLEN: usize = 48;
 const RAMPLEN_EXTRA: f32 = 10.0; // todo try smaller
 const RAMPLEN_CUTOFF: f32 = (RAMPLEN as f32) + RAMPLEN_EXTRA;

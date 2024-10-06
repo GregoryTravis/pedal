@@ -5,7 +5,7 @@
 
 use core::slice;
 
-use crate::constants::SDRAM_SIZE_BYTES;
+use crate::constants::SDRAM_SIZE_F32;
 
 pub struct SDRAM {
     base: *mut f32,
@@ -13,7 +13,7 @@ pub struct SDRAM {
 }
 
 impl SDRAM {
-    pub fn new -> SDRAM {
+    pub fn new() -> SDRAM {
         SDRAM {
             base: SDRAM::get_base_pointer(),
             so_far: 0,
@@ -21,16 +21,14 @@ impl SDRAM {
     }
 
     pub fn alloc(&mut self, num_floats: usize) -> &[f32] {
-        let float_size = core::mem::size_of<f32>();
-        let total_bytes = num_floats * float_size;
-        let total_after_allocation = self.so_far + total_bytes;
-        if total_after_allocation > SDRAM_SIZE_BYTES {
+        let so_far_after_allocation = self.so_far + num_floats;
+        if so_far_after_allocation  > SDRAM_SIZE_F32 {
             panic!("Out of SDRAM!!");
         }
-        let ptr: *mut f32 = self.base + self.so_far;
-        self.so_far += total_bytes;
+        let ptr: *mut f32 = self.base.wrapping_add(self.so_far);
+        self.so_far += num_floats;
         unsafe {
-            slice::from_raw_parts(ptr, float_size)
+            slice::from_raw_parts(ptr, num_floats)
         }
     }
 }
