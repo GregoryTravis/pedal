@@ -20,7 +20,7 @@ impl SDRAM {
         }
     }
 
-    pub fn alloc(&mut self, num_floats: usize) -> &[f32] {
+    pub fn alloc(&mut self, num_floats: usize) -> &mut [f32] {
         let so_far_after_allocation = self.so_far + num_floats;
         if so_far_after_allocation  > SDRAM_SIZE_F32 {
             panic!("Out of SDRAM!!");
@@ -28,7 +28,7 @@ impl SDRAM {
         let ptr: *mut f32 = self.base.wrapping_add(self.so_far);
         self.so_far += num_floats;
         unsafe {
-            slice::from_raw_parts(ptr, num_floats)
+            slice::from_raw_parts_mut(ptr, num_floats)
         }
     }
 }
