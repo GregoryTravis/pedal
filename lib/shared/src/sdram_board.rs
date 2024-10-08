@@ -1,9 +1,4 @@
-use core::intrinsics::transmute;
+use crate::constants::SDRAM_SIZE_F32;
 
-use crate::sdram::*;
-
-impl SDRAM {
-  pub fn get_base_pointer() -> *mut f32 {
-      unsafe { transmute(0xC0000000u32) }
-  }
-}
+#[link_section = ".sdram_bss"]
+pub static mut SDRAM_BUFFER: [f32; SDRAM_SIZE_F32] = [0.0; SDRAM_SIZE_F32];

@@ -84,10 +84,17 @@ fn live_main() {
     spew!("hi");
     load_init();
 
+    /*
     let mut sdram: SDRAM = SDRAM::new();
     let fooie: &[f32] = sdram.alloc(16);
     let ptr_int = fooie.as_ptr() as u32;
     spew!("got", ptr_int, fooie.len(), fooie[0]);
+    */
+    let mut sdram = SDRAM::new();
+    let a0 = sdram.alloc(10);
+    spew!("a0", a0.as_ptr() as u64);
+    let a1 = sdram.alloc(10);
+    spew!("a1", a1.as_ptr() as u64);
 
     let patch = harmoneer();
     //let patch = rubin();

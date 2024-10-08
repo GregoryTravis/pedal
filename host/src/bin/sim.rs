@@ -19,9 +19,11 @@ use shared::filter::seq::*;
 use shared::filter::sweep::*;
 use shared::filter::vibrato::*;
 use shared::filter::waveshaper::*;
+use shared::sdram::*;
 use shared::signal::base::*;
 use shared::signal::combinators::*;
 use shared::sim::*;
+use shared::spew::*;
 
 #[allow(dead_code)]
 fn sweep(input_file: &str, output_file: &str) {
@@ -99,6 +101,12 @@ fn harmoneer(input_file: &str, output_file: &str) {
 }
 
 pub fn main() {
+    let mut sdram = SDRAM::new();
+    let a0 = sdram.alloc(10);
+    spew!("a0", a0.as_ptr() as u64);
+    let a1 = sdram.alloc(10);
+    spew!("a1", a1.as_ptr() as u64);
+
     let args: Vec<String> = env::args().collect();
     assert!(args.len() == 3);
     let input_file = &args[1];

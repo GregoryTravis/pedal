@@ -3,32 +3,31 @@
 // You must only ever create one SDRAM!!!
 // You must only ever call get_base_pointer once!!!
 
-use core::slice;
+use alloc::slice;
 
-use crate::constants::SDRAM_SIZE_F32;
+#[cfg(not(feature = "for_host"))]
+use crate::sdram_board::*;
+#[cfg(feature = "for_host")]
+use crate::sdram_host::*;
 
 pub struct SDRAM {
-    base: *mut f32,
-    so_far: usize,
+    ptr: *mut f32,
+    num_floats: usize,
 }
 
 impl SDRAM {
     pub fn new() -> SDRAM {
+        let ptr = unsafe { (&mut SDRAM_BUFFER).as_mut_ptr() };
+        let num_floats = unsafe { SDRAM_BUFFER.len() };
         SDRAM {
-            base: SDRAM::get_base_pointer(),
-            so_far: 0,
+            ptr: ptr,
+            num_floats: num_floats,
         }
     }
 
-    pub fn alloc(&mut self, num_floats: usize) -> &mut [f32] {
-        let so_far_after_allocation = self.so_far + num_floats;
-        if so_far_after_allocation  > SDRAM_SIZE_F32 {
-            panic!("Out of SDRAM!!");
-        }
-        let ptr: *mut f32 = self.base.wrapping_add(self.so_far);
-        self.so_far += num_floats;
-        unsafe {
-            slice::from_raw_parts_mut(ptr, num_floats)
-        }
+    pub fn alloc(&mut self, num_floats: usize) -> &'static mut [f32] {
+        let slice = unsafe { slice::from_raw_parts_mut(self.ptr, num_floats) };
+        self.ptr = self.ptr.wrapping_add(num_floats);
+        slice
     }
 }
