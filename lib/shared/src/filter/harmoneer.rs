@@ -6,11 +6,12 @@ use alloc::boxed::Box;
 use crate::knob::Knobs;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
+use crate::sdram::*;
 //use crate::spew::*;
 
 // Must be even.
-const SIZE: usize = 256;
-const RAMPLEN: usize = 48;
+const SIZE: usize = 4096;
+const RAMPLEN: usize = 384;
 const RAMPLEN_EXTRA: f32 = 10.0; // todo try smaller
 const RAMPLEN_CUTOFF: f32 = (RAMPLEN as f32) + RAMPLEN_EXTRA;
 const JUMP_MARGIN: f32 = 2.0;
@@ -21,11 +22,11 @@ pub struct Harmoneer {
     read_head: f32,
     write_head: usize,
     last_alpha: f32,
-    buf: [f32; SIZE],
+    buf: &'static mut [f32],
 }
 
 impl Harmoneer {
-    pub fn new(ratio: f32) -> Harmoneer {
+    pub fn new(ratio: f32, sdram: &mut SDRAM) -> Harmoneer {
         // TODO use a static assertion for these.
 
         // Because otherwise the read head starts off past the end of the array.
@@ -39,7 +40,7 @@ impl Harmoneer {
             read_head: (SIZE / 2) as f32,
             write_head: SIZE,
             last_alpha: 0.0,
-            buf: [0.0; SIZE],
+            buf: sdram.alloc(SIZE),
         }
     }
 

@@ -12,6 +12,7 @@ use crate::sdram_host::*;
 
 pub struct SDRAM {
     ptr: *mut f32,
+    #[allow(unused)]
     num_floats: usize,
 }
 

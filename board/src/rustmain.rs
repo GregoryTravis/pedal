@@ -46,13 +46,13 @@ use shared::spew::*;
 use shared::test::test_direct;
 
 #[allow(dead_code)]
-fn harmoneer() -> Box<dyn Patch> {
+fn harmoneer(sdram: &mut SDRAM) -> Box<dyn Patch> {
     #[allow(unused)]
     let orig = PassThruFilter {};
     #[allow(unused)]
-    let h0 = Harmoneer::new(2.0);
+    let h0 = Harmoneer::new(2.0, sdram);
     #[allow(unused)]
-    let h1 = Harmoneer::new(0.5);
+    let h1 = Harmoneer::new(0.5, sdram);
     let channels = vec![
         MixerChannel(0.5, Box::new(orig)),
         MixerChannel(1.0, Box::new(h0)),
@@ -96,7 +96,7 @@ fn live_main() {
     let a1 = sdram.alloc(10);
     spew!("a1", a1.as_ptr() as u64);
 
-    let patch = harmoneer();
+    let patch = harmoneer(&mut sdram);
     //let patch = rubin();
 
     let knobs = Box::new(BoardKnobs { });

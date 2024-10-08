@@ -84,13 +84,13 @@ fn envelope_follower(input_file: &str, output_file: &str) {
 // 5th 1.498
 // 6th 1.682
 #[allow(dead_code)]
-fn harmoneer(input_file: &str, output_file: &str) {
+fn harmoneer(sdram: &mut SDRAM, input_file: &str, output_file: &str) {
     #[allow(unused)]
     let orig = PassThruFilter {};
     #[allow(unused)]
-    let h0 = Harmoneer::new(2.0);
+    let h0 = Harmoneer::new(2.0, sdram);
     #[allow(unused)]
-    let h1 = Harmoneer::new(0.5);
+    let h1 = Harmoneer::new(0.5, sdram);
     let channels = vec![
         MixerChannel(1.0, Box::new(orig)),
         MixerChannel(1.0, Box::new(h0)),
@@ -111,5 +111,5 @@ pub fn main() {
     assert!(args.len() == 3);
     let input_file = &args[1];
     let output_file = &args[2];
-    harmoneer(input_file, output_file);
+    harmoneer(&mut sdram, input_file, output_file);
 }
