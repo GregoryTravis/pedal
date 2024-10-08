@@ -20,6 +20,11 @@ pub mod fft_host;
 #[cfg(feature = "for_host")]
 pub mod file;
 pub mod filter;
+pub mod globby;
+#[cfg(not(feature = "for_host"))]
+pub mod globby_board;
+#[cfg(feature = "for_host")]
+pub mod globby_host;
 #[cfg(feature = "for_host")]
 pub mod graphing;
 pub mod knob;
