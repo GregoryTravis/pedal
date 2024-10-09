@@ -27,11 +27,13 @@ impl <T> Globby<T> {
         *(self.thing.lock().unwrap()) = None;
     }
 
-    pub fn use_thing<F>(&self, f: F)
+    pub fn use_thing<F, R>(&self, f: F) -> R
     where
-        F: FnOnce(&mut T) {
+        F: FnOnce(&mut T) -> R {
         if let Some(ref mut thing) = *(self.thing.lock().unwrap()) {
-            f(thing);
+            f(thing)
+        } else {
+            todo!()
         }
     }
 }

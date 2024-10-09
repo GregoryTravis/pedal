@@ -29,13 +29,15 @@ impl <T> Globby<T> {
         });
     }
 
-    pub fn use_thing<F>(&self, f: F)
+    pub fn use_thing<F, R>(&self, f: F) -> R
     where
-        F: FnOnce(&mut T) {
+        F: FnOnce(&mut T) -> R {
         interrupt::free(|cs| {
             if let Some(ref mut thing) = self.thing.borrow(cs).borrow_mut().deref_mut().as_mut() {
-                f(thing);
+                f(thing)
+            } else {
+                todo!()
             }
-        });
+        })
     }
 }

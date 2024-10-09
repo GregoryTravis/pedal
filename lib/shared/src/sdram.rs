@@ -18,7 +18,7 @@ pub struct SDRAM {
 
 impl SDRAM {
     pub fn new() -> SDRAM {
-        let mut sdram: Option<SDRAM> = None;
+        //let mut sdram: Option<SDRAM> = None;
         SDRAM_BUFFER.use_thing(|mut buffer| {
             let ptr = (&mut buffer).as_mut_ptr();
             let num_floats = buffer.len();
@@ -26,9 +26,10 @@ impl SDRAM {
                 ptr: ptr,
                 num_floats: num_floats,
             };
-            sdram = Some(a_sdram);
-        });
-        sdram.unwrap()
+            //sdram = Some(a_sdram);
+            a_sdram
+        })
+        //sdram.unwrap()
     }
 
     pub fn alloc(&mut self, num_floats: usize) -> &'static mut [f32] {
