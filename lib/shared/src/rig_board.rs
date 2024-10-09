@@ -6,7 +6,7 @@ extern "C" {
     pub fn cpp_rig_install_callback();
 }
 
-pub static THE_PATCH: Globby<Rig> = Globby::new();
+pub static THE_PATCH: Globby<Rig> = Globby::empty();
 
 pub fn rig_install_callback() {
     unsafe {

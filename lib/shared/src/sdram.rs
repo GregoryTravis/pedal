@@ -18,12 +18,24 @@ pub struct SDRAM {
 
 impl SDRAM {
     pub fn new() -> SDRAM {
-        let ptr = unsafe { (&mut SDRAM_BUFFER).as_mut_ptr() };
-        let num_floats = unsafe { SDRAM_BUFFER.len() };
-        SDRAM {
-            ptr: ptr,
-            num_floats: num_floats,
-        }
+        //let mut ptr;
+        //let mut num_floats;
+        //let (ptr, num_floats) = SDRAM_BUFFER.use_thing(|buffer| {
+        let mut sdram: Option<SDRAM> = None;
+        SDRAM_BUFFER.use_thing(|mut buffer| {
+            //unsafe {
+                let ptr = (&mut buffer).as_mut_ptr();
+                let num_floats = buffer.len();
+                let asdram = SDRAM {
+                    ptr: ptr,
+                    num_floats: num_floats,
+                };
+                sdram = Some(asdram);
+            //}
+        });
+        sdram.unwrap()
+        //let ptr = unsafe { (&mut SDRAM_BUFFER).as_mut_ptr() };
+        //let num_floats = unsafe { SDRAM_BUFFER.len() };
     }
 
     pub fn alloc(&mut self, num_floats: usize) -> &'static mut [f32] {

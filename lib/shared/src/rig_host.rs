@@ -7,7 +7,7 @@ use crate::globby::*;
 use crate::rig::*;
 use crate::rig_type::Rig;
 
-pub static THE_PATCH: Globby<Rig> = Globby::new();
+pub static THE_PATCH: Globby<Rig> = Globby::empty();
 
 pub fn rig_install_callback() {
     let _handler = thread::spawn(|| {

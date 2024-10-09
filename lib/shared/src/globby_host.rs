@@ -7,9 +7,15 @@ pub struct Globby<T> {
 }
 
 impl <T> Globby<T> {
-    pub const fn new() -> Globby<T> {
+    pub const fn empty() -> Globby<T> {
         Globby {
             thing: Mutex::new(None),
+        }
+    }
+
+    pub const fn new(t: T) -> Globby<T> {
+        Globby {
+            thing: Mutex::new(Some(t)),
         }
     }
 
