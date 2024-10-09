@@ -22,11 +22,11 @@ impl SDRAM {
         SDRAM_BUFFER.use_thing(|mut buffer| {
             let ptr = (&mut buffer).as_mut_ptr();
             let num_floats = buffer.len();
-            let asdram = SDRAM {
+            let a_sdram = SDRAM {
                 ptr: ptr,
                 num_floats: num_floats,
             };
-            sdram = Some(asdram);
+            sdram = Some(a_sdram);
         });
         sdram.unwrap()
     }
