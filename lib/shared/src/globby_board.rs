@@ -2,28 +2,28 @@ use core::cell::RefCell;
 use core::ops::DerefMut;
 use cortex_m::interrupt::{self, Mutex};
 
-struct Globby<T> {
+pub struct Globby<T> {
   thing: Mutex<RefCell<Option<T>>>,
 }
 
 impl <T> Globby<T> {
-    pub fn new() -> Globby<T> {
+    pub const fn new() -> Globby<T> {
         Globby {
             thing: Mutex::new(RefCell::new(None)),
         }
     }
 
-    pub fn set(&mut self, thing: T) {
+    pub fn set(&self, thing: T) {
         interrupt::free(|cs| self.thing.borrow(cs).replace(Some(thing)));
     }
 
-    pub fn clear(&mut self) {
+    pub fn clear(&self) {
         interrupt::free(|cs| {
             self.thing.borrow(cs).replace(None);
         });
     }
 
-    pub fn use_thing<F>(&mut self, f: F)
+    pub fn use_thing<F>(&self, f: F)
     where
         F: FnOnce(&mut T) {
         interrupt::free(|cs| {

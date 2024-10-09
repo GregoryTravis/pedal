@@ -31,11 +31,11 @@ pub fn rig_install_patch(box_patch: Box<dyn Patch>, knobs: Box<dyn Knobs>) {
         framesize: 0,
         playhead : Playhead::new(),
     };
-    rig_set(rig);
+    THE_PATCH.set(rig);
 }
 
 pub fn rig_deinstall_patch() {
-    rig_clear();
+    THE_PATCH.clear();
 }
 
 // This simulates what the Daisy Seed passes to the audio callback.
@@ -78,7 +78,7 @@ pub extern "C" fn rig_process_audio_callback(
     out_ptr: *const *mut f32,
     len: usize) {
     load_before();
-    rig_use(|rig| {
+    THE_PATCH.use_thing(|rig| {
         // Mono pedal, so left_input_slice  is unused, except that we dump a value
         let left_input_slice = unsafe { slice::from_raw_parts(*(in_ptr.wrapping_add(0)), len) };
         let right_input_slice =
@@ -115,7 +115,7 @@ pub fn rig_log() {
     let mut framesize: usize = 0;
     let mut playhead: Playhead = Playhead::new();
 
-    rig_use(|rig| {
+    THE_PATCH.use_thing(|rig| {
         inl = rig.inl;
         inr = rig.inr;
         outl = rig.outl;
