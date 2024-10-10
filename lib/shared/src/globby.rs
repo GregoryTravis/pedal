@@ -18,7 +18,7 @@ impl <T> Globby<T> {
         });
     }
 
-    pub fn usey<F>(&self, f: F)
+    pub fn use_it<F>(&self, f: F)
     where
         F: FnOnce(&mut T) {
             self.use_and_return(|mot| {

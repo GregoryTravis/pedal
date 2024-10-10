@@ -78,7 +78,7 @@ pub extern "C" fn rig_process_audio_callback(
     out_ptr: *const *mut f32,
     len: usize) {
     load_before();
-    THE_PATCH.usey(|rig| {
+    THE_PATCH.use_it(|rig| {
         // Mono pedal, so left_input_slice  is unused, except that we dump a value
         let left_input_slice = unsafe { slice::from_raw_parts(*(in_ptr.wrapping_add(0)), len) };
         let right_input_slice =
@@ -115,7 +115,7 @@ pub fn rig_log() {
     let mut framesize: usize = 0;
     let mut playhead: Playhead = Playhead::new();
 
-    THE_PATCH.usey(|rig| {
+    THE_PATCH.use_it(|rig| {
         inl = rig.inl;
         inr = rig.inr;
         outl = rig.outl;

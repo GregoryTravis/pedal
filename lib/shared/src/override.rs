@@ -109,7 +109,7 @@ pub fn run_override_test() {
         let mut done: bool = false;
         let mut passed: bool = false;
         while !done {
-            THE_PATCH.usey(|rig| {
+            THE_PATCH.use_it(|rig| {
                 let patch: &Box<dyn Patch + '_> = &rig.patch;
                 if patch.done() {
                     done = true;
