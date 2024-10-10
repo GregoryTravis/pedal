@@ -18,6 +18,28 @@ impl <T> Globby<T> {
         });
     }
 
+    pub fn usey<F>(&self, f: F)
+    where
+        F: FnOnce(&mut T) {
+            self.lala(|mot| {
+                if let Some(ref mut thing) = mot {
+                    f(thing)
+                }
+            });
+    }
+
+    pub fn mappy<F, R>(&self, f: F) -> Option<R>
+    where
+        F: FnOnce(&mut T) -> R {
+            self.lala(|mot| {
+                if let Some(ref mut thing) = mot {
+                    Some(f(thing))
+                } else {
+                    None
+                }
+            })
+    }
+
     pub fn use_thing<F, R>(&self, f: F) -> R
     where
         F: FnOnce(&mut T) -> R {
