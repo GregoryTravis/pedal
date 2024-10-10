@@ -39,26 +39,4 @@ impl <T> Globby<T> {
                 }
             })
     }
-
-    pub fn use_thing<F, R>(&self, f: F) -> R
-    where
-        F: FnOnce(&mut T) -> R {
-        self.lala(|mor| {
-            if let Some(ref mut thing) = mor.as_mut() {
-                f(thing)
-            } else {
-                todo!();
-            }
-            //f(mor.as_mut())
-        })
-        /*
-        interrupt::free(|cs| {
-            if let Some(ref mut thing) = self.thing.borrow(cs).borrow_mut().deref_mut().as_mut() {
-                f(thing)
-            } else {
-                todo!()
-            }
-        })
-        */
-    }
 }
