@@ -6,14 +6,14 @@ pub use crate::globby_host::*;
 impl <T> Globby<T> {
     pub fn set(&self, thing: T) {
         //interrupt::free(|cs| self.thing.borrow(cs).replace(Some(thing)));
-        self.lala(|mor| {
+        self.use_and_return(|mor| {
             *mor = Some(thing);
         });
     }
 
     pub fn clear(&self) {
         //interrupt::free(|cs| { self.thing.borrow(cs).replace(None); });
-        self.lala(|mor| {
+        self.use_and_return(|mor| {
             *mor = None;
         });
     }
@@ -21,17 +21,17 @@ impl <T> Globby<T> {
     pub fn usey<F>(&self, f: F)
     where
         F: FnOnce(&mut T) {
-            self.lala(|mot| {
+            self.use_and_return(|mot| {
                 if let Some(ref mut thing) = mot {
                     f(thing)
                 }
             });
     }
 
-    pub fn mappy<F, R>(&self, f: F) -> Option<R>
+    pub fn map<F, R>(&self, f: F) -> Option<R>
     where
         F: FnOnce(&mut T) -> R {
-            self.lala(|mot| {
+            self.use_and_return(|mot| {
                 if let Some(ref mut thing) = mot {
                     Some(f(thing))
                 } else {

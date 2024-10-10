@@ -19,7 +19,7 @@ impl <T> Globby<T> {
         }
     }
 
-    pub fn lala<F, R>(&self, f: F) -> R
+    pub fn use_and_return<F, R>(&self, f: F) -> R
     where
         F: FnOnce(&mut Option<T>) -> R {
         interrupt::free(|cs| {

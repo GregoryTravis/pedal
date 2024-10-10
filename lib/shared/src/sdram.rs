@@ -19,7 +19,7 @@ pub struct SDRAM {
 impl SDRAM {
     pub fn new() -> SDRAM {
         //let mut sdram: Option<SDRAM> = None;
-        SDRAM_BUFFER.mappy(|mut buffer| {
+        SDRAM_BUFFER.map(|mut buffer| {
             let ptr = (&mut buffer).as_mut_ptr();
             let num_floats = buffer.len();
             let a_sdram = SDRAM {
