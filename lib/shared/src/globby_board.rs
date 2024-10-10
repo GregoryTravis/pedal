@@ -25,7 +25,6 @@ impl <T> Globby<T> {
         interrupt::free(|cs| {
             let mut binding = self.thing.borrow(cs).borrow_mut();
             let thing: &mut Option<T> = binding.deref_mut();
-            //let thing: &mut Option<T> = self.thing.borrow(cs).borrow_mut().deref_mut();
             f(thing)
         })
     }
