@@ -20,26 +20,39 @@ impl <T> Globby<T> {
     }
 
     pub fn set(&self, thing: T) {
-        *(self.thing.lock().unwrap()) = Some(thing);
+        //interrupt::free(|cs| self.thing.borrow(cs).replace(Some(thing)));
+        self.lala(|mor| {
+            *mor = Some(thing);
+        });
     }
 
     pub fn clear(&self) {
-        *(self.thing.lock().unwrap()) = None;
+        //interrupt::free(|cs| { self.thing.borrow(cs).replace(None); });
+        self.lala(|mor| {
+            *mor = None;
+        });
     }
 
     pub fn use_thing<F, R>(&self, f: F) -> R
     where
         F: FnOnce(&mut T) -> R {
-        //let _i0: i32 = *(self.thing.lock().unwrap()); // option<t>
-        //let _i01: &mut Option<T> = (self.thing.lock().unwrap()); //
-        //let _i1: i32 = self.thing.lock().unwrap(); // MutexGuard<'_, Option<T>>
-        ////let _i11: i32 = self.thing.lock().unwrap().deref(); // 
-        //let _i2: i32 = self.thing.lock(); // Result<MutexGuard<'_, ...>, ...>
-        if let Some(ref mut thing) = *(self.thing.lock().unwrap()) {
-            f(thing)
-        } else {
-            todo!()
-        }
+        self.lala(|mor| {
+            if let Some(ref mut thing) = mor.as_mut() {
+                f(thing)
+            } else {
+                todo!();
+            }
+            //f(mor.as_mut())
+        })
+        /*
+        interrupt::free(|cs| {
+            if let Some(ref mut thing) = self.thing.borrow(cs).borrow_mut().deref_mut().as_mut() {
+                f(thing)
+            } else {
+                todo!()
+            }
+        })
+        */
     }
 
     fn lala<F, R>(&self, f: F) -> R
