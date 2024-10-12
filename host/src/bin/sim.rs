@@ -86,15 +86,15 @@ fn envelope_follower(input_file: &str, output_file: &str) {
 #[allow(dead_code)]
 fn harmoneer(sdram: &mut SDRAM, input_file: &str, output_file: &str) {
     #[allow(unused)]
-    let orig = PassThruFilter {};
+    //let orig = PassThruFilter {};
     #[allow(unused)]
-    let h0 = Harmoneer::new(2.0, sdram);
+    let h0 = Harmoneer::new(0.52, sdram);
     #[allow(unused)]
-    let h1 = Harmoneer::new(0.5, sdram);
+    //let h1 = Harmoneer::new(0.5, sdram);
     let channels = vec![
-        MixerChannel(1.0, Box::new(orig)),
+        //MixerChannel(1.0, Box::new(orig)),
         MixerChannel(1.0, Box::new(h0)),
-        MixerChannel(1.0, Box::new(h1)),
+        //MixerChannel(1.0, Box::new(h1)),
     ];
     let mixer = Mixer::new(channels);
     sim_main(input_file, output_file, Box::new(mixer));

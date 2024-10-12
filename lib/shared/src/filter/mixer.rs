@@ -22,7 +22,7 @@ impl Mixer {
         for i in 0..channels.len() {
             let ch: &mut MixerChannel = &mut channels[i];
             ch.0 /= total_gain;
-            ch.0 *= 3.0;
+            //ch.0 *= 3.0;
         }
 
         Mixer {
