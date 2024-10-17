@@ -54,7 +54,7 @@ fn harmoneer(sdram: &mut SDRAM) -> Box<dyn Patch> {
     #[allow(unused)]
     let h1 = Harmoneer::new(0.5, sdram);
     let channels = vec![
-        MixerChannel(0.5, Box::new(orig)),
+        MixerChannel(1.0, Box::new(orig)),
         MixerChannel(1.0, Box::new(h0)),
         MixerChannel(1.0, Box::new(h1)),
     ];

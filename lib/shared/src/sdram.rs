@@ -18,18 +18,17 @@ pub struct SDRAM {
 
 impl SDRAM {
     pub fn new() -> SDRAM {
-        //let mut sdram: Option<SDRAM> = None;
-        SDRAM_BUFFER.map(|mut buffer| {
-            let ptr = (&mut buffer).as_mut_ptr();
+        SDRAM_BUFFER.map(|buffer| {
+            let _ho: &'static [f32] = *buffer;
+            let _hey: *const f32 = _ho.as_ptr();
+            let ptr: *mut f32 = _hey as *mut f32;
             let num_floats = buffer.len();
             let a_sdram = SDRAM {
                 ptr: ptr,
                 num_floats: num_floats,
             };
-            //sdram = Some(a_sdram);
             a_sdram
         }).unwrap()
-        //sdram.unwrap()
     }
 
     pub fn alloc(&mut self, num_floats: usize) -> &'static mut [f32] {

@@ -88,7 +88,7 @@ fn harmoneer(sdram: &mut SDRAM, input_file: &str, output_file: &str) {
     #[allow(unused)]
     //let orig = PassThruFilter {};
     #[allow(unused)]
-    let h0 = Harmoneer::new(0.52, sdram);
+    let h0 = Harmoneer::new(1.74, sdram);
     #[allow(unused)]
     //let h1 = Harmoneer::new(0.5, sdram);
     let channels = vec![

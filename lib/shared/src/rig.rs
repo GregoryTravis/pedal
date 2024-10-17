@@ -90,12 +90,13 @@ pub extern "C" fn rig_process_audio_callback(
 
         rig.knobs.process();
 
-        rig.patch
-            .rust_process_audio(right_input_slice, right_output_slice, &rig.knobs, rig.playhead);
 
-        // Mono pedal, so copy right output to left output. Left and right outputs are mixed to
-        // the analog mono out, so I'm told.
-        left_output_slice.copy_from_slice(right_output_slice);
+        // I don't know what the convention is, but to get this to work in mono, I have to process
+        // the left channel, and copy to the right channel (except on the original purple pedal?)
+        // Left and right outputs are mixed to the analog mono out, so I'm told.
+        rig.patch
+            .rust_process_audio(left_input_slice, left_output_slice, &rig.knobs, rig.playhead);
+        right_output_slice.copy_from_slice(left_output_slice);
 
         rig.inl = left_input_slice[0];
         rig.inr = right_input_slice[0];
