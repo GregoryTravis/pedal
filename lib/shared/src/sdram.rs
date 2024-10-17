@@ -19,9 +19,7 @@ pub struct SDRAM {
 impl SDRAM {
     pub fn new() -> SDRAM {
         SDRAM_BUFFER.map(|buffer| {
-            let _ho: &'static [f32] = *buffer;
-            let _hey: *const f32 = _ho.as_ptr();
-            let ptr: *mut f32 = _hey as *mut f32;
+            let ptr: *mut f32 = (*buffer).as_ptr() as *mut f32;
             let num_floats = buffer.len();
             let a_sdram = SDRAM {
                 ptr: ptr,
