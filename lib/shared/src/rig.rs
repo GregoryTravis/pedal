@@ -53,15 +53,15 @@ pub fn rust_process_audio_soft(
     // TODO why are we taking a len here
     len: usize) {
     // Create dummy left channel arrays
-    let left_in_array = vec![0.0f32; len];
-    let mut left_out_array = vec![0.0f32; len];
-    let left_in_array_slice: &[f32] = &left_in_array;
-    let left_out_array_slice: &mut [f32] = &mut left_out_array;
-    let left_in_ptr: *const f32 = left_in_array_slice.as_ptr();
-    let left_out_ptr: *mut f32 = left_out_array_slice.as_mut_ptr();
+    let right_in_array = vec![0.0f32; len];
+    let mut right_out_array = vec![0.0f32; len];
+    let right_in_array_slice: &[f32] = &right_in_array;
+    let right_out_array_slice: &mut [f32] = &mut right_out_array;
+    let right_in_ptr: *const f32 = right_in_array_slice.as_ptr();
+    let right_out_ptr: *mut f32 = right_out_array_slice.as_mut_ptr();
 
-    let right_in_ptr: *const f32 = input_slice.as_ptr();
-    let right_out_ptr: *mut f32 = output_slice.as_mut_ptr();
+    let left_in_ptr: *const f32 = input_slice.as_ptr();
+    let left_out_ptr: *mut f32 = output_slice.as_mut_ptr();
 
     let in_pointer_array: [*const f32; 2] = [left_in_ptr, right_in_ptr];
     let out_pointer_array: [*mut f32; 2] = [left_out_ptr, right_out_ptr];
