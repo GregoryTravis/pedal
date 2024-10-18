@@ -4,6 +4,7 @@ use alloc::vec::Vec;
 
 use crate::filter::chorus::*;
 use crate::filter::delay::*;
+use crate::filter::harmoneer::*;
 use crate::filter::high_pass::*;
 use crate::filter::linear_vibrato::*;
 use crate::filter::low_pass::*;
@@ -13,6 +14,7 @@ use crate::filter::sine::*;
 use crate::filter::sweep::*;
 use crate::filter::vibrato::*;
 use crate::patch::Patch;
+use crate::sdram::*;
 use crate::signal::base::*;
 use crate::signal::combinators::*;
 use crate::testdata::*;
@@ -28,6 +30,8 @@ pub fn get_test_cases() -> Vec<Box<TestCase>> {
     let siner = PostCompose { signal: Arc::new(Sin {}), ff: scale_range(0.3, 0.9) };
     let q = Const { x: 0.95 };
     let sweep = Box::new(SweepFilter::new(Arc::new(siner), Arc::new(q)));
+
+    let mut sdram = SDRAM::new();
 
     vec![Box::new(TestCase {
             name: "low_pass",
@@ -88,6 +92,12 @@ pub fn get_test_cases() -> Vec<Box<TestCase>> {
             patch: Box::new(Delay::new()),
             canned_input: TEST_INPUT,
             expected_output: DELAY_OUTPUT,
+        }),
+        Box::new(TestCase {
+            name: "harmoneer",
+            patch: Box::new(Harmoneer::new(1.74, &mut sdram)),
+            canned_input: LONG_TEST_INPUT,
+            expected_output: HARMONEER_OUTPUT,
         }),
     ]
 }

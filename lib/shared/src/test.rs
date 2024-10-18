@@ -16,7 +16,7 @@ use crate::testutil::*;
  * Unit tests for patches.
  */
 
-const DO_DUMP: bool = false;
+const DO_DUMP: bool = true;
 
 #[cfg(feature = "for_host")]
 fn local_test_dump_as_source(var: &str, a: &[f32]) {
@@ -43,6 +43,7 @@ fn test_patch(name: &str, patch: Box<dyn Patch>, canned_input: &[f32], expected_
 pub fn test_direct() {
     if DO_DUMP {
         local_test_dump_as_source("TEST_INPUT", &TEST_INPUT);
+        local_test_dump_as_source("LONG_TEST_INPUT", &LONG_TEST_INPUT);
     }
 
     for test_case in get_test_cases() {

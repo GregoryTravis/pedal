@@ -1,3 +1,6 @@
+cargo run --bin test --features for_host 2>&1 | tee out
+exit
+
 rm -rf simout.wav
 cargo run --bin sim --features for_host -- simin.wav simout.wav 2>&1 | tee out
 #../lib/shared/target/debug/compare_wavs golden.simout.wav simout.wav
@@ -10,9 +13,6 @@ cargo test --lib --features for_host 2>&1 | tee out
 exit
 
 cargo run --bin graph --features for_host 2>&1 | tee out
-exit
-
-cargo run --bin test --features for_host 2>&1 | tee out
 exit
 
 cargo run --bin gen_sine_table --features for_host 2>&1 | tee out
