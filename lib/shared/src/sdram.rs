@@ -13,24 +13,31 @@ use crate::sdram_host::*;
 pub struct SDRAM {
     ptr: *mut f32,
     #[allow(unused)]
-    num_floats: usize,
+    sofar: usize,
+    total_floats: usize,
 }
 
 impl SDRAM {
     pub fn new() -> SDRAM {
         SDRAM_BUFFER.map(|buffer| {
             let ptr: *mut f32 = (*buffer).as_ptr() as *mut f32;
-            let num_floats = buffer.len();
+            let total_floats = buffer.len();
             let a_sdram = SDRAM {
                 ptr: ptr,
-                num_floats: num_floats,
+                sofar: 0,
+                total_floats: total_floats,
             };
             a_sdram
         }).unwrap()
     }
 
     pub fn alloc(&mut self, num_floats: usize) -> &'static mut [f32] {
+        let new_sofar = self.sofar + num_floats;
+        if new_sofar > self.total_floats {
+            panic!("Out of SDRAM! (already allocated {}, new allocation {}", self.sofar, num_floats);
+        }
         let slice = unsafe { slice::from_raw_parts_mut(self.ptr, num_floats) };
+        self.sofar = new_sofar;
         self.ptr = self.ptr.wrapping_add(num_floats);
         slice
     }
@@ -38,6 +45,8 @@ impl SDRAM {
 
 #[cfg(test)]
 use core::mem::size_of;
+#[cfg(test)]
+use crate::constants::SDRAM_SIZE_F32;
 
 #[test]
 fn alloc_sequential() {
@@ -61,5 +70,13 @@ fn layout() {
     a16[8] = 23.0;
     assert_eq!(a8[7], 12.0);
     assert_eq!(a8_2[0], 23.0);
+}
+
+#[test]
+#[should_panic]
+fn oom() {
+    let mut sdram = SDRAM::new();
+    sdram.alloc(SDRAM_SIZE_F32);
+    sdram.alloc(1);
 }
 
