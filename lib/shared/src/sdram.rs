@@ -35,3 +35,31 @@ impl SDRAM {
         slice
     }
 }
+
+#[cfg(test)]
+use core::mem::size_of;
+
+#[test]
+fn alloc_sequential() {
+    let mut sdram = SDRAM::new();
+    let size: usize = 40;
+    let a0 = sdram.alloc(size);
+    let a1 = sdram.alloc(size);
+    let diff_bytes = (a1.as_ptr() as usize) - (a0.as_ptr() as usize);
+    let expected_diff_bytes = size * size_of::<f32>();
+    assert_eq!(diff_bytes, expected_diff_bytes);
+}
+
+#[test]
+fn layout() {
+    let mut sdram0 = SDRAM::new();
+    let a16 = sdram0.alloc(16);
+    let mut sdram1 = SDRAM::new();
+    let a8 = sdram1.alloc(8);
+    let a8_2 = sdram1.alloc(8);
+    a16[7] = 12.0;
+    a16[8] = 23.0;
+    assert_eq!(a8[7], 12.0);
+    assert_eq!(a8_2[0], 23.0);
+}
+

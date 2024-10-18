@@ -1,3 +1,6 @@
+cargo test --lib --features for_host 2>&1 | tee out
+exit
+
 cargo build --bin compare_wavs --features for_host 2>&1 | tee out
 exit
 
