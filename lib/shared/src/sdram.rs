@@ -36,6 +36,8 @@ impl SDRAM {
             panic!("Out of SDRAM! (already allocated {}, new allocation {}", self.sofar, num_floats);
         }
         let slice = unsafe { slice::from_raw_parts_mut(self.ptr, num_floats) };
+        let len = slice.len();
+        slice[0..len].fill(0.0);
         self.sofar = new_sofar;
         self.ptr = self.ptr.wrapping_add(num_floats);
         slice
