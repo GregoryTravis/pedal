@@ -1,14 +1,13 @@
-// You must only ever create one SDRAM!!!
-// You must only ever create one SDRAM!!!
-// You must only ever create one SDRAM!!!
-
 use alloc::slice;
 
 use crate::constants::SDRAM_SIZE_F32;
 use crate::static_buffer::*;
 
+// If you allocate two SDRAMs, they are the same memory, and there is no
+// protection from aliasing.
+
 #[cfg_attr(not(feature = "for_host"), link_section = ".sdram_bss")]
-pub static WRAPPED: StaticBuffer<SDRAM_SIZE_F32> = StaticBuffer::new();
+static STATIC_BUFFER: StaticBuffer<SDRAM_SIZE_F32> = StaticBuffer::new();
 
 // Bump allocator for SDRAM. On the host, this uses a regular static array as the SDRAM.
 // Zeros memory on allocation.
@@ -21,13 +20,13 @@ pub struct SDRAM {
 impl SDRAM {
     pub fn new() -> SDRAM {
         SDRAM {
-            ptr: WRAPPED.as_ptr(),
+            ptr: STATIC_BUFFER.as_ptr(),
             sofar: 0,
-            total_floats: WRAPPED.len(),
+            total_floats: STATIC_BUFFER.len(),
         }
     }
 
-    pub fn len() -> usize { WRAPPED.len() }
+    pub fn len(&self) -> usize { self.total_floats }
 
     pub fn alloc(&mut self, num_floats: usize) -> &'static mut [f32] {
         let new_sofar = self.sofar + num_floats;
@@ -45,6 +44,12 @@ impl SDRAM {
 
 #[cfg(test)]
 use core::mem::size_of;
+
+#[test]
+fn correct_size() {
+    let mut sdram = SDRAM::new();
+    assert!(sdram.len() == SDRAM_SIZE_F32);
+}
 
 #[test]
 fn alloc_sequential() {
@@ -74,7 +79,7 @@ fn layout() {
 #[should_panic]
 fn oom() {
     let mut sdram = SDRAM::new();
-    sdram.alloc(SDRAM_SIZE_F32);
+    sdram.alloc(sdram.len());
     sdram.alloc(1);
 }
 
