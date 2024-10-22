@@ -23,7 +23,7 @@ impl Patch for LowPassFilter {
         _playhead: Playhead,
     ) {
         for i in 0..input_slice.len() {
-            output_slice[i] = 2.0 * ((input_slice[i] + self.state) / 2.0);
+            output_slice[i] = 5.0 * ((input_slice[i] + self.state) / 2.0);
             self.state = input_slice[i];
         }
     }
