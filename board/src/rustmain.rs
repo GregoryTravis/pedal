@@ -158,8 +158,8 @@ pub fn benchmark_fft() {
 pub fn main() {
     spew!("start of main");
 
-    //live_main();
-    all_tests();
+    live_main();
+    //all_tests();
     //try_knobs();
     //oom_test();
     //benchmark_fft();
