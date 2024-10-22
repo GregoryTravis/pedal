@@ -141,6 +141,7 @@ fn sdram_test() {
     let a1 = sdram.alloc(10);
     assert!(a0.as_ptr() == 0xc0000000 as *const f32);
     assert!(a1.as_ptr() == 0xc0000028 as *const f32);
+    spew!("sdram", a0.as_ptr() as u64, a1.as_ptr() as u64);
 }
 
 #[allow(dead_code)]

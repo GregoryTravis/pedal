@@ -1,23 +1,14 @@
 // You must only ever create one SDRAM!!!
 // You must only ever create one SDRAM!!!
 // You must only ever create one SDRAM!!!
-// You must only ever call get_base_pointer once!!!
 
 use alloc::slice;
-use core::cell::UnsafeCell;
 
 use crate::constants::SDRAM_SIZE_F32;
+use crate::static_buffer::*;
 
-#[repr(transparent)]
-pub struct UnsafeSyncCell<T: ?Sized>(pub  UnsafeCell<T>);
-unsafe impl<T: ?Sized + Sync> Sync for UnsafeSyncCell<T> {}
-
-// UnsafeSyncCell and UnsafeCell have zero space overhead. Originally I had a mutex wrapped around
-// this, but the mutex does not work on the board when it is in SDRAM.
-//
-// I am trusting the UnsafeCell docs which say that it "opts-out of the immutability guarantee for &T".
 #[cfg_attr(not(feature = "for_host"), link_section = ".sdram_bss")]
-pub static WRAPPED: UnsafeSyncCell<[f32; SDRAM_SIZE_F32]> = UnsafeSyncCell(UnsafeCell::new([0.0; SDRAM_SIZE_F32]));
+pub static WRAPPED: StaticBuffer<SDRAM_SIZE_F32> = StaticBuffer::new();
 
 // Bump allocator for SDRAM. On the host, this uses a regular static array as the SDRAM.
 // Zeros memory on allocation.
@@ -29,15 +20,14 @@ pub struct SDRAM {
 
 impl SDRAM {
     pub fn new() -> SDRAM {
-        let ptr: *mut f32 = unsafe {
-            core::mem::transmute::<*mut [f32; SDRAM_SIZE_F32], *mut f32>(WRAPPED.0.get())
-        };
         SDRAM {
-            ptr: ptr,
+            ptr: WRAPPED.as_ptr(),
             sofar: 0,
-            total_floats: SDRAM_SIZE_F32,
+            total_floats: WRAPPED.len(),
         }
     }
+
+    pub fn len() -> usize { WRAPPED.len() }
 
     pub fn alloc(&mut self, num_floats: usize) -> &'static mut [f32] {
         let new_sofar = self.sofar + num_floats;
