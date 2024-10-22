@@ -50,6 +50,7 @@ pub mod rig_board;
 #[cfg(feature = "for_host")]
 pub mod rig_host;
 pub mod rig_type;
+pub mod rubin;
 pub mod sdram;
 pub mod signal;
 #[cfg(feature = "for_host")]

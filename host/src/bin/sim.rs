@@ -108,5 +108,7 @@ pub fn main() {
     assert!(args.len() == 3);
     let input_file = &args[1];
     let output_file = &args[2];
-    harmoneer(&mut sdram, input_file, output_file);
+    //harmoneer(&mut sdram, input_file, output_file);
+    let rubin = shared::rubin::rubin(&mut sdram);
+    sim_main(input_file, output_file, rubin);
 }

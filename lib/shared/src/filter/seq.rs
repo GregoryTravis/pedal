@@ -34,10 +34,12 @@ impl Patch for Seq {
         knobs: &Box<dyn Knobs>,
         playhead: Playhead,
     ) {
-        assert!(input_slice.len() == self.buf.len());
+        assert!(input_slice.len() <= self.buf.len());
+        let slice: &mut [f32] = &mut self.buf;
+        let sub_buf: &mut [f32] = &mut slice[0..input_slice.len()];
 
         let first_playhead = playhead.clone();
-        self.patch0.rust_process_audio(input_slice, &mut self.buf, knobs, first_playhead);
-        self.patch1.rust_process_audio(&self.buf, output_slice, knobs, playhead);
+        self.patch0.rust_process_audio(input_slice, sub_buf, knobs, first_playhead);
+        self.patch1.rust_process_audio(sub_buf, output_slice, knobs, playhead);
     }
 }

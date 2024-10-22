@@ -63,22 +63,6 @@ fn harmoneer(sdram: &mut SDRAM) -> Box<dyn Patch> {
 }
 
 #[allow(dead_code)]
-fn rubin() -> Box<dyn Patch> {
-    let hp = Box::new(HighPassFilter::new());
-    let lp = Box::new(LowPassFilter::new());
-    let high_low = Box::new(Interp::new(BLOCK_SIZE, lp, hp, 2));
-
-    let reso = Box::new(ResoFilter::new(0, 3));
-    //let lvib = Box::new(LinearVibrato::new(400, 10.0, 1));
-    let chorus = Box::new(Chorus::new());
-    let both0 = Box::new(Seq::new(BLOCK_SIZE, chorus, reso));
-    let triple = Box::new(Seq::new(BLOCK_SIZE, both0, high_low));
-    //let sweep = Box::new(SweepFilter::example());
-
-    triple
-}
-
-#[allow(dead_code)]
 fn live_main() {
     hw_init(!PROD, BLOCK_SIZE);
     spew!("hi");
@@ -96,8 +80,8 @@ fn live_main() {
     let a1 = sdram.alloc(10);
     spew!("a1", a1.as_ptr() as u64);
 
-    let patch = harmoneer(&mut sdram);
-    //let patch = rubin();
+    //let patch = harmoneer(&mut sdram);
+    let patch = shared::rubin::rubin(&mut sdram);
 
     let knobs = Box::new(BoardKnobs { });
     rig_install_patch(patch, knobs);
