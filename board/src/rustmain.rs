@@ -135,11 +135,20 @@ pub fn oom_test() {
     }
 }
 
+fn sdram_test() {
+    let mut sdram = SDRAM::new();
+    let a0 = sdram.alloc(10);
+    let a1 = sdram.alloc(10);
+    assert!(a0.as_ptr() == 0xc0000000 as *const f32);
+    assert!(a1.as_ptr() == 0xc0000028 as *const f32);
+}
+
 #[allow(dead_code)]
 fn all_tests() {
     hw_init(true, BLOCK_SIZE);
     test_main();
     override_test_main();
+    sdram_test();
 }
 
 #[allow(dead_code)]

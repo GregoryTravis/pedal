@@ -4,16 +4,25 @@
 // You must only ever call get_base_pointer once!!!
 
 use alloc::slice;
+use core::cell::UnsafeCell;
 
 use crate::constants::SDRAM_SIZE_F32;
-#[cfg(not(feature = "for_host"))]
-use crate::sdram_board::*;
-#[cfg(feature = "for_host")]
-use crate::sdram_host::*;
 
+#[repr(transparent)]
+pub struct UnsafeSyncCell<T: ?Sized>(pub  UnsafeCell<T>);
+unsafe impl<T: ?Sized + Sync> Sync for UnsafeSyncCell<T> {}
+
+// UnsafeSyncCell and UnsafeCell have zero space overhead. Originally I had a mutex wrapped around
+// this, but the mutex does not work on the board when it is in SDRAM.
+//
+// I am trusting the UnsafeCell docs which say that it "opts-out of the immutability guarantee for &T".
+#[cfg_attr(not(feature = "for_host"), link_section = ".sdram_bss")]
+pub static WRAPPED: UnsafeSyncCell<[f32; SDRAM_SIZE_F32]> = UnsafeSyncCell(UnsafeCell::new([0.0; SDRAM_SIZE_F32]));
+
+// Bump allocator for SDRAM. On the host, this uses a regular static array as the SDRAM.
+// Zeros memory on allocation.
 pub struct SDRAM {
     ptr: *mut f32,
-    #[allow(unused)]
     sofar: usize,
     total_floats: usize,
 }
