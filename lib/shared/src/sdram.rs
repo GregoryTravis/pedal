@@ -47,7 +47,7 @@ use core::mem::size_of;
 
 #[test]
 fn correct_size() {
-    let mut sdram = SDRAM::new();
+    let sdram = SDRAM::new();
     assert!(sdram.len() == SDRAM_SIZE_F32);
 }
 
