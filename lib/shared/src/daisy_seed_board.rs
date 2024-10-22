@@ -9,6 +9,7 @@ extern "C" {
     pub fn cpp_hw_get_size_t_size() -> usize;
     pub fn cpp_hw_init(b: bool, block_size: usize);
     pub fn cpp_hw_kshep_init();
+    pub fn cpp_hw_set_led(index: u32, brightness: f32);
     pub fn cpp_hw_delay(delay_ms: u32);
 }
 
@@ -24,6 +25,14 @@ fn hw_sanity_check() {
     assert!(size_t_size == size_of::<usize>());
 }
 
+pub fn hw_set_led(index: u32, brightness: f32) {
+    if KSHEP {
+        unsafe {
+            cpp_hw_set_led(index, brightness);
+        }
+    }
+}
+
 pub fn hw_init(b: bool, block_size: usize) {
     hw_sanity_check();
 
@@ -37,6 +46,9 @@ pub fn hw_init(b: bool, block_size: usize) {
         unsafe {
             cpp_hw_kshep_init();
         }
+
+        hw_set_led(0, 1.0);
+        hw_set_led(1, 1.0);
     }
 }
 

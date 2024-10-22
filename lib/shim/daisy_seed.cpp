@@ -25,6 +25,24 @@ extern "C" void cpp_hw_init(bool b, size_t block_size) {
 GPIO audioBypassTrigger;
 GPIO audioMuteTrigger;
 
+static Pin ledPins[] = {seed::D22, seed::D23};
+static int numLeds = sizeof(ledPins) / sizeof(ledPins[0]);
+static bool ledInitted[] = { false, false };
+static Led leds[2];
+extern "C" void cpp_hw_set_led(int index, float brightness) {
+  if (index < 0 || index >= numLeds) {
+    return;
+  }
+
+  if (!ledInitted[index]) {
+    leds[index].Init(ledPins[index], false, hw.AudioCallbackRate());
+    leds[index].SetSampleRate(hw.AudioCallbackRate()); // Necessary?
+    ledInitted[index] = true;
+  }
+  leds[index].Set(brightness);
+  leds[index].Update(); // Necessary?
+}
+
 extern "C" void cpp_hw_kshep_init() {
   Pin relayPin = seed::D1;
   Pin mutePin = seed::D12;
