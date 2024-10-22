@@ -5,6 +5,7 @@
 
 use alloc::slice;
 
+use crate::constants::SDRAM_SIZE_F32;
 #[cfg(not(feature = "for_host"))]
 use crate::sdram_board::*;
 #[cfg(feature = "for_host")]
@@ -19,16 +20,14 @@ pub struct SDRAM {
 
 impl SDRAM {
     pub fn new() -> SDRAM {
-        SDRAM_BUFFER.map(|buffer| {
-            let ptr: *mut f32 = (*buffer).as_ptr() as *mut f32;
-            let total_floats = buffer.len();
-            let a_sdram = SDRAM {
-                ptr: ptr,
-                sofar: 0,
-                total_floats: total_floats,
-            };
-            a_sdram
-        }).unwrap()
+        let ptr: *mut f32 = unsafe {
+            core::mem::transmute::<*mut [f32; SDRAM_SIZE_F32], *mut f32>(WRAPPED.0.get())
+        };
+        SDRAM {
+            ptr: ptr,
+            sofar: 0,
+            total_floats: SDRAM_SIZE_F32,
+        }
     }
 
     pub fn alloc(&mut self, num_floats: usize) -> &'static mut [f32] {
@@ -45,8 +44,6 @@ impl SDRAM {
 
 #[cfg(test)]
 use core::mem::size_of;
-#[cfg(test)]
-use crate::constants::SDRAM_SIZE_F32;
 
 #[test]
 fn alloc_sequential() {

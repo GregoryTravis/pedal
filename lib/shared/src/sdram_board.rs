@@ -1,7 +1,10 @@
+use core::cell::UnsafeCell;
+
 use crate::constants::SDRAM_SIZE_F32;
-use crate::globby::*;
+
+#[repr(transparent)]
+pub struct UnsafeSyncCell<T: ?Sized>(pub  UnsafeCell<T>);
+unsafe impl<T: ?Sized + Sync> Sync for UnsafeSyncCell<T> {}
 
 #[link_section = ".sdram_bss"]
-pub static SDRAM_BUFFER_BUFFER: [f32; SDRAM_SIZE_F32] = [0.0; SDRAM_SIZE_F32];
-pub static SDRAM_BUFFER: Globby<&[f32]> = Globby::new(&SDRAM_BUFFER_BUFFER);
-
+pub static WRAPPED: UnsafeSyncCell<[f32; SDRAM_SIZE_F32]> = UnsafeSyncCell(UnsafeCell::new([0.0; SDRAM_SIZE_F32]));
