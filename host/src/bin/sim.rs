@@ -23,7 +23,6 @@ use shared::sdram::*;
 use shared::signal::base::*;
 use shared::signal::combinators::*;
 use shared::sim::*;
-use shared::spew::*;
 
 #[allow(dead_code)]
 fn sweep(input_file: &str, output_file: &str) {
@@ -86,15 +85,17 @@ fn envelope_follower(input_file: &str, output_file: &str) {
 #[allow(dead_code)]
 fn harmoneer(sdram: &mut SDRAM, input_file: &str, output_file: &str) {
     #[allow(unused)]
-    //let orig = PassThruFilter {};
+    let orig = PassThruFilter {};
     #[allow(unused)]
-    let h0 = Harmoneer::new(1.74, sdram);
+    let h0 = Harmoneer::new(2.0, sdram);
+    //let fh0 = Seq::new(BLOCK_SIZE, Box::new(h0), Box::new(LowPassFilter::new()) );
     #[allow(unused)]
-    //let h1 = Harmoneer::new(0.5, sdram);
+    let h1 = Harmoneer::new(0.5, sdram);
+    let fh1 = Seq::new(BLOCK_SIZE, Box::new(h1), Box::new(LowPassFilter::new()) );
     let channels = vec![
-        //MixerChannel(1.0, Box::new(orig)),
-        MixerChannel(1.0, Box::new(h0)),
-        //MixerChannel(1.0, Box::new(h1)),
+        MixerChannel(1.0, Box::new(orig)),
+        MixerChannel(0.7, Box::new(h0)),
+        MixerChannel(1.0, Box::new(fh1)),
     ];
     let mixer = Mixer::new(channels);
     sim_main(input_file, output_file, Box::new(mixer));
@@ -102,10 +103,6 @@ fn harmoneer(sdram: &mut SDRAM, input_file: &str, output_file: &str) {
 
 pub fn main() {
     let mut sdram = SDRAM::new();
-    let a0 = sdram.alloc(10);
-    spew!("a0", a0.as_ptr() as u64);
-    let a1 = sdram.alloc(10);
-    spew!("a1", a1.as_ptr() as u64);
 
     let args: Vec<String> = env::args().collect();
     assert!(args.len() == 3);
