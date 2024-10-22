@@ -14,4 +14,8 @@ macro_rules! spew {
         spew_newline();
     }};
 }
+
 pub use spew;
+
+pub struct Hex(pub u64);
+pub fn hex(x: u64) -> Hex { Hex(x) }

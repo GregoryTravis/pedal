@@ -8,3 +8,4 @@ extern "C" void spew_string_c(const char *s);
 extern "C" void spew_char_c(const char c);
 extern "C" void spew_space_c();
 extern "C" void spew_newline_c();
+extern "C" void spew_ulonglong_hex(unsigned long long x);

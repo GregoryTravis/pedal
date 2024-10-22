@@ -3,6 +3,8 @@ extern crate std;
 use std::print;
 use std::println;
 
+use crate::spew::Hex;
+
 pub trait Spewable {
     fn do_spew(&self);
 }
@@ -68,4 +70,10 @@ pub fn spew_space() {
 
 pub fn spew_newline() {
     println!("");
+}
+
+impl Spewable for Hex {
+    fn do_spew(&self) {
+        print!("{:x}", self.0);
+    }
 }

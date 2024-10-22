@@ -57,6 +57,7 @@ fn alloc_sequential() {
     let size: usize = 40;
     let a0 = sdram.alloc(size);
     let a1 = sdram.alloc(size);
+    //spew!("haha", a0.as_ptr() as u64, a1.as_ptr() as u64, crate::spew::hex(a0.as_ptr() as u64), crate::spew::hex(a1.as_ptr() as u64));
     let diff_bytes = (a1.as_ptr() as usize) - (a0.as_ptr() as usize);
     let expected_diff_bytes = size * size_of::<f32>();
     assert_eq!(diff_bytes, expected_diff_bytes);

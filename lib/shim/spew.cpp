@@ -39,3 +39,7 @@ extern "C" void spew_space_c() {
 extern "C" void spew_newline_c() {
   hw.PrintLine("");
 }
+
+extern "C" void spew_ulonglong_hex(unsigned long long x) {
+  hw.Print("%lx", (unsigned long)x);
+}

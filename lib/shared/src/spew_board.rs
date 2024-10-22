@@ -2,6 +2,8 @@ extern crate alloc;
 
 use crate::constants::PROD;
 
+use crate::spew::Hex;
+
 extern "C" {
     pub fn spew_int_c(x: i32);
     pub fn spew_ulonglong_c(x: u64);
@@ -13,6 +15,7 @@ extern "C" {
     pub fn spew_char_c(c: core::ffi::c_char);
     pub fn spew_newline_c();
     pub fn spew_space_c();
+    pub fn spew_ulonglong_hex(x: u64);
 }
 
 pub trait Spewable {
@@ -133,6 +136,16 @@ pub fn spew_newline() {
     if !PROD {
         unsafe {
             spew_newline_c();
+        }
+    }
+}
+
+impl Spewable for Hex {
+    fn do_spew(&self) {
+        if !PROD {
+            unsafe {
+                spew_ulonglong_hex(self.0);
+            }
         }
     }
 }

@@ -92,9 +92,9 @@ fn live_main() {
     */
     let mut sdram = SDRAM::new();
     let a0 = sdram.alloc(10);
-    spew!("a0", a0.as_ptr() as u64);
+    spew!("a0", hex(a0.as_ptr() as u64));
     let a1 = sdram.alloc(10);
-    spew!("a1", a1.as_ptr() as u64);
+    spew!("a1", hex(a1.as_ptr() as u64));
 
     let patch = harmoneer(&mut sdram);
     //let patch = rubin();
