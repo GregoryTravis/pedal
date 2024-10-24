@@ -41,5 +41,5 @@ extern "C" void spew_newline_c() {
 }
 
 extern "C" void spew_ulonglong_hex(unsigned long long x) {
-  hw.Print("%lx", (unsigned long)x);
+  hw.Print("0x%lx", (unsigned long)x);
 }
