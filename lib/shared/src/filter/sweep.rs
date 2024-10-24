@@ -11,6 +11,7 @@ use crate::playhead::Playhead;
 use crate::signal::base::*;
 use crate::signal::combinators::*;
 use crate::signal::Signal;
+use crate::switch::Switches;
 //use crate::signal::combinators::*;
 
 pub struct SweepFilter {
@@ -44,6 +45,7 @@ impl Patch for SweepFilter {
         input_slice: &[f32],
         output_slice: &mut [f32],
         _knobs: &Box<dyn Knobs>,
+        _switches: &Box<dyn Switches>,
         mut playhead: Playhead,
     ) {
         /*

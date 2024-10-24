@@ -62,6 +62,10 @@ pub mod spew_board;
 #[cfg(feature = "for_host")]
 pub mod spew_host;
 pub mod static_buffer;
+pub mod switch;
+pub mod switch_dummy;
+#[cfg(not(feature = "for_host"))]
+pub mod switch_board;
 pub mod test;
 pub mod test_cases;
 pub mod testdata;

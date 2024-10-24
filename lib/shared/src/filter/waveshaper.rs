@@ -10,6 +10,7 @@ use std::println;
 use crate::knob::Knobs;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
+use crate::switch::Switches;
 
 pub struct WaveShaper {
 #[cfg(feature = "for_host")]
@@ -35,6 +36,7 @@ impl Patch for WaveShaper {
         input_slice: &[f32],
         output_slice: &mut [f32],
         _knobs: &Box<dyn Knobs>,
+        _switches: &Box<dyn Switches>,
         mut _playhead: Playhead,
     ) {
         for i in 0..input_slice.len() {

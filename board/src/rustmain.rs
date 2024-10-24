@@ -43,6 +43,8 @@ use shared::constants::*;
 use shared::load_board::*;
 use shared::r#override::*;
 use shared::spew::*;
+use shared::switch::Switches;
+use shared::switch_board::*;
 use shared::test::test_direct;
 
 #[allow(dead_code)]
@@ -84,16 +86,19 @@ fn live_main() {
     let patch = shared::rubin::rubin(&mut sdram);
 
     let knobs = Box::new(BoardKnobs { });
-    rig_install_patch(patch, knobs);
+    let switches = Box::new(BoardSwitches { });
+    rig_install_patch(patch, knobs, switches);
 
     rig_install_callback();
 
     // TODO don't duplicate this.
     let knobs2 = Box::new(BoardKnobs { });
+    let switches2 = Box::new(BoardSwitches { });
     loop {
         rig_log();
         load_spew();
         knobs2.spew();
+        switches2.spew();
         hw_delay(500);
     }
 }
@@ -137,18 +142,6 @@ fn all_tests() {
 }
 
 #[allow(dead_code)]
-fn try_knobs() {
-    hw_init(true, BLOCK_SIZE);
-    let knobs = BoardKnobs { };
-    loop {
-        knobs.process();
-        knobs.spew();
-        spew!("knobs", knobs.read(0), knobs.read(1), knobs.read(2), knobs.read(3), knobs.read(4), knobs.read(5));
-        hw_delay(200);
-    }
-}
-
-#[allow(dead_code)]
 pub fn benchmark_fft() {
     hw_init(true, BLOCK_SIZE);
     do_benchmark_fft();
@@ -160,7 +153,6 @@ pub fn main() {
 
     live_main();
     //all_tests();
-    //try_knobs();
     //oom_test();
     //benchmark_fft();
 

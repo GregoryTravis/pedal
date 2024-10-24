@@ -17,6 +17,8 @@ use crate::rig_board::*;
 use crate::rig_host::*;
 //use crate::rig_type::*;
 use crate::spew::*;
+use crate::switch::Switches;
+use crate::switch_dummy::DummySwitches;
 use crate::test_cases::*;
 
 // A patch containing its own input data and output data. It ignores the data coming in,
@@ -60,6 +62,7 @@ impl <'a> Patch for Override<'a> {
         input_slice: &[f32],
         output_slice: &mut [f32],
         knobs: &Box<dyn Knobs>,
+        switches: &Box<dyn Switches>,
         playhead: Playhead,
     ) {
         assert!(self.sofar <= self.canned_input.len());
@@ -77,7 +80,7 @@ impl <'a> Patch for Override<'a> {
         let sub_canned_input: &[f32] = &self.canned_input[self.sofar..(self.sofar+process_this_round)];
         let sub_expected_output: &[f32] = &self.expected_output[self.sofar..(self.sofar+process_this_round)];
         let actual_output: &mut [f32] = &mut output_slice[0..process_this_round];
-        self.patch.rust_process_audio(sub_canned_input, actual_output, knobs, playhead);
+        self.patch.rust_process_audio(sub_canned_input, actual_output, knobs, switches, playhead);
         for it in sub_expected_output.iter().zip(actual_output.iter()) {
             let (expected_sample, actual_sample) = it;
             if expected_sample != actual_sample {
@@ -103,7 +106,7 @@ pub fn run_override_test() {
         let expected_output = test_case.expected_output;
         let r#override = Override::new(patch, canned_input, expected_output);
 
-        rig_install_patch(Box::new(r#override), Box::new(DummyKnobs { }));
+        rig_install_patch(Box::new(r#override), Box::new(DummyKnobs { }), Box::new(DummySwitches { }));
         rig_install_callback();
 
         let mut done: bool = false;

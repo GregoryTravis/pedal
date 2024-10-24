@@ -1,6 +1,5 @@
-#include "hw.h"
-
 #include "constants.h"
+#include "hw.h"
 #include "load.h"
 
 extern "C" size_t cpp_hw_get_size_t_size() {

@@ -5,6 +5,7 @@ use crate::constants::*;
 use crate::knob::Knobs;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
+use crate::switch::Switches;
 
 pub struct MixerChannel(pub f32, pub Box<dyn Patch>);
 
@@ -38,6 +39,7 @@ impl Patch for Mixer {
         input_slice: &[f32],
         output_slice: &mut [f32],
         knobs: &Box<dyn Knobs>,
+        switches: &Box<dyn Switches>,
         playhead: Playhead,
     ) {
         //assert!(input_slice.len() == BLOCK_SIZE);
@@ -51,7 +53,7 @@ impl Patch for Mixer {
         output_slice.iter_mut().for_each(|xp| *xp = 0.0);
 
         for channel in &mut self.channels {
-            channel.1.rust_process_audio(input_slice, sub_buf, knobs, playhead);
+            channel.1.rust_process_audio(input_slice, sub_buf, knobs, switches, playhead);
             for i in 0..output_slice.len() {
                 output_slice[i] += channel.0 * sub_buf[i];
             }

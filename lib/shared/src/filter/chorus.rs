@@ -10,6 +10,7 @@ use crate::filter::linear_vibrato::*;
 use crate::knob::Knobs;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
+use crate::switch::Switches;
 
 const BATCH_SIZE: usize = 48;
 
@@ -39,14 +40,15 @@ impl Patch for Chorus {
         input_slice: &[f32],
         output_slice: &mut [f32],
         knobs: &Box<dyn Knobs>,
+        switches: &Box<dyn Switches>,
         playhead: Playhead,
     ) {
-        self.vibrato_a.rust_process_audio(input_slice, output_slice, knobs, playhead);
-        self.vibrato_b.rust_process_audio(input_slice, &mut self.buffer, knobs, playhead);
+        self.vibrato_a.rust_process_audio(input_slice, output_slice, knobs, switches, playhead);
+        self.vibrato_b.rust_process_audio(input_slice, &mut self.buffer, knobs, switches, playhead);
         for i in 0..input_slice.len() {
             output_slice[i] += self.buffer[i];
         }
-        self.vibrato_c.rust_process_audio(input_slice, &mut self.buffer, knobs, playhead);
+        self.vibrato_c.rust_process_audio(input_slice, &mut self.buffer, knobs, switches, playhead);
         for i in 0..input_slice.len() {
             output_slice[i] += self.buffer[i];
         }

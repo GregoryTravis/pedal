@@ -6,6 +6,7 @@
 // TODO: generate these from a shared config.
 #define SAMPLE_RATE 48000 // SaiHandle::Config::SampleRate::SAI_48KHZ
 #define BLOCK_SIZE 48
+#define KSHEP true
 #define PROD false
 
 #define SDRAM_SIZE_BYTES ((64 * 1024 * 1024) - 128)
