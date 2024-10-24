@@ -1,12 +1,12 @@
+cargo run --bin test --features for_host 2>&1 | tee out
+exit
+
 rm -rf simout.wav
 cargo run --bin sim --features for_host -- simin.wav simout.wav 2>&1 | tee out
 #../lib/shared/target/debug/compare_wavs golden.simout.wav simout.wav
 #../lib/shared/target/debug/compare_wavs simin.wav simout.wav
 #../lib/shared/target/debug/diff_wavs golden.simout.wav simout.wav gold.out-out.wav
 #../lib/shared/target/debug/diff_wavs simin.wav simout.wav in-out.wav
-exit
-
-cargo run --bin test --features for_host 2>&1 | tee out
 exit
 
 cargo test --lib --features for_host 2>&1 | tee out

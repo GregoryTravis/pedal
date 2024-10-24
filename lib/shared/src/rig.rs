@@ -91,6 +91,7 @@ pub extern "C" fn rig_process_audio_callback(
             unsafe { slice::from_raw_parts_mut(*(out_ptr.wrapping_add(1)), len) };
 
         rig.knobs.process();
+        rig.switches.process();
 
         // I don't know what the convention is, but to get this to work in mono, I have to process
         // the left channel, and copy to the right channel (except on the original purple pedal?)
