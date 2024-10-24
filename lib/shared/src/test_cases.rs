@@ -10,6 +10,7 @@ use crate::filter::linear_vibrato::*;
 use crate::filter::low_pass::*;
 use crate::filter::pass_thru::*;
 use crate::filter::reso::*;
+use crate::rubin::*;
 use crate::filter::sine::*;
 use crate::filter::sweep::*;
 use crate::filter::vibrato::*;
@@ -98,6 +99,12 @@ pub fn get_test_cases() -> Vec<Box<TestCase>> {
             patch: Box::new(Harmoneer::new(1.74, &mut sdram)),
             canned_input: LONG_TEST_INPUT,
             expected_output: HARMONEER_OUTPUT,
+        }),
+        Box::new(TestCase {
+            name: "rubin",
+            patch: rubin(&mut sdram),
+            canned_input: TEST_INPUT,
+            expected_output: RUBIN_OUTPUT,
         }),
     ]
 }

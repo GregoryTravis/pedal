@@ -38,16 +38,20 @@ impl Patch for Interp {
         knobs: &Box<dyn Knobs>,
         playhead: Playhead,
     ) {
-        assert!(input_slice.len() == self.buf.len());
+        assert!(input_slice.len() == output_slice.len());
+        assert!(input_slice.len() <= self.buf.len());
 
         let first_playhead = playhead.clone();
 
         let interp = knobs.read(self.interp_knob_id);
 
-        self.patch0.rust_process_audio(input_slice, &mut self.buf, knobs, first_playhead);
+        let slice: &mut [f32] = &mut self.buf;
+        let sub_buf: &mut [f32] = &mut slice[0..input_slice.len()];
+
+        self.patch0.rust_process_audio(input_slice, sub_buf, knobs, first_playhead);
         self.patch1.rust_process_audio(input_slice, output_slice, knobs, playhead);
         for i in 0..input_slice.len() {
-            let p0 = self.buf[i];
+            let p0 = sub_buf[i];
             let p1 = output_slice[i];
             output_slice[i] = ((1.0 - interp) * p0) + (interp * p1);
         }

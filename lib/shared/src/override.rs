@@ -17,6 +17,8 @@ use crate::rig_board::*;
 use crate::rig_host::*;
 //use crate::rig_type::*;
 use crate::spew::*;
+use crate::switch::Toggle;
+use crate::switch_dummy::DummySwitches;
 use crate::test_cases::*;
 
 // A patch containing its own input data and output data. It ignores the data coming in,
@@ -103,7 +105,7 @@ pub fn run_override_test() {
         let expected_output = test_case.expected_output;
         let r#override = Override::new(patch, canned_input, expected_output);
 
-        rig_install_patch(Box::new(r#override), Box::new(DummyKnobs { }));
+        rig_install_patch(Box::new(r#override), Box::new(DummyKnobs { }), Toggle::new(Box::new(DummySwitches { }), 0));
         rig_install_callback();
 
         let mut done: bool = false;

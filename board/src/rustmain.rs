@@ -43,6 +43,8 @@ use shared::constants::*;
 use shared::load_board::*;
 use shared::r#override::*;
 use shared::spew::*;
+use shared::switch::Toggle;
+use shared::switch_board::*;
 use shared::test::test_direct;
 
 #[allow(dead_code)]
@@ -63,22 +65,6 @@ fn harmoneer(sdram: &mut SDRAM) -> Box<dyn Patch> {
 }
 
 #[allow(dead_code)]
-fn rubin() -> Box<dyn Patch> {
-    let hp = Box::new(HighPassFilter::new());
-    let lp = Box::new(LowPassFilter::new());
-    let high_low = Box::new(Interp::new(BLOCK_SIZE, lp, hp, 2));
-
-    let reso = Box::new(ResoFilter::new(0, 3));
-    //let lvib = Box::new(LinearVibrato::new(400, 10.0, 1));
-    let chorus = Box::new(Chorus::new());
-    let both0 = Box::new(Seq::new(BLOCK_SIZE, chorus, reso));
-    let triple = Box::new(Seq::new(BLOCK_SIZE, both0, high_low));
-    //let sweep = Box::new(SweepFilter::example());
-
-    triple
-}
-
-#[allow(dead_code)]
 fn live_main() {
     hw_init(!PROD, BLOCK_SIZE);
     spew!("hi");
@@ -96,20 +82,26 @@ fn live_main() {
     let a1 = sdram.alloc(10);
     spew!("a1", hex(a1.as_ptr() as u64));
 
-    let patch = harmoneer(&mut sdram);
-    //let patch = rubin();
+    //let patch = harmoneer(&mut sdram);
+    let patch = shared::rubin::rubin(&mut sdram);
 
     let knobs = Box::new(BoardKnobs { });
-    rig_install_patch(patch, knobs);
+    let switches = Box::new(BoardSwitches { });
+    let toggle = Toggle::new(switches, 0);
+    rig_install_patch(patch, knobs, toggle);
 
     rig_install_callback();
 
     // TODO don't duplicate this.
     let knobs2 = Box::new(BoardKnobs { });
+    let switches2 = Box::new(BoardSwitches { });
+    let mut toggle2 = Toggle::new(switches2, 0);
     loop {
         rig_log();
         load_spew();
         knobs2.spew();
+        toggle2.process();
+        toggle2.spew();
         hw_delay(500);
     }
 }
@@ -153,18 +145,6 @@ fn all_tests() {
 }
 
 #[allow(dead_code)]
-fn try_knobs() {
-    hw_init(true, BLOCK_SIZE);
-    let knobs = BoardKnobs { };
-    loop {
-        knobs.process();
-        knobs.spew();
-        spew!("knobs", knobs.read(0), knobs.read(1), knobs.read(2), knobs.read(3), knobs.read(4), knobs.read(5));
-        hw_delay(200);
-    }
-}
-
-#[allow(dead_code)]
 pub fn benchmark_fft() {
     hw_init(true, BLOCK_SIZE);
     do_benchmark_fft();
@@ -174,9 +154,8 @@ pub fn benchmark_fft() {
 pub fn main() {
     spew!("start of main");
 
-    //live_main();
-    all_tests();
-    //try_knobs();
+    live_main();
+    //all_tests();
     //oom_test();
     //benchmark_fft();
 
