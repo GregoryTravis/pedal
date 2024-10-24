@@ -17,15 +17,15 @@ use crate::rig_board::*;
 #[cfg(feature = "for_host")]
 use crate::rig_host::*;
 use crate::rig_type::Rig;
-use crate::switch::Switches;
+use crate::switch::Toggle;
 
-pub fn rig_install_patch(box_patch: Box<dyn Patch>, knobs: Box<dyn Knobs>, switches: Box<dyn Switches>) {
+pub fn rig_install_patch(box_patch: Box<dyn Patch>, knobs: Box<dyn Knobs>, toggle: Toggle) {
     // The audio handler must be installed AFTER this line.
     // TODO is this use of get_patch() an unnecessary copy?
     let rig = Rig {
         patch: box_patch,
         knobs: knobs,
-        switches: switches,
+        toggle: toggle,
         inl: 0.0,
         inr: 0.0,
         outl: 0.0,
@@ -91,13 +91,20 @@ pub extern "C" fn rig_process_audio_callback(
             unsafe { slice::from_raw_parts_mut(*(out_ptr.wrapping_add(1)), len) };
 
         rig.knobs.process();
-        rig.switches.process();
+        rig.toggle.process();
 
-        // I don't know what the convention is, but to get this to work in mono, I have to process
-        // the left channel, and copy to the right channel (except on the original purple pedal?)
-        // Left and right outputs are mixed to the analog mono out, so I'm told.
-        rig.patch
-            .rust_process_audio(left_input_slice, left_output_slice, &rig.knobs, &rig.switches, rig.playhead);
+        let bypass: bool = rig.toggle.get_state();
+
+        if !bypass {
+            // I don't know what the convention is, but to get this to work in mono, I have to process
+            // the left channel, and copy to the right channel (except on the original purple pedal?)
+            // Left and right outputs are mixed to the analog mono out, so I'm told.
+            rig.patch
+                .rust_process_audio(left_input_slice, left_output_slice, &rig.knobs, rig.playhead);
+        } else {
+            left_output_slice.copy_from_slice(left_input_slice);
+        }
+
         right_output_slice.copy_from_slice(left_output_slice);
 
         rig.inl = left_input_slice[0];

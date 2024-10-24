@@ -43,7 +43,7 @@ use shared::constants::*;
 use shared::load_board::*;
 use shared::r#override::*;
 use shared::spew::*;
-use shared::switch::Switches;
+use shared::switch::Toggle;
 use shared::switch_board::*;
 use shared::test::test_direct;
 
@@ -87,18 +87,21 @@ fn live_main() {
 
     let knobs = Box::new(BoardKnobs { });
     let switches = Box::new(BoardSwitches { });
-    rig_install_patch(patch, knobs, switches);
+    let toggle = Toggle::new(switches, 0);
+    rig_install_patch(patch, knobs, toggle);
 
     rig_install_callback();
 
     // TODO don't duplicate this.
     let knobs2 = Box::new(BoardKnobs { });
     let switches2 = Box::new(BoardSwitches { });
+    let mut toggle2 = Toggle::new(switches2, 0);
     loop {
         rig_log();
         load_spew();
         knobs2.spew();
-        switches2.spew();
+        toggle2.process();
+        toggle2.spew();
         hw_delay(500);
     }
 }

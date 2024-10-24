@@ -7,7 +7,6 @@ use crate::knob::Knobs;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
 use crate::sdram::*;
-use crate::switch::Switches;
 //use crate::spew::*;
 
 // Must be even.
@@ -75,7 +74,6 @@ impl Patch for Harmoneer {
         input_slice: &[f32],
         output_slice: &mut [f32],
         _knobs: &Box<dyn Knobs>,
-        _switches: &Box<dyn Switches>,
         mut playhead: Playhead,
     ) {
         for i in 0..input_slice.len() {

@@ -9,7 +9,6 @@ use alloc::vec::Vec;
 use crate::knob::Knobs;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
-use crate::switch::Switches;
 
 pub struct Seq {
     patch0: Box<dyn Patch>,
@@ -33,7 +32,6 @@ impl Patch for Seq {
         input_slice: &[f32],
         output_slice: &mut [f32],
         knobs: &Box<dyn Knobs>,
-        switches: &Box<dyn Switches>,
         playhead: Playhead,
     ) {
         assert!(input_slice.len() <= self.buf.len());
@@ -41,7 +39,7 @@ impl Patch for Seq {
         let sub_buf: &mut [f32] = &mut slice[0..input_slice.len()];
 
         let first_playhead = playhead.clone();
-        self.patch0.rust_process_audio(input_slice, sub_buf, knobs, switches, first_playhead);
-        self.patch1.rust_process_audio(sub_buf, output_slice, knobs, switches, playhead);
+        self.patch0.rust_process_audio(input_slice, sub_buf, knobs, first_playhead);
+        self.patch1.rust_process_audio(sub_buf, output_slice, knobs, playhead);
     }
 }

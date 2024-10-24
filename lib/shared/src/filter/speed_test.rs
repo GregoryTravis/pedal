@@ -8,7 +8,6 @@ use alloc::boxed::Box;
 use crate::knob::Knobs;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
-use crate::switch::Switches;
 
 //#[cfg(feature = "for_host")]
 //use std::println;
@@ -67,7 +66,6 @@ impl Patch for SpeedTest {
         input_slice: &[f32],
         output_slice: &mut [f32],
         _knobs: &Box<dyn Knobs>,
-        _switches: &Box<dyn Switches>,
         mut _playhead: Playhead,
     ) {
         for _r in 0..NROUNDS {

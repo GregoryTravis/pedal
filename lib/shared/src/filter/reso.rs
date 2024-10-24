@@ -6,7 +6,6 @@ use alloc::boxed::Box;
 use crate::knob::Knobs;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
-use crate::switch::Switches;
 
 pub struct ResoFilter {
     pub freq_knob_id: usize,
@@ -33,7 +32,6 @@ impl Patch for ResoFilter {
         input_slice: &[f32],
         output_slice: &mut [f32],
         knobs: &Box<dyn Knobs>,
-        _switches: &Box<dyn Switches>,
         mut playhead: Playhead,
     ) {
         let freq_knob_value = knobs.read(self.freq_knob_id);

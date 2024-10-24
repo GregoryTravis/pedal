@@ -7,12 +7,13 @@ use crate::constants::*;
 use crate::knob_dummy::DummyKnobs;
 use crate::patch::Patch;
 use crate::rig::*;
+use crate::switch::Toggle;
 use crate::switch_dummy::DummySwitches;
 
 pub fn rig_run_patch_on_buffer(patch: Box<dyn Patch>, input: &[f32], output: &mut [f32]) {
     let len = input.len();
 
-    rig_install_patch(patch, Box::new(DummyKnobs { }), Box::new(DummySwitches { }));
+    rig_install_patch(patch, Box::new(DummyKnobs { }), Toggle::new(Box::new(DummySwitches { }), 0));
 
     let mut sofar = 0;
     while sofar < len {

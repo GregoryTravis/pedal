@@ -4,12 +4,12 @@ use alloc::boxed::Box;
 
 use crate::knob::Knobs;
 use crate::playhead::*;
-use crate::switch::Switches;
+use crate::switch::Toggle;
 
 pub struct Rig {
     pub patch: Box<dyn Patch>,
     pub knobs: Box<dyn Knobs>,
-    pub switches: Box<dyn Switches>,
+    pub toggle: Toggle,
     pub inl: f32,
     pub inr: f32,
     pub outl: f32,
