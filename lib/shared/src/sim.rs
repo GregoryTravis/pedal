@@ -15,6 +15,7 @@ use crate::knob_dummy::DummyKnobs;
 use crate::patch::Patch;
 use crate::rig::*;
 use crate::switch_dummy::DummySwitches;
+use crate::switch::Toggle;
 
 fn print_type_of<T>(_: &T) {
     println!("{}", std::any::type_name::<T>())
@@ -40,7 +41,7 @@ pub fn sim_main(input_file: &str, output_file: &str, patch: Box<dyn Patch>) {
 
     let mut num_frames: usize = 0;
 
-    rig_install_patch(patch, Box::new(DummyKnobs { }), Box::new(DummySwitches { }));
+    rig_install_patch(patch, Box::new(DummyKnobs { }), Toggle::new(Box::new(DummySwitches { }), 0));
 
     while samples.len() > 0 {
         match input_spec.channels {
