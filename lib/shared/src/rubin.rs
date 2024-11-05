@@ -2,6 +2,7 @@ use alloc::boxed::Box;
 
 use crate::constants::*;
 use crate::filter::chorus::*;
+use crate::filter::gain::*;
 use crate::filter::harmoneer::*;
 use crate::filter::high_pass::*;
 use crate::filter::interp::*;
@@ -27,6 +28,7 @@ fn harmoneer(sdram: &mut SDRAM) -> Mixer {
 }
 
 pub fn rubin(sdram: &mut SDRAM) -> Box<dyn Patch> {
+    let gain = Box::new(Gain::new(5));
     let harmo = Box::new(harmoneer(sdram));
     let hp = Box::new(HighPassFilter::new());
     let lp = Box::new(LowPassFilter::new());
@@ -35,11 +37,12 @@ pub fn rubin(sdram: &mut SDRAM) -> Box<dyn Patch> {
     let reso = Box::new(ResoFilter::new(0, 3));
     //let lvib = Box::new(LinearVibrato::new(400, 10.0, 1));
     let chorus = Box::new(Chorus::new());
-    let seq0 = Box::new(Seq::new(BLOCK_SIZE, harmo, chorus));
-    let seq1 = Box::new(Seq::new(BLOCK_SIZE, seq0, reso));
-    let seq2 = Box::new(Seq::new(BLOCK_SIZE, seq1, high_low));
+    let seq0 = Box::new(Seq::new(BLOCK_SIZE, gain, harmo));
+    let seq1 = Box::new(Seq::new(BLOCK_SIZE, seq0, chorus));
+    let seq2 = Box::new(Seq::new(BLOCK_SIZE, seq1, reso));
+    let seq3 = Box::new(Seq::new(BLOCK_SIZE, seq2, high_low));
     //let sweep = Box::new(SweepFilter::example());
 
-    seq2
+    seq3
 }
 
