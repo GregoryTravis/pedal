@@ -40,13 +40,11 @@ impl <const B: usize> Patch for EdslPatch<B> {
             self.input_buffer.write(i, input_sample);
         }
 
-        {
-            let cursor_sia_to_ib = Cursor::<10, 5, B, 19>::new(&mut self.input_buffer);
-            let mut cursor_ob_to_soa = Cursor::<0, 0, B, B>::new(&mut self.output_buffer);
+        let cursor_sia_to_ib = Cursor::<10, 5, B, 19>::new(&mut self.input_buffer);
+        let mut cursor_ob_to_soa = Cursor::<0, 0, B, B>::new(&mut self.output_buffer);
 
-            for i in 0..input_slice.len() {
-                pass_thru(i, &cursor_sia_to_ib, &mut cursor_ob_to_soa);
-            }
+        for i in 0..input_slice.len() {
+            pass_thru(i, &cursor_sia_to_ib, &mut cursor_ob_to_soa);
         }
 
         for i in 0..input_slice.len() {
