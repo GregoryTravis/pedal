@@ -14,18 +14,11 @@ use crate::rubin::*;
 use crate::filter::sine::*;
 use crate::filter::sweep::*;
 use crate::filter::vibrato::*;
-use crate::patch::Patch;
 use crate::sdram::*;
 use crate::signal::base::*;
 use crate::signal::combinators::*;
+use crate::test::*;
 use crate::testdata::*;
-
-pub struct TestCase {
-    pub name: &'static str,
-    pub patch: Box<dyn Patch>,
-    pub canned_input: &'static [f32],
-    pub expected_output: &'static [f32],
-}
 
 pub fn get_test_cases() -> Vec<Box<TestCase>> {
     let siner = PostCompose { signal: Arc::new(Sin {}), ff: scale_range(0.3, 0.9) };

@@ -68,6 +68,7 @@ pub mod switch_dummy;
 pub mod switch_board;
 pub mod test;
 pub mod test_cases;
+pub mod test_direct;
 pub mod testdata;
 #[cfg(feature = "for_host")]
 pub mod testdump;

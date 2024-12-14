@@ -1,4 +1,5 @@
-cargo run --bin edsl --features for_host 2>&1 | tee out
+(cargo run --bin edsl --features for_host && echo ok && cargo run --bin edslpatch --features for_host) 2>&1 | tee out
+
 exit
 
 cargo test --lib --features for_host 2>&1 | tee out

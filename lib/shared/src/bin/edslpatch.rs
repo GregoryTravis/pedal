@@ -1,15 +1,4 @@
-use std::fs::File;
-use std::io::{BufWriter, Write};
 
-fn main() {
-    let f = File::create("src/bin/edslpatch.rs").expect("Unable to create file");
-    let mut f = BufWriter::new(f);
-    f.write_all(S0.as_bytes()).expect("Unable to write data");
-    f.write_all(S1.as_bytes()).expect("Unable to write data");
-    println!("hi edsl");
-}
-
-const S0: &str = r#"
 extern crate alloc;
 extern crate libm;
 
@@ -35,9 +24,7 @@ impl Patch for EdslPatch {
             output_slice[i] = input_slice[i];
             playhead.inc();
         }
-"#;
 
-const S1: &str = r#"
     }
 }
 
@@ -65,4 +52,3 @@ pub fn main() {
         });
     test_patch(test_case.name, patch, test_case.canned_input, test_case.expected_output);
 }
-"#;
