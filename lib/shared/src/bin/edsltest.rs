@@ -4,7 +4,7 @@ use std::fs::File;
 use std::io::{BufWriter, Write};
 use alloc::rc::Rc;
 
-use shared::edsl::wad::Node;
+use shared::edsl::wad::node::Node;
 
 fn build() {
     let _output = Node::Add(Rc::new(Node::Input), Rc::new(Node::PassThru(Rc::new(Node::Input))));
