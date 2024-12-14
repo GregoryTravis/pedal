@@ -37,7 +37,7 @@ name = "dump"
 required-features = ["hound"]
 
 [[bin]]
-name = "edsl"
+name = "edsltest"
 
 [[bin]]
 name = "edslpatch"
