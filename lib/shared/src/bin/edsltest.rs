@@ -4,10 +4,14 @@ use std::fs::File;
 use std::io::{BufWriter, Write};
 use alloc::rc::Rc;
 
-use shared::edsl::wad::node::Node;
+use shared::edsl::wad::node::{Node, trn};
 
 fn build() {
-    let _output = Node::Add(Rc::new(Node::Input), Rc::new(Node::PassThru(Rc::new(Node::Input))));
+    let input = Rc::new(Node::Input(trn(0, 0)));
+    let pt = Rc::new(Node::PassThru(trn(0, 0), input.clone()));
+    let add = Rc::new(Node::Add(trn(0, 0), input.clone(), pt.clone()));
+    println!("{:?}", add);
+    //let _output = Node::Add(Rc::new(Node::Input), Rc::new(Node::PassThru(Rc::new(Node::Input))));
 }
 
 fn main() {
