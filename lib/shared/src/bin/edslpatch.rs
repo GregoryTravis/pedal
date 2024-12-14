@@ -4,7 +4,7 @@ extern crate libm;
 
 use alloc::boxed::Box;
 
-use shared::edsl::{Cursor, Buffer};
+use shared::edsl::{Cursor, Buffer, pass_thru};
 use shared::knob::Knobs;
 use shared::patch::Patch;
 use shared::playhead::Playhead;
@@ -45,7 +45,7 @@ impl <const B: usize> Patch for EdslPatch<B> {
             let mut cursor_ob_to_soa = Cursor::<0, 0, B, B>::new(&mut self.output_buffer);
 
             for i in 0..input_slice.len() {
-                cursor_ob_to_soa.write(i, cursor_sia_to_ib.read(i as isize));
+                pass_thru(i, &cursor_sia_to_ib, &mut cursor_ob_to_soa);
             }
         }
 
