@@ -4,15 +4,30 @@ extern crate libm;
 
 use alloc::boxed::Box;
 
+use shared::edsl::Buffer;
 use shared::knob::Knobs;
 use shared::patch::Patch;
 use shared::playhead::Playhead;
 use shared::test::*;
 
-pub struct EdslPatch {
+const BATCH_SIZE: usize = 4;
+
+pub struct EdslPatch<const B: usize> {
+    // TODO calculcate 19
+    input_buffer: Buffer<10, 5, B, 19>,
+    output_buffer: Buffer<0, 0, B, B>,
 }
 
-impl Patch for EdslPatch {
+impl <const B: usize> EdslPatch<B> {
+    pub fn new() -> EdslPatch<B> {
+        EdslPatch {
+            input_buffer: Buffer::<10, 5, B, 19>::new(),
+            output_buffer: Buffer::<0, 0, B, B>::new(),
+        }
+    }
+}
+
+impl <const B: usize> Patch for EdslPatch<B> {
     fn rust_process_audio(
         &mut self,
         input_slice: &[f32],
@@ -21,7 +36,15 @@ impl Patch for EdslPatch {
         mut playhead: Playhead,
     ) {
         for i in 0..input_slice.len() {
-            output_slice[i] = input_slice[i];
+            let input_sample = input_slice[i];
+
+            self.input_buffer.write(i, input_sample);
+
+            self.output_buffer.write(i, self.input_buffer.read(i.try_into().unwrap()));
+
+            let output_sample = self.output_buffer.read(i.try_into().unwrap());
+
+            output_slice[i] = output_sample;
             playhead.inc();
         }
 
@@ -43,12 +66,12 @@ pub const OUTPUT: &'static [f32] = &[
 ];
 
 pub fn main() {
-    let patch = Box::new(EdslPatch {});
+    let patch = Box::new(EdslPatch::<BATCH_SIZE>::new());
     let test_case = Box::new(TestCase {
             name: "edsl_patch",
-            patch: Box::new(EdslPatch {}),
+            patch: patch,
             canned_input: INPUT,
             expected_output: OUTPUT,
         });
-    test_patch(test_case.name, patch, test_case.canned_input, test_case.expected_output);
+    test_patch(test_case.name, test_case.patch, test_case.canned_input, test_case.expected_output);
 }

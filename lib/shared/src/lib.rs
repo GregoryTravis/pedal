@@ -10,6 +10,7 @@ pub mod convert;
 pub mod constants;
 #[cfg(not(feature = "for_host"))]
 pub mod daisy_seed_board;
+pub mod edsl;
 pub mod fft;
 #[cfg(not(feature = "for_host"))]
 pub mod fft_bench;
