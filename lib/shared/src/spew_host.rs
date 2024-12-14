@@ -34,6 +34,12 @@ impl Spewable for usize {
     }
 }
 
+impl Spewable for isize {
+    fn do_spew(&self) {
+        print!("{}", self);
+    }
+}
+
 impl Spewable for f32 {
     fn do_spew(&self) {
         print!("{}", self);

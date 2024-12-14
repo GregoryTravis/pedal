@@ -62,6 +62,14 @@ impl Spewable for usize {
     }
 }
 
+impl Spewable for isize {
+    fn do_spew(&self) {
+        if !PROD {
+            (*self as i32).do_spew();
+        }
+    }
+}
+
 impl Spewable for f32 {
     fn do_spew(&self) {
         if !PROD {
