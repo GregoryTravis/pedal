@@ -26,6 +26,7 @@ const BATCH_SIZE: usize = 4;
 pub struct EdslPatch<const B: usize> {
     // TODO calculcate 19
     input_buffer: Buffer<10, 5, B, 19>,
+    a_buffer: Buffer<0, 0, B, B>,
     output_buffer: Buffer<0, 0, B, B>,
 }
 
@@ -33,6 +34,7 @@ impl <const B: usize> EdslPatch<B> {
     pub fn new() -> EdslPatch<B> {
         EdslPatch {
             input_buffer: Buffer::<10, 5, B, 19>::new(),
+            a_buffer: Buffer::<0, 0, B, B>::new(),
             output_buffer: Buffer::<0, 0, B, B>::new(),
         }
     }
@@ -52,10 +54,18 @@ impl <const B: usize> Patch for EdslPatch<B> {
         }
 
         let cursor_sia_to_ib = Cursor::<10, 5, B, 19>::new(&mut self.input_buffer);
+
+        let mut cursor_a_buffer = Cursor::<0, 0, B, B>::new(&mut self.a_buffer);
+
+        for i in 0..input_slice.len() {
+            pass_thru(i, &cursor_sia_to_ib, &mut cursor_a_buffer);
+        }
+
+        let cursor_a_buffer = cursor_a_buffer;
         let mut cursor_ob_to_soa = Cursor::<0, 0, B, B>::new(&mut self.output_buffer);
 
         for i in 0..input_slice.len() {
-            pass_thru(i, &cursor_sia_to_ib, &mut cursor_ob_to_soa);
+            pass_thru(i, &cursor_a_buffer, &mut cursor_ob_to_soa);
         }
 
         for i in 0..input_slice.len() {
