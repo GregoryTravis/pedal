@@ -1,15 +1,32 @@
+extern crate std;
+
+use std::cmp::{min,max};
 use alloc::rc::Rc;
 
-#[derive(Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct TimeRange {
     past: usize,
     future: usize,
 }
 
-#[derive(Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct NodeInfo {
     index: usize,
     time_range: TimeRange,
+}
+
+pub fn tr_union(a: &TimeRange, b: &TimeRange) -> TimeRange {
+    TimeRange {
+        past: min(a.past, b.past),
+        future: max(a.future, b.future),
+    }
+}
+
+pub fn n_union(a: &NodeInfo, b: &NodeInfo) -> (NodeInfo, NodeInfo) {
+    let unioned = tr_union(&a.time_range, &b.time_range);
+    let new_a = NodeInfo { time_range: unioned.clone(), ..*a };
+    let new_b = NodeInfo { time_range: unioned.clone(), ..*b };
+    (new_a, new_b)
 }
 
 #[derive(Debug)]
