@@ -4,7 +4,7 @@ extern crate libm;
 
 use alloc::boxed::Box;
 
-use shared::edsl::{Cursor, Buffer, pass_thru};
+use shared::edsl::{Cursor, Buffer, add, pass_thru};
 use shared::knob::Knobs;
 use shared::patch::Patch;
 use shared::playhead::Playhead;
@@ -53,7 +53,7 @@ impl <const B: usize> Patch for EdslPatch<B> {
         let mut cursor_ob_to_soa = Cursor::<0, 0, B, B>::new(&mut self.output_buffer);
 
         for i in 0..input_slice.len() {
-            pass_thru(i, &cursor_a_buffer, &mut cursor_ob_to_soa);
+            add(i, &cursor_sia_to_ib, &cursor_a_buffer, &mut cursor_ob_to_soa);
         }
 
         for i in 0..input_slice.len() {
@@ -72,11 +72,11 @@ pub const INPUT: &'static [f32] = &[
 0.1719291,
 ];
 
-pub const OUTPUT: &'static [f32] = &[
+pub const EDSL_PATCH_OUTPUT: &'static [f32] = &[
 0.0,
-0.057564028,
-0.11493716,
-0.1719291,
+0.115128055,
+0.22987431,
+0.3438582,
 ];
 
 pub fn main() {
@@ -85,7 +85,7 @@ pub fn main() {
             name: "edsl_patch",
             patch: patch,
             canned_input: INPUT,
-            expected_output: OUTPUT,
+            expected_output: EDSL_PATCH_OUTPUT,
         });
     test_patch(test_case.name, test_case.patch, test_case.canned_input, test_case.expected_output);
 }

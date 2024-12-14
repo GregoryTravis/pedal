@@ -39,7 +39,7 @@ pub fn test_patch(name: &str, patch: Box<dyn Patch>, canned_input: &[f32], expec
     if DO_DUMP {
         local_test_dump_as_source(&(name.to_ascii_uppercase().clone() + "_OUTPUT"), &output);
     } else {
-        assert!(same(&output, expected_output));
+        assert!(same(expected_output, &output));
         let chk = sum(&output);
         spew!("ok", name, chk, chk.to_bits());
     }
