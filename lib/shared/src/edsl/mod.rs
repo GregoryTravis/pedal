@@ -14,6 +14,7 @@ impl <const P: usize, const F: usize, const B: usize, const T: usize> Buffer<P, 
         }
     }
 
+    // Convert all "as" to tries
     pub fn read(&self, i: isize) -> f32 {
         let ii = Buffer::<P, F, B, T>::wrap(self.current as isize + i);
         self.samples[ii]
@@ -32,5 +33,27 @@ impl <const P: usize, const F: usize, const B: usize, const T: usize> Buffer<P, 
         let wrapped_i = (i + T as isize) % T as isize;
         assert!(wrapped_i >= 0 && wrapped_i < T as isize);
         wrapped_i as usize
+    }
+}
+
+pub struct Cursor<'a, const P: usize, const F: usize, const B: usize, const T: usize> {
+    buffer: &'a mut Buffer<P, F, B, T>,
+    index: usize,
+}
+
+impl <'a, const P: usize, const F: usize, const B: usize, const T: usize> Cursor<'a, P, F, B, T> {
+    pub fn new(buffer: &'a mut Buffer<P, F, B, T>) -> Cursor<'a, P, F, B, T> {
+        Cursor {
+            buffer: buffer,
+            index: 0,
+        }
+    }
+
+    pub fn read(&self, i: isize) -> f32 {
+        self.buffer.read(self.index as isize + i)
+    }
+
+    pub fn write(&mut self, i: usize, x: f32) {
+        self.buffer.write(self.index + i, x);
     }
 }
