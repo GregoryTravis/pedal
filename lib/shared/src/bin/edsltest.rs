@@ -1,11 +1,21 @@
+extern crate alloc;
+
 use std::fs::File;
 use std::io::{BufWriter, Write};
+use alloc::rc::Rc;
+
+use shared::edsl::wad::Node;
+
+fn build() {
+    let _output = Node::Add(Rc::new(Node::Input), Rc::new(Node::PassThru(Rc::new(Node::Input))));
+}
 
 fn main() {
     let f = File::create("src/bin/edslpatch.rs").expect("Unable to create file");
     let mut f = BufWriter::new(f);
     f.write_all(S0.as_bytes()).expect("Unable to write data");
     f.write_all(S1.as_bytes()).expect("Unable to write data");
+    build();
     println!("hi edsl");
 }
 
