@@ -1,4 +1,4 @@
-use crate::edsl::cursor::Cursor;
+use crate::edsl::runtime::cursor::Cursor;
 
 pub fn pass_thru<const PI: usize, const FI: usize, const BI: usize, const TI: usize, const PO: usize, const FO: usize, const BO: usize, const TO: usize>(i: usize, inc: &Cursor<PI, FI, BI, TI>, outc: &mut Cursor<PO, FO, BO, TO>) {
     outc.write(i, inc.read(i as isize));

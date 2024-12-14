@@ -1,4 +1,4 @@
-use crate::edsl::buffer::Buffer;
+use crate::edsl::runtime::buffer::Buffer;
 
 pub struct Cursor<'a, const P: usize, const F: usize, const B: usize, const T: usize> {
     buffer: &'a mut Buffer<P, F, B, T>,
