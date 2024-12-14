@@ -15,7 +15,7 @@ extern crate libm;
 
 use alloc::boxed::Box;
 
-use shared::edsl::{Cursor, Buffer, add, pass_thru};
+use shared::edsl::{cursor::Cursor, buffer::Buffer, prim::add, prim::pass_thru};
 use shared::knob::Knobs;
 use shared::patch::Patch;
 use shared::playhead::Playhead;
