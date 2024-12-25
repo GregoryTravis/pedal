@@ -29,24 +29,29 @@ extern crate libm;
 
 use alloc::boxed::Box;
 
-use shared::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::add, prim::pass_thru};
+use shared::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::{add, pass_thru, sum_filter}};
 use shared::knob::Knobs;
 use shared::patch::Patch;
 use shared::playhead::Playhead;
 use shared::test::*;
 
+// Generate this; rename it.
+const MAX: usize = 10;
+
 pub struct EdslPatch {
     input_signal: Signal<f32>,
     signal0: Signal<f32>,
+    signal1: Signal<f32>,
     output_signal: Signal<f32>,
 }
 
 impl EdslPatch {
     pub fn new() -> EdslPatch {
         EdslPatch {
-            input_signal: Signal::new(),
-            signal0: Signal::new(),
-            output_signal: Signal::new(),
+            input_signal: Signal::new(MAX),
+            signal0: Signal::new(MAX),
+            signal1: Signal::new(MAX),
+            output_signal: Signal::new(MAX),
         }
     }
 }
@@ -68,7 +73,10 @@ impl Patch for EdslPatch {
 
             let add_0: Window<f32> = Window::new(&self.input_signal, Range(-2, 0));
             let add_1: Window<f32> = Window::new(&self.signal0, Range(-1, 0));
-            add(&add_0, &add_1, &mut self.output_signal);
+            add(&add_0, &add_1, &mut self.signal1);
+
+            let sum_filter_0: Window<f32> = Window::new(&self.signal1, Range(-2, 0));
+            sum_filter(&sum_filter_0, &mut self.output_signal);
 
             output_slice[i] = self.output_signal.read(0);
 
@@ -88,10 +96,10 @@ pub const INPUT: &'static [f32] = &[
 ];
 
 pub const EDSL_PATCH_OUTPUT: &'static [f32] = &[
-0.0,
-0.115128055,
-0.22987431,
-0.3438582,
+    0.0,
+    0.115128055,
+    0.34500235,
+    0.68886054,
 ];
 
 pub fn main() {

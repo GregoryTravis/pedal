@@ -21,7 +21,7 @@ pub fn test_dump_as_source(var: &str, a: &[f32]) {
     println!("pub const {}: &'static [f32] = &[", var);
 
     for i in 0..a.len() {
-        println!("{:?},", a[i]);
+        println!("    {:?},", a[i]);
     }
 
     println!("];");
