@@ -33,3 +33,13 @@ pub fn genericize(node: &Rc<Node>) -> GNode {
         Node::Add(a, b) => GNode::new((*node).clone(), vec![Rc::new(genericize(&a)), Rc::new(genericize(&b))]),
     }
 }
+
+/*
+
+- add main sample field
+- make claims causal; add causality delay
+- make main samples line up (try rtl, then ltr if that fails); add main sample delay
+- combine claims to get stream window sizes
+- generate signals, windows, prim calls
+
+*/
