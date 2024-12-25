@@ -29,32 +29,29 @@ extern crate libm;
 
 use alloc::boxed::Box;
 
-use shared::edsl::runtime::{cursor::Cursor, buffer::Buffer, prim::add, prim::pass_thru};
+use shared::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::add, prim::pass_thru};
 use shared::knob::Knobs;
 use shared::patch::Patch;
 use shared::playhead::Playhead;
 use shared::test::*;
 
-const BATCH_SIZE: usize = 4;
-
-pub struct EdslPatch<const B: usize> {
-    // TODO calculcate 19
-    input_buffer: Buffer<10, 5, B, 19>,
-    a_buffer: Buffer<0, 0, B, B>,
-    output_buffer: Buffer<0, 0, B, B>,
+pub struct EdslPatch {
+    input_signal: Signal<f32>,
+    signal0: Signal<f32>,
+    output_signal: Signal<f32>,
 }
 
-impl <const B: usize> EdslPatch<B> {
-    pub fn new() -> EdslPatch<B> {
+impl EdslPatch {
+    pub fn new() -> EdslPatch {
         EdslPatch {
-            input_buffer: Buffer::<10, 5, B, 19>::new(),
-            a_buffer: Buffer::<0, 0, B, B>::new(),
-            output_buffer: Buffer::<0, 0, B, B>::new(),
+            input_signal: Signal::new(),
+            signal0: Signal::new(),
+            output_signal: Signal::new(),
         }
     }
 }
 
-impl <const B: usize> Patch for EdslPatch<B> {
+impl Patch for EdslPatch {
     fn rust_process_audio(
         &mut self,
         input_slice: &[f32],
@@ -63,27 +60,18 @@ impl <const B: usize> Patch for EdslPatch<B> {
         mut playhead: Playhead,
     ) {
         for i in 0..input_slice.len() {
-            let input_sample = input_slice[i];
-            self.input_buffer.write(i, input_sample);
-        }
+            self.input_signal.write(input_slice[i]);
 
-        let cursor_sia_to_ib = Cursor::<10, 5, B, 19>::new(&mut self.input_buffer);
+            let pass_thru_0: Window<f32> = Window::new(&self.input_signal, Range(-3, 0));
 
-        let mut cursor_a_buffer = Cursor::<0, 0, B, B>::new(&mut self.a_buffer);
+            pass_thru(&pass_thru_0, &mut self.signal0);
 
-        for i in 0..input_slice.len() {
-            pass_thru(i, &cursor_sia_to_ib, &mut cursor_a_buffer);
-        }
+            let add_0: Window<f32> = Window::new(&self.input_signal, Range(-2, 0));
+            let add_1: Window<f32> = Window::new(&self.signal0, Range(-1, 0));
+            add(&add_0, &add_1, &mut self.output_signal);
 
-        let mut cursor_ob_to_soa = Cursor::<0, 0, B, B>::new(&mut self.output_buffer);
+            output_slice[i] = self.output_signal.read(0);
 
-        for i in 0..input_slice.len() {
-            add(i, &cursor_sia_to_ib, &cursor_a_buffer, &mut cursor_ob_to_soa);
-        }
-
-        for i in 0..input_slice.len() {
-            let output_sample = self.output_buffer.read(i.try_into().unwrap());
-            output_slice[i] = output_sample;
             playhead.inc();
         }
 "#;
@@ -107,7 +95,7 @@ pub const EDSL_PATCH_OUTPUT: &'static [f32] = &[
 ];
 
 pub fn main() {
-    let patch = Box::new(EdslPatch::<BATCH_SIZE>::new());
+    let patch = Box::new(EdslPatch::new());
     let test_case = Box::new(TestCase {
             name: "edsl_patch",
             patch: patch,
