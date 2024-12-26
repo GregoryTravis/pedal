@@ -10,8 +10,9 @@ fn build() {
     let input = Rc::new(Node::Input);
     let pt = Rc::new(Node::PassThru(input.clone()));
     let add = Rc::new(Node::Add(input.clone(), pt.clone()));
-    println!("{:?}", add);
-    let mut groot = genericize(&add);
+    let sf = Rc::new(Node::SumFilter(add.clone(), -2, 0));
+    println!("{:?}", sf);
+    let mut groot = genericize(&sf);
     println!("{:?}", groot);
     groot.make_causal();
     println!("{:?}", groot);

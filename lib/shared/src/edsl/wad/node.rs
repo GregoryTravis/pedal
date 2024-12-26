@@ -12,6 +12,7 @@ pub enum Node {
     Input,
     PassThru(Rc<Node>),
     Add(Rc<Node>, Rc<Node>),
+    SumFilter(Rc<Node>, isize, isize),
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -76,6 +77,18 @@ pub fn genericize(node: &Rc<Node>) -> GNode {
                 },
                 Port {
                     range: Range::empty(),
+                    main_sample: 0,
+                },
+            ]
+        },
+        Node::SumFilter(inn, low, high) => GNode {
+            node: (*node).clone(),
+            inputs: vec![
+                Rc::new(genericize(&inn)),
+            ],
+            ports: vec![
+                Port {
+                    range: Range(*low, *high),
                     main_sample: 0,
                 },
             ]
