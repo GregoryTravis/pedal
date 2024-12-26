@@ -10,7 +10,7 @@ fn build() {
     let input = Rc::new(Node::Input);
     let pt = Rc::new(Node::PassThru(input.clone()));
     let add = Rc::new(Node::Add(input.clone(), pt.clone()));
-    let sf = Rc::new(Node::SumFilter(add.clone(), -2, 0));
+    let sf = Rc::new(Node::SumFilter(add.clone(), -1, 1));
     println!("{:?}", sf);
     let mut groot = genericize(&sf);
     println!("{:?}", groot);
