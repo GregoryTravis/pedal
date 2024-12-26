@@ -12,9 +12,7 @@ impl Range {
         Range(0, 0)
     }
 
-    // TODO: Heaven help me
-    pub fn translate(&mut self, x: isize) {
-        self.0 += x;
-        self.1 += x;
+    pub fn translate(&self, x: isize) -> Range {
+        Range(self.0+x, self.1+x)
     }
 }

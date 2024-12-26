@@ -11,11 +11,14 @@ fn build() {
     let pt = Rc::new(Node::PassThru(input.clone()));
     let add = Rc::new(Node::Add(input.clone(), pt.clone()));
     let sf = Rc::new(Node::SumFilter(add.clone(), -1, 1));
-    println!("{:?}", sf);
-    let mut groot = genericize(&sf);
+    let sf2 = Rc::new(Node::SumFilter(add.clone(), -3, 3));
+    let sfadd = Rc::new(Node::Add(sf.clone(), sf2.clone()));
+    let out = sfadd;
+    //println!("{:?}", out);
+    let groot = genericize(&out);
     println!("{:?}", groot);
-    groot.make_causal();
-    println!("{:?}", groot);
+    let cgroot = groot.make_causal();
+    println!("{:?}", cgroot);
     //let _output = Node::Add(Rc::new(Node::Input), Rc::new(Node::PassThru(Rc::new(Node::Input))));
 }
 
