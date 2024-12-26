@@ -11,4 +11,10 @@ impl Range {
     pub fn empty() -> Range {
         Range(0, 0)
     }
+
+    // TODO: Heaven help me
+    pub fn translate(&mut self, x: isize) {
+        self.0 += x;
+        self.1 += x;
+    }
 }

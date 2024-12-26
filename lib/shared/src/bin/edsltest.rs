@@ -11,7 +11,10 @@ fn build() {
     let pt = Rc::new(Node::PassThru(input.clone()));
     let add = Rc::new(Node::Add(input.clone(), pt.clone()));
     println!("{:?}", add);
-    println!("{:?}", genericize(&add));
+    let mut groot = genericize(&add);
+    println!("{:?}", groot);
+    groot.make_causal();
+    println!("{:?}", groot);
     //let _output = Node::Add(Rc::new(Node::Input), Rc::new(Node::PassThru(Rc::new(Node::Input))));
 }
 

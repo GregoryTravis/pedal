@@ -20,34 +20,43 @@ pub struct Port {
     main_sample: isize,
 }
 
+impl Port {
+    pub fn translate(&mut self, x: isize) {
+        self.range.translate(x);
+        self.main_sample += x;
+    }
+}
+
 // Genericized node.
 #[derive(Debug)]
 pub struct GNode {
-    _node: Rc<Node>,
-    _inputs: Vec<Rc<GNode>>,
-    _ports: Vec<Port>,
+    node: Rc<Node>,
+    inputs: Vec<Rc<GNode>>,
+    ports: Vec<Port>,
 }
 
 impl GNode {
-    /*
-    fn make_causal(&mut self) {
+    pub fn make_causal(&mut self) {
+        let futurest: isize = self.ports.iter().map(|p| p.range.1).fold(std::isize::MIN, |a, b| a.max(b));
+        for port in &mut self.ports {
+            port.translate(-futurest);
+        }
     }
-    */
 }
 
 pub fn genericize(node: &Rc<Node>) -> GNode {
     match &**node {
         Node::Input => GNode {
-            _node: (*node).clone(),
-            _inputs: vec![],
-            _ports: vec![],
+            node: (*node).clone(),
+            inputs: vec![],
+            ports: vec![],
         },
         Node::PassThru(inn) => GNode {
-            _node: (*node).clone(),
-            _inputs: vec![
+            node: (*node).clone(),
+            inputs: vec![
                 Rc::new(genericize(&inn)),
             ],
-            _ports: vec![
+            ports: vec![
                 Port {
                     range: Range::empty(),
                     main_sample: 0,
@@ -55,12 +64,12 @@ pub fn genericize(node: &Rc<Node>) -> GNode {
             ]
         },
         Node::Add(a, b) => GNode {
-            _node: (*node).clone(),
-            _inputs: vec![
+            node: (*node).clone(),
+            inputs: vec![
                 Rc::new(genericize(&a)),
                 Rc::new(genericize(&b)),
             ],
-            _ports: vec![
+            ports: vec![
                 Port {
                     range: Range::empty(),
                     main_sample: 0,
