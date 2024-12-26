@@ -19,6 +19,9 @@ fn build() {
     println!("{:?}", groot);
     let cgroot = groot.make_causal();
     println!("{:?}", cgroot);
+    let ncgroot = cgroot.number_nodes();
+    println!("{:?}", ncgroot);
+    //ncgroot.dump();
     //let _output = Node::Add(Rc::new(Node::Input), Rc::new(Node::PassThru(Rc::new(Node::Input))));
 }
 

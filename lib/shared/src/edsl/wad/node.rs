@@ -37,6 +37,20 @@ impl Node {
             Node::SumFilter(inn, low, high) => format!("SumFilter({}, {}, {})", inn.name(), low, high),
         }
     }
+
+    pub fn type_name(&self) -> &'static str {
+        match self {
+            Node::Input => "f32",
+            Node::PassThru(inn) => inn.type_name(),
+            Node::Add(a, b) => same_type(a.type_name(), b.type_name()),
+            Node::SumFilter(inn, _, _) => inn.type_name(),
+        }
+    }
+}
+
+pub fn same_type<'a, 'b>(a: &'a str, b: &'b str) -> &'a str {
+    assert!(a == b);
+    a
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -55,8 +69,9 @@ impl Port {
 }
 
 // Genericized node.
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct GNode {
+    index: u32,
     node: Rc<Node>,
     inputs: Vec<Rc<GNode>>,
     ports: Vec<Port>,
@@ -71,6 +86,7 @@ impl GNode {
         }
         println!("Translate node {:?} {}", self.node.shew(), futurest);
         GNode {
+            index: self.index,
             node: self.node.clone(),
             inputs: self.inputs.iter().map(|input| Rc::new(input.make_causal())).collect(),
             ports: self.ports.iter().map(|port| {
@@ -80,16 +96,70 @@ impl GNode {
             }).collect(),
         }
     }
+
+    pub fn traverse_each<F>(&self, f: &F)
+    where F: Fn(&GNode) {
+        f(self);
+        for input in &self.inputs {
+            input.traverse_each(f);
+        }
+    }
+
+    // Mutable in the sense of mutating the closure.
+    pub fn traverse_mut<F>(&self, f: &mut F) -> GNode
+    where F: FnMut(&GNode) -> GNode {
+        let new_self = f(self);
+        GNode {
+            inputs: self.inputs.iter().map(|gnode| Rc::new(gnode.traverse_mut(f))).collect(),
+            ..new_self
+        }
+    }
+
+    pub fn number_nodes(&self) -> GNode {
+        let mut serial = 0;
+        let mut numberer = |gnode: &GNode| {
+            let next = serial;
+            serial += 1;
+            GNode {
+                index: next,
+                ..(*gnode).clone()
+            }
+        };
+        self.traverse_mut(&mut numberer)
+    }
+
+    pub fn shew(&self) -> String {
+        format!("{} {:?} {:?}", self.node.shew(), self.inputs, self.ports)
+    }
+
+    pub fn dump(&self) {
+        self.traverse_each(&|gnode| {
+            println!("TR {}", gnode.shew());
+        });
+    }
+
+    /*
+    pub fn traverse<F, R>(&mut self, f: F, r: R) -> R
+    where F: Fn(&mut GNode, R) -> R {
+        let mut r_new = f(self, r);
+        for input in &self.inputs {
+            r_new = input.traverse(f, r_new);
+        }
+        r_new
+    }
+    */
 }
 
 pub fn genericize(node: &Rc<Node>) -> GNode {
     match &**node {
         Node::Input => GNode {
+            index: 0,
             node: (*node).clone(),
             inputs: vec![],
             ports: vec![],
         },
         Node::PassThru(inn) => GNode {
+            index: 0,
             node: (*node).clone(),
             inputs: vec![
                 Rc::new(genericize(&inn)),
@@ -102,6 +172,7 @@ pub fn genericize(node: &Rc<Node>) -> GNode {
             ]
         },
         Node::Add(a, b) => GNode {
+            index: 0,
             node: (*node).clone(),
             inputs: vec![
                 Rc::new(genericize(&a)),
@@ -119,6 +190,7 @@ pub fn genericize(node: &Rc<Node>) -> GNode {
             ]
         },
         Node::SumFilter(inn, low, high) => GNode {
+            index: 0,
             node: (*node).clone(),
             inputs: vec![
                 Rc::new(genericize(&inn)),
@@ -140,5 +212,8 @@ pub fn genericize(node: &Rc<Node>) -> GNode {
 - make main samples line up (try rtl, then ltr if that fails); add main sample delay
 - combine claims to get stream window sizes
 - generate signals, windows, prim calls
+  - signal decl type
+  - window type (from signal)
+  - window size
 
 */
