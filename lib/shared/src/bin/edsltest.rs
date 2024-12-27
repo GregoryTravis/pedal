@@ -8,6 +8,12 @@ use shared::edsl::wad::node::{Node, genericize, GNode};
 
 fn build() {
     let input = Rc::new(Node::Input);
+
+    let a = Rc::new(Node::PassThru(input.clone()));
+    let b = Rc::new(Node::PassThru(input.clone()));
+    let c = b.clone();
+    println!("{} {} {}", Rc::ptr_eq(&a, &b), Rc::ptr_eq(&b, &c), Rc::ptr_eq(&a, &c));
+
     let pt = Rc::new(Node::PassThru(input.clone()));
     let add = Rc::new(Node::Add(input.clone(), pt.clone()));
     let sf = Rc::new(Node::SumFilter(add.clone(), -1, 1));
