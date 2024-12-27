@@ -6,12 +6,15 @@ use alloc::rc::Rc;
 use alloc::string::String;
 use alloc::string::ToString;
 use alloc::vec::Vec;
+use core::cmp::{Eq, PartialEq};
+use std::collections::HashMap;
 use std::format;
+use std::hash::Hash;
 use std::println;
 
 use crate::edsl::runtime::range::Range;
 
-#[derive(Debug)]
+#[derive(PartialEq, Eq, Hash, Debug)]
 pub enum Node {
     Input,
     PassThru(Rc<Node>),
@@ -163,58 +166,69 @@ impl GNode {
         */
 }
 
-pub fn genericize(node: &Rc<Node>) -> GNode {
-    match &**node {
-        Node::Input => GNode {
-            index: 0,
-            node: (*node).clone(),
-            inputs: vec![],
-            ports: vec![],
-        },
-        Node::PassThru(inn) => GNode {
-            index: 0,
-            node: (*node).clone(),
-            inputs: vec![
-                Rc::new(genericize(&inn)),
-            ],
-            ports: vec![
-                Port {
-                    range: Range::empty(),
-                    main_sample: 0,
-                },
-            ]
-        },
-        Node::Add(a, b) => GNode {
-            index: 0,
-            node: (*node).clone(),
-            inputs: vec![
-                Rc::new(genericize(&a)),
-                Rc::new(genericize(&b)),
-            ],
-            ports: vec![
-                Port {
-                    range: Range::empty(),
-                    main_sample: 0,
-                },
-                Port {
-                    range: Range::empty(),
-                    main_sample: 0,
-                },
-            ]
-        },
-        Node::SumFilter(inn, low, high) => GNode {
-            index: 0,
-            node: (*node).clone(),
-            inputs: vec![
-                Rc::new(genericize(&inn)),
-            ],
-            ports: vec![
-                Port {
-                    range: Range(*low, *high),
-                    main_sample: 0,
-                },
-            ]
-        },
+pub fn genericize(node: &Rc<Node>) -> Rc<GNode> {
+    let mut hm = HashMap::new();
+    genericize1(node, &mut hm)
+}
+pub fn genericize1(node: &Rc<Node>, hm: &mut HashMap<Rc<Node>, Rc<GNode>>) -> Rc<GNode> {
+    if hm.contains_key(node) {
+        hm.get(node).unwrap().clone()
+    } else {
+        let gn = match &**node {
+            Node::Input => GNode {
+                index: 0,
+                node: (*node).clone(),
+                inputs: vec![],
+                ports: vec![],
+            },
+            Node::PassThru(inn) => GNode {
+                index: 0,
+                node: (*node).clone(),
+                inputs: vec![
+                    genericize1(&inn, hm),
+                ],
+                ports: vec![
+                    Port {
+                        range: Range::empty(),
+                        main_sample: 0,
+                    },
+                ]
+            },
+            Node::Add(a, b) => GNode {
+                index: 0,
+                node: (*node).clone(),
+                inputs: vec![
+                    genericize1(&a, hm),
+                    genericize1(&b, hm),
+                ],
+                ports: vec![
+                    Port {
+                        range: Range::empty(),
+                        main_sample: 0,
+                    },
+                    Port {
+                        range: Range::empty(),
+                        main_sample: 0,
+                    },
+                ]
+            },
+            Node::SumFilter(inn, low, high) => GNode {
+                index: 0,
+                node: (*node).clone(),
+                inputs: vec![
+                    genericize1(&inn, hm),
+                ],
+                ports: vec![
+                    Port {
+                        range: Range(*low, *high),
+                        main_sample: 0,
+                    },
+                ]
+            },
+        };
+        let gnrc = Rc::new(gn);
+        hm.insert(node.clone(), gnrc.clone());
+        gnrc
     }
 }
 
