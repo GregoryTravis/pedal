@@ -4,7 +4,7 @@ use std::fs::File;
 use std::io::{BufWriter, Write};
 use alloc::rc::Rc;
 
-use shared::edsl::wad::node::{Node, genericize};
+use shared::edsl::wad::node::{Node, genericize, GNode};
 
 fn build() {
     let input = Rc::new(Node::Input);
@@ -21,6 +21,12 @@ fn build() {
     println!("{:?}", cgroot);
     let ncgroot = cgroot.number_nodes();
     println!("{:?}", ncgroot);
+    println!("====");
+    let rtl = GNode::rtl(Rc::new(ncgroot));
+    for gn in &rtl {
+        println!("{:?}", gn);
+    }
+    //println!(GNode::generate(Rc::new(ncgroot), "NodeyPatch"));
     //ncgroot.dump();
     //let _output = Node::Add(Rc::new(Node::Input), Rc::new(Node::PassThru(Rc::new(Node::Input))));
 }

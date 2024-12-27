@@ -138,16 +138,29 @@ impl GNode {
         });
     }
 
-    /*
-    pub fn traverse<F, R>(&mut self, f: F, r: R) -> R
-    where F: Fn(&mut GNode, R) -> R {
-        let mut r_new = f(self, r);
-        for input in &self.inputs {
-            r_new = input.traverse(f, r_new);
-        }
-        r_new
+    pub fn rtl(root: Rc<GNode>) -> Vec<Rc<GNode>> {
+        let mut gnodes: Vec<Rc<GNode>> = vec![];
+        GNode::rtl_accum(&root, &mut gnodes);
+        gnodes
     }
-    */
+
+    pub fn rtl_accum(gnode: &Rc<GNode>, accum: &mut Vec<Rc<GNode>>) {
+        accum.push(gnode.clone());
+        for child in &gnode.inputs {
+            GNode::rtl_accum(child, accum);
+        }
+    }
+
+        /*
+    pub fn generate(&self, name: &str) -> String {
+        let mut acc: String = "".to_owned();
+        acc.push_str(format!("pub struct {} {\n", name));
+        for gnode in something {
+            acc.push_str(format!("signal{}: Signal<{}>,\n", gnode.index, gnode.node.type_name()));
+        }
+        acc.push_str("}\n");
+    }
+        */
 }
 
 pub fn genericize(node: &Rc<Node>) -> GNode {
