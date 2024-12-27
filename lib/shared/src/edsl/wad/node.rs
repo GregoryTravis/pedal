@@ -7,6 +7,7 @@ use alloc::string::String;
 use alloc::string::ToString;
 use alloc::vec::Vec;
 use core::cmp::{Eq, PartialEq};
+use std::cell::RefCell;
 use std::collections::HashMap;
 use std::format;
 use std::hash::Hash;
@@ -74,13 +75,59 @@ impl Port {
 // Genericized node.
 #[derive(Clone, Debug)]
 pub struct GNode {
-    index: u32,
-    node: Rc<Node>,
-    inputs: Vec<Rc<GNode>>,
+    pub index: u32,
+    pub node: Rc<Node>,
+    inputs: Vec<Rc<RefCell<GNode>>>,
     ports: Vec<Port>,
 }
 
 impl GNode {
+    pub fn travm<F>(&mut self, f: &F)
+    where F: Fn(&mut GNode) {
+        println!("travm {}", self.shew());
+        f(self);
+        for input in &self.inputs {
+            println!("travm {} {}", self.shew(), input.borrow().shew());
+            input.borrow_mut().travm(f);
+            //f(&mut *input.borrow_mut());
+        }
+    }
+
+    pub fn travm_mut<F>(&mut self, f: &mut F)
+    where F: FnMut(&mut GNode) {
+        f(self);
+        for input in &self.inputs {
+            input.borrow_mut().travm_mut(f);
+            //f(&mut *input.borrow_mut());
+        }
+    }
+
+    fn make_causal_me(&mut self) {
+        let futurest: isize = self.ports.iter().map(|p| p.range.1).fold(std::isize::MIN, |a, b| a.max(b));
+        for port in &mut self.ports {
+            *port = port.translate(-futurest);
+        }
+    }
+
+    pub fn make_causal(&mut self) {
+        self.travm(&|gn: &mut GNode| gn.make_causal_me());
+    }
+
+    pub fn number_nodes(&mut self) {
+        let mut serial = 0;
+        let mut numberer = |gnode: &mut GNode| {
+            let next = serial;
+            serial += 1;
+            gnode.index = next;
+        };
+        self.travm_mut(&mut numberer)
+    }
+
+    pub fn shew(&self) -> String {
+        format!("{} {}", self.index, self.node.shew())
+    }
+
+    /*
     pub fn make_causal(&self) -> GNode {
         let futurest: isize = self.ports.iter().map(|p| p.range.1).fold(std::isize::MIN, |a, b| a.max(b));
         println!("Translate node {:?}", self.node);
@@ -153,6 +200,7 @@ impl GNode {
             GNode::rtl_accum(child, accum);
         }
     }
+*/
 
         /*
     pub fn generate(&self, name: &str) -> String {
@@ -166,11 +214,11 @@ impl GNode {
         */
 }
 
-pub fn genericize(node: &Rc<Node>) -> Rc<GNode> {
+pub fn genericize(node: &Rc<Node>) -> Rc<RefCell<GNode>> {
     let mut hm = HashMap::new();
     genericize1(node, &mut hm)
 }
-pub fn genericize1(node: &Rc<Node>, hm: &mut HashMap<Rc<Node>, Rc<GNode>>) -> Rc<GNode> {
+pub fn genericize1(node: &Rc<Node>, hm: &mut HashMap<Rc<Node>, Rc<RefCell<GNode>>>) -> Rc<RefCell<GNode>> {
     if hm.contains_key(node) {
         hm.get(node).unwrap().clone()
     } else {
@@ -226,7 +274,7 @@ pub fn genericize1(node: &Rc<Node>, hm: &mut HashMap<Rc<Node>, Rc<GNode>>) -> Rc
                 ]
             },
         };
-        let gnrc = Rc::new(gn);
+        let gnrc = Rc::new(RefCell::new(gn));
         hm.insert(node.clone(), gnrc.clone());
         gnrc
     }

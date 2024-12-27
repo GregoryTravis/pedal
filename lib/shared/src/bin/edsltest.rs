@@ -1,3 +1,5 @@
+#![allow(unused_imports)]
+
 extern crate alloc;
 
 use std::fs::File;
@@ -23,8 +25,16 @@ fn build() {
     //println!("{:?}", out);
     let groot = genericize(&out);
     println!("{:?}", groot);
-    let cgroot = groot.make_causal();
-    println!("{:?}", cgroot);
+    groot.borrow_mut().make_causal();
+    println!("{:?}", groot);
+    groot.borrow_mut().number_nodes();
+    println!("{:?}", groot);
+    groot.borrow_mut().travm(&|gnode: &mut GNode| {
+        println!("GN {} {}", gnode.index, gnode.node.shew());
+    });
+    //let cgroot = groot.borrow_mut().make_causal();
+    //println!("{:?}", cgroot);
+    /*
     let ncgroot = cgroot.number_nodes();
     println!("{:?}", ncgroot);
     println!("====");
@@ -32,6 +42,7 @@ fn build() {
     for gn in &rtl {
         println!("{:?}", gn);
     }
+    */
     //println!(GNode::generate(Rc::new(ncgroot), "NodeyPatch"));
     //ncgroot.dump();
     //let _output = Node::Add(Rc::new(Node::Input), Rc::new(Node::PassThru(Rc::new(Node::Input))));
