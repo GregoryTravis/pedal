@@ -28,20 +28,7 @@ fn build() {
     groot.borrow_mut().make_causal();
     groot.borrow_mut().number_nodes();
     groot.borrow_mut().dump();
-    //let cgroot = groot.borrow_mut().make_causal();
-    //println!("{:?}", cgroot);
-    /*
-    let ncgroot = cgroot.number_nodes();
-    println!("{:?}", ncgroot);
-    println!("====");
-    let rtl = GNode::rtl(Rc::new(ncgroot));
-    for gn in &rtl {
-        println!("{:?}", gn);
-    }
-    */
-    //println!(GNode::generate(Rc::new(ncgroot), "NodeyPatch"));
-    //ncgroot.dump();
-    //let _output = Node::Add(Rc::new(Node::Input), Rc::new(Node::PassThru(Rc::new(Node::Input))));
+    println!("{}", GNode::generate(&mut groot.borrow_mut(), "NodeyPatch"));
 }
 
 fn main() {

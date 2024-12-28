@@ -2,6 +2,7 @@
 
 extern crate std;
 
+use alloc::borrow::ToOwned;
 use alloc::rc::Rc;
 use alloc::string::String;
 use alloc::string::ToString;
@@ -165,16 +166,16 @@ impl GNode {
         });
     }
 
-        /*
-    pub fn generate(&self, name: &str) -> String {
+    // Should not be mutable
+    pub fn generate(&mut self, name: &str) -> String {
         let mut acc: String = "".to_owned();
-        acc.push_str(format!("pub struct {} {\n", name));
-        for gnode in something {
-            acc.push_str(format!("signal{}: Signal<{}>,\n", gnode.index, gnode.node.type_name()));
-        }
+        acc.push_str(&format!("pub struct {} {{\n", name).to_owned());
+        self.travm_mut(&mut |gn: &mut GNode| {
+            acc.push_str(&format!("    signal{}: Signal<{}>,\n", gn.index, gn.node.type_name()).to_owned());
+        });
         acc.push_str("}\n");
+        acc
     }
-        */
 }
 
 pub fn genericize(node: &Rc<Node>) -> Rc<RefCell<GNode>> {
