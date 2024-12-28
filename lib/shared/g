@@ -1,7 +1,8 @@
 (cargo run --bin edsltest --features for_host && \
- echo ok && cargo run --bin edslpatch --features for_host && \
- rustfmt src/bin/edslpatch_gen.rs && \
- cat src/bin/edslpatch_gen.rs \
+ rustfmt src/bin/edslpatch.rs && \
+ cat src/bin/edslpatch.rs && \
+ echo ok && \
+ cargo run --bin edslpatch --features for_host \
  ) 2>&1 | tee out
 
 exit

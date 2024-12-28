@@ -412,7 +412,21 @@ pub fn main() {{
 
     pub fn generate(&self, name: &str) -> String {
         let mut acc: String = "".to_owned();
-        acc.push_str("const MAX: usize = 10;\n\n");
+        acc.push_str(r#"
+extern crate alloc;
+extern crate libm;
+
+use alloc::boxed::Box;
+
+use shared::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::{add, pass_thru, sum_filter}};
+use shared::knob::Knobs;
+use shared::patch::Patch;
+use shared::playhead::Playhead;
+use shared::test::*;
+const MAX: usize = 10;
+"#);
+
+// Generate this; rename it.
         acc.push_str(&self.generate_struct(name));
         acc.push_str(&self.generate_impl(name));
         acc.push_str(&self.generate_patch_impl(name));
