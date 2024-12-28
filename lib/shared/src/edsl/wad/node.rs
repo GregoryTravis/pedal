@@ -84,10 +84,10 @@ pub struct GNode {
 impl GNode {
     pub fn travm<F>(&mut self, f: &F)
     where F: Fn(&mut GNode) {
-        println!("travm {}", self.shew());
+        //println!("travm {}", self.shew());
         f(self);
         for input in &self.inputs {
-            println!("travm {} {}", self.shew(), input.borrow().shew());
+            //println!("travm {} {}", self.shew(), input.borrow().shew());
             input.borrow_mut().travm(f);
             //f(&mut *input.borrow_mut());
         }
@@ -118,6 +118,7 @@ impl GNode {
         let mut numberer = |gnode: &mut GNode| {
             let next = serial;
             serial += 1;
+            //println!("nn {} {}", gnode.index, next);
             gnode.index = next;
         };
         self.travm_mut(&mut numberer)
@@ -125,6 +126,16 @@ impl GNode {
 
     pub fn shew(&self) -> String {
         format!("{} {}", self.index, self.node.shew())
+    }
+
+    pub fn dump(&self) {
+        println!("{} {}", self.index, self.node.shew());
+        for input in &self.inputs {
+            println!("  {} {}", input.borrow().index, input.borrow().node.shew());
+        }
+        for input in &self.inputs {
+            input.borrow().dump();
+        }
     }
 
     /*

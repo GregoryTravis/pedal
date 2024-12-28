@@ -11,10 +11,12 @@ use shared::edsl::wad::node::{Node, genericize, GNode};
 fn build() {
     let input = Rc::new(Node::Input);
 
+    /*
     let a = Rc::new(Node::PassThru(input.clone()));
     let b = Rc::new(Node::PassThru(input.clone()));
     let c = b.clone();
     println!("{} {} {}", Rc::ptr_eq(&a, &b), Rc::ptr_eq(&b, &c), Rc::ptr_eq(&a, &c));
+    */
 
     let pt = Rc::new(Node::PassThru(input.clone()));
     let add = Rc::new(Node::Add(input.clone(), pt.clone()));
@@ -22,16 +24,10 @@ fn build() {
     let sf2 = Rc::new(Node::SumFilter(add.clone(), -3, 3));
     let sfadd = Rc::new(Node::Add(sf.clone(), sf2.clone()));
     let out = sfadd;
-    //println!("{:?}", out);
     let groot = genericize(&out);
-    println!("{:?}", groot);
     groot.borrow_mut().make_causal();
-    println!("{:?}", groot);
     groot.borrow_mut().number_nodes();
-    println!("{:?}", groot);
-    groot.borrow_mut().travm(&|gnode: &mut GNode| {
-        println!("GN {} {}", gnode.index, gnode.node.shew());
-    });
+    groot.borrow().dump();
     //let cgroot = groot.borrow_mut().make_causal();
     //println!("{:?}", cgroot);
     /*
