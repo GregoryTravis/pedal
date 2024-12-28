@@ -155,14 +155,14 @@ impl GNode {
         format!("{} {}", self.index, self.node.shew())
     }
 
-    pub fn dump(&self) {
-        println!("{}", self.shew());
-        for input in &self.inputs {
-            println!("  {}", input.borrow().shew());
-        }
-        for input in &self.inputs {
-            input.borrow().dump();
-        }
+    // TODO should not be mutable
+    pub fn dump(&mut self) {
+        self.travm(&|gn: &mut GNode| {
+            println!("{}", gn.shew());
+            for input in &gn.inputs {
+                println!("  {}", input.borrow().shew());
+            }
+        });
     }
 
         /*

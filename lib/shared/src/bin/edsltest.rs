@@ -27,7 +27,7 @@ fn build() {
     let groot = genericize(&out);
     groot.borrow_mut().make_causal();
     groot.borrow_mut().number_nodes();
-    groot.borrow().dump();
+    groot.borrow_mut().dump();
     //let cgroot = groot.borrow_mut().make_causal();
     //println!("{:?}", cgroot);
     /*
