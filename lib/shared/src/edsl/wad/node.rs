@@ -333,21 +333,21 @@ impl GNode {
     fn generate_patch_routing(&self) -> String {
         let mut acc: String = "".to_owned();
         let steps = self.gather_steps();
-        let mut serial: usize = 0;
 
         for Step(ports, prim_name, output_signal_index) in steps {
             if PATCH_LOGGING {
                 acc.push_str(&format!("println!(\"{{}} {{}}\", {}, \"{}\");\n", output_signal_index, prim_name));
             }
+            let mut port_serial: usize = 0;
             let mut port_numbers: Vec<usize> = Vec::new();
             for (port_index, range, type_name) in &ports {
-                let next = serial;
-                serial += 1;
+                let next = port_serial;
+                port_serial += 1;
                 port_numbers.push(next);
-                acc.push_str(&format!("let port{}: Window<{}> = Window::new(&self.signal{}, Range({}, {}));\n",
-                    next, type_name, port_index, range.0, range.1));
+                acc.push_str(&format!("let port{}_{}: Window<{}> = Window::new(&self.signal{}, Range({}, {}));\n",
+                    output_signal_index, next, type_name, port_index, range.0, range.1));
             }
-            let signals: Vec<String> = port_numbers.iter().map(|port_index| format!("&port{}", port_index)).collect();
+            let signals: Vec<String> = port_numbers.iter().map(|port_index| format!("&port{}_{}", output_signal_index, port_index)).collect();
             let signals_joined: String = signals.join(", ");
             acc.push_str(&format!("{}({}, &mut self.signal{});\n", prim_name, signals_joined, output_signal_index));
         }

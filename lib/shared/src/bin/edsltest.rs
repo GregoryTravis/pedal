@@ -47,7 +47,7 @@ fn main() {
     println!("hi edsl");
 }
 
-const S0: &str = r#"
+const _S0: &str = r#"
 extern crate alloc;
 extern crate libm;
 
@@ -108,7 +108,7 @@ impl Patch for EdslPatch {
         }
 "#;
 
-const S1: &str = r#"
+const _S1: &str = r#"
     }
 }
 
