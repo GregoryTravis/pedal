@@ -83,6 +83,26 @@ pub struct GNode {
 }
 
 impl GNode {
+    pub fn trav<F>(&self, f: &F)
+    where F: Fn(&GNode) {
+        let mut hs = HashSet::new();
+        self.trav1(f, &mut hs);
+    }
+
+    pub fn trav1<F>(&self, f: &F, hs: &mut HashSet<Rc<Node>>)
+    where F: Fn(&GNode) {
+        if hs.contains(&self.node) {
+            return;
+        }
+
+        hs.insert(self.node.clone());
+
+        f(self);
+        for input in &self.inputs {
+            input.borrow().trav1(f, hs);
+        }
+    }
+
     pub fn travm<F>(&mut self, f: &F)
     where F: Fn(&mut GNode) {
         let mut hs = HashSet::new();
@@ -97,11 +117,29 @@ impl GNode {
 
         hs.insert(self.node.clone());
 
-        //println!("travm {}", self.shew());
         f(self);
         for input in &self.inputs {
-            //println!("travm {} {}", self.shew(), input.borrow().shew());
             input.borrow_mut().travm1(f, hs);
+        }
+    }
+
+    pub fn trav_mut<F>(&self, f: &mut F)
+    where F: FnMut(&GNode) {
+        let mut hs = HashSet::new();
+        self.trav_mut1(f, &mut hs);
+    }
+
+    pub fn trav_mut1<F>(&self, f: &mut F, hs: &mut HashSet<Rc<Node>>)
+    where F: FnMut(&GNode) {
+        if hs.contains(&self.node) {
+            return;
+        }
+
+        hs.insert(self.node.clone());
+
+        f(self);
+        for input in &self.inputs {
+            input.borrow_mut().trav_mut1(f, hs);
             //f(&mut *input.borrow_mut());
         }
     }
@@ -156,9 +194,8 @@ impl GNode {
         format!("{} {}", self.index, self.node.shew())
     }
 
-    // TODO should not be mutable
-    pub fn dump(&mut self) {
-        self.travm(&|gn: &mut GNode| {
+    pub fn dump(&self) {
+        self.trav(&|gn: &GNode| {
             println!("{}", gn.shew());
             for input in &gn.inputs {
                 println!("  {}", input.borrow().shew());
@@ -166,11 +203,10 @@ impl GNode {
         });
     }
 
-    // Should not be mutable
-    pub fn generate(&mut self, name: &str) -> String {
+    pub fn generate(&self, name: &str) -> String {
         let mut acc: String = "".to_owned();
         acc.push_str(&format!("pub struct {} {{\n", name).to_owned());
-        self.travm_mut(&mut |gn: &mut GNode| {
+        self.trav_mut(&mut |gn: &GNode| {
             acc.push_str(&format!("    signal{}: Signal<{}>,\n", gn.index, gn.node.type_name()).to_owned());
         });
         acc.push_str("}\n");

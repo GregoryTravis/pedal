@@ -27,8 +27,8 @@ fn build() {
     let groot = genericize(&out);
     groot.borrow_mut().make_causal();
     groot.borrow_mut().number_nodes();
-    groot.borrow_mut().dump();
-    println!("{}", GNode::generate(&mut groot.borrow_mut(), "NodeyPatch"));
+    groot.borrow().dump();
+    println!("{}", GNode::generate(&mut groot.borrow(), "NodeyPatch"));
 }
 
 fn main() {
