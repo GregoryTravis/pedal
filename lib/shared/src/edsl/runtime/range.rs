@@ -1,7 +1,7 @@
-extern crate std;
+// extern crate std;
 
 use core::cmp::{Eq, PartialEq};
-use std::hash::Hash;
+use core::hash::Hash;
 
 // Inclusive at both ends.
 
