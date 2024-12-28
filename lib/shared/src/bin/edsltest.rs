@@ -23,6 +23,7 @@ fn build() {
     let sf = Rc::new(Node::SumFilter(add.clone(), -1, 1));
     let sf2 = Rc::new(Node::SumFilter(add.clone(), -3, 3));
     let sfadd = Rc::new(Node::Add(sf.clone(), sf2.clone()));
+    //let out = sfadd;
     let out = sfadd;
     let groot = genericize(&out);
     groot.borrow_mut().make_causal();

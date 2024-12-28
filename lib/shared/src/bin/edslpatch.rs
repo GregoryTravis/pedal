@@ -67,9 +67,26 @@ impl Patch for NodeyPatch {
     }
 }
 
-pub const INPUT: &'static [f32] = &[0.0, 0.057564028, 0.11493716, 0.1719291];
+pub const INPUT: &'static [f32] = &[0.0, 0.1, 0.2, 0.3];
 
-pub const OUTPUT: &'static [f32] = &[0.0, 0.115128055, 0.34500235, 0.68886054];
+/*
+0
+2
+4
+6
+
+0
+2
+6
+10
+
+0
+2
+6
+12
+*/
+
+pub const OUTPUT: &'static [f32] = &[0.0, 0.4, 0.12, 0.24];
 
 pub fn main() {
     let patch = Box::new(NodeyPatch::new());
