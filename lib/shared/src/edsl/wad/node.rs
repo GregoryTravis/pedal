@@ -8,7 +8,7 @@ use alloc::string::ToString;
 use alloc::vec::Vec;
 use core::cmp::{Eq, PartialEq};
 use std::cell::RefCell;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::format;
 use std::hash::Hash;
 use std::println;
@@ -57,7 +57,7 @@ pub fn same_type<'a, 'b>(a: &'a str, b: &'b str) -> &'a str {
     a
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Port {
     range: Range,
     main_sample: isize,
@@ -84,25 +84,50 @@ pub struct GNode {
 impl GNode {
     pub fn travm<F>(&mut self, f: &F)
     where F: Fn(&mut GNode) {
+        let mut hs = HashSet::new();
+        self.travm1(f, &mut hs);
+    }
+
+    pub fn travm1<F>(&mut self, f: &F, hs: &mut HashSet<Rc<Node>>)
+    where F: Fn(&mut GNode) {
+        if hs.contains(&self.node) {
+            return;
+        }
+
+        hs.insert(self.node.clone());
+
         //println!("travm {}", self.shew());
         f(self);
         for input in &self.inputs {
             //println!("travm {} {}", self.shew(), input.borrow().shew());
-            input.borrow_mut().travm(f);
+            input.borrow_mut().travm1(f, hs);
             //f(&mut *input.borrow_mut());
         }
     }
 
     pub fn travm_mut<F>(&mut self, f: &mut F)
     where F: FnMut(&mut GNode) {
+        let mut hs = HashSet::new();
+        self.travm_mut1(f, &mut hs);
+    }
+
+    pub fn travm_mut1<F>(&mut self, f: &mut F, hs: &mut HashSet<Rc<Node>>)
+    where F: FnMut(&mut GNode) {
+        if hs.contains(&self.node) {
+            return;
+        }
+
+        hs.insert(self.node.clone());
+
         f(self);
         for input in &self.inputs {
-            input.borrow_mut().travm_mut(f);
+            input.borrow_mut().travm_mut1(f, hs);
             //f(&mut *input.borrow_mut());
         }
     }
 
     fn make_causal_me(&mut self) {
+        println!("mc {}", self.node.shew());
         let futurest: isize = self.ports.iter().map(|p| p.range.1).fold(std::isize::MIN, |a, b| a.max(b));
         for port in &mut self.ports {
             *port = port.translate(-futurest);
@@ -118,7 +143,7 @@ impl GNode {
         let mut numberer = |gnode: &mut GNode| {
             let next = serial;
             serial += 1;
-            //println!("nn {} {}", gnode.index, next);
+            println!("nn {} {}", gnode.index, next);
             gnode.index = next;
         };
         self.travm_mut(&mut numberer)
@@ -229,6 +254,7 @@ pub fn genericize(node: &Rc<Node>) -> Rc<RefCell<GNode>> {
     let mut hm = HashMap::new();
     genericize1(node, &mut hm)
 }
+
 pub fn genericize1(node: &Rc<Node>, hm: &mut HashMap<Rc<Node>, Rc<RefCell<GNode>>>) -> Rc<RefCell<GNode>> {
     if hm.contains_key(node) {
         hm.get(node).unwrap().clone()

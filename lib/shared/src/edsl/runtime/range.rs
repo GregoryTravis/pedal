@@ -1,6 +1,11 @@
+extern crate std;
+
+use core::cmp::{Eq, PartialEq};
+use std::hash::Hash;
+
 // Inclusive at both ends.
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Range(pub isize, pub isize);
 
 impl Range {
