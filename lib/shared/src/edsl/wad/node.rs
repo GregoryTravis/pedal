@@ -43,6 +43,15 @@ impl Node {
         }
     }
 
+    pub fn prim_name(&self) -> &str {
+        match self {
+            Node::Input => "vwarlar",
+            Node::PassThru(_) => "pass_thru",
+            Node::Add(_, _) => "add",
+            Node::SumFilter(_, _, _) => "sum_filter",
+        }
+    }
+
     pub fn type_name(&self) -> &'static str {
         match self {
             Node::Input => "f32",
@@ -81,6 +90,8 @@ pub struct GNode {
     inputs: Vec<Rc<RefCell<GNode>>>,
     ports: Vec<Port>,
 }
+
+pub struct Step(Vec<(u32,Range,String)>,String,u32);
 
 impl GNode {
     pub fn trav<F>(&self, f: &F)
@@ -121,6 +132,27 @@ impl GNode {
         for input in &self.inputs {
             input.borrow_mut().travm1(f, hs);
         }
+    }
+
+    pub fn rtrav_mut<F>(&self, f: &mut F)
+    where F: FnMut(&GNode) {
+        let mut hs = HashSet::new();
+        self.rtrav_mut1(f, &mut hs);
+    }
+
+    pub fn rtrav_mut1<F>(&self, f: &mut F, hs: &mut HashSet<Rc<Node>>)
+    where F: FnMut(&GNode) {
+        if hs.contains(&self.node) {
+            return;
+        }
+
+        hs.insert(self.node.clone());
+
+        for input in &self.inputs {
+            input.borrow_mut().rtrav_mut1(f, hs);
+            //f(&mut *input.borrow_mut());
+        }
+        f(self);
     }
 
     pub fn trav_mut<F>(&self, f: &mut F)
@@ -282,12 +314,51 @@ impl GNode {
         acc
     }
 
+    fn gather_steps(&self) -> Vec<Step> {
+        let mut steps = Vec::new();
+        self.trav_mut(&mut |gn: &GNode| {
+            if *gn.node != Node::Input {
+                let ports:Vec<(u32,Range,String)> = gn.inputs.iter().zip(&gn.ports).map(|(input, port)| {
+                    (input.borrow().index, port.range, input.borrow().node.type_name().to_string())
+                }).collect();
+                steps.push(Step(ports, gn.node.prim_name().to_string(), gn.index));
+            }
+        });
+        steps.reverse();
+        steps
+    }
+
+    fn generate_patch_routing(&self) -> String {
+        let mut acc: String = "".to_owned();
+        let steps = self.gather_steps();
+        let mut serial: usize = 0;
+
+        for Step(ports, prim_name, output_signal_index) in steps {
+            /*
+            let add_0: Window<f32> = Window::new(&self.input_signal, Range(-2, 0));
+            let add_1: Window<f32> = Window::new(&self.signal0, Range(-1, 0));
+            add(&add_0, &add_1, &mut self.signal1);
+            */
+            for (port_index, range, type_name) in &ports {
+                let next = serial;
+                serial += 1;
+                acc.push_str(&format!("let port{}: Window<{}> = Window::new(&self.signal{}, Range({}, {}));\n",
+                    next, type_name, port_index, range.0, range.1));
+            }
+            let signals: Vec<String> = ports.iter().map(|(port_index,_,_)| format!("&self.signal{}", port_index)).collect();
+            let signals_joined: String = signals.join(", ");
+            acc.push_str(&format!("{}({}, &mut self.signal{});\n", prim_name, signals_joined, output_signal_index));
+        }
+
+        acc
+    }
+
     fn generate_patch_impl(&self, name: &str) -> String {
         let mut acc: String = "".to_owned();
 
         let input_signal = format!("signal{}", self.get_input_slice_index());
         let output_signal = format!("signal{}", self.index);
-        let body = "";
+        let body = self.generate_patch_routing();
 
         acc.push_str(&format!(r#"
 impl Patch for {} {{
