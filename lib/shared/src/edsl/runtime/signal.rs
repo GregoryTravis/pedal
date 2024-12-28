@@ -1,6 +1,7 @@
 use alloc::vec::Vec;
 use core::default::Default;
 
+#[derive(Debug)]
 pub struct Signal<T: Default + Copy> {
     vec: Vec<T>,
 }

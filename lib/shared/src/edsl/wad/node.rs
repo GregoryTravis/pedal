@@ -293,6 +293,16 @@ impl GNode {
         acc
     }
 
+    fn generate_per_loop_log(&self) -> String {
+        let mut acc: String = "".to_owned();
+        acc.push_str("\nfn per_loop_log(&self) {\n");
+        self.trav_mut(&mut |gn: &GNode| {
+            acc.push_str(&format!("    println!(\"Signal {}: {{:?}}\", &self.signal{});\n", gn.index, gn.index).to_string());
+        });
+        acc.push_str("}\n");
+        acc
+    }
+
     fn generate_impl(&self, name: &str) -> String {
         let mut acc: String = "".to_owned();
         let mut acc_lines: String = "".to_owned();
@@ -300,6 +310,8 @@ impl GNode {
         self.trav_mut(&mut |gn: &GNode| {
             acc_lines.push_str(&format!("    signal{}: Signal::new(MAX),\n", gn.index));
         });
+
+        let per_loop_log = self.generate_per_loop_log();
 
         acc.push_str(&format!(
             r#"
@@ -309,9 +321,10 @@ impl GNode {
                         {}
                     }}
                 }}
+                {}
             }}
             "#,
-            name, name, name, acc_lines));
+            name, name, name, acc_lines, per_loop_log));
 
         acc
     }
@@ -362,6 +375,8 @@ impl GNode {
         let output_signal = format!("signal{}", self.index);
         let body = self.generate_patch_routing();
 
+        let per_loop_log = if PATCH_LOGGING { "self.per_loop_log();\n" } else { "" };
+
         acc.push_str(&format!(r#"
 impl Patch for {} {{
     fn rust_process_audio(
@@ -379,6 +394,7 @@ impl Patch for {} {{
             output_slice[i] = self.{}.read(0);
 
             playhead.inc();
+            {}
         }}
     }}
 }}
@@ -425,7 +441,7 @@ pub fn main() {{
     test_patch(test_case.name, test_case.patch, test_case.canned_input, test_case.expected_output);
 }}
 "#,
-            name, input_signal, body, output_signal, name, name));
+            name, input_signal, body, output_signal, per_loop_log, name, name));
         acc
     }
 

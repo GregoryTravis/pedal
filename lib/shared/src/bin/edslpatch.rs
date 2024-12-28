@@ -34,6 +34,15 @@ impl NodeyPatch {
             signal5: Signal::new(MAX),
         }
     }
+
+    fn per_loop_log(&self) {
+        println!("Signal 0: {:?}", &self.signal0);
+        println!("Signal 1: {:?}", &self.signal1);
+        println!("Signal 2: {:?}", &self.signal2);
+        println!("Signal 3: {:?}", &self.signal3);
+        println!("Signal 4: {:?}", &self.signal4);
+        println!("Signal 5: {:?}", &self.signal5);
+    }
 }
 
 impl Patch for NodeyPatch {
@@ -68,6 +77,7 @@ impl Patch for NodeyPatch {
             output_slice[i] = self.signal0.read(0);
 
             playhead.inc();
+            self.per_loop_log();
         }
     }
 }
