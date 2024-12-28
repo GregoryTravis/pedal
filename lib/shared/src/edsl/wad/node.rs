@@ -370,23 +370,11 @@ impl Patch for {} {{
         mut playhead: Playhead,
     ) {{
         for i in 0..input_slice.len() {{
-            self.input_signal.write({}[i]);
+            self.{}.write(input_slice[i]);
 
             {}
-            /*
-            let pass_thru_0: Window<f32> = Window::new(&self.input_signal, Range(-3, 0));
 
-            pass_thru(&pass_thru_0, &mut self.signal0);
-
-            let add_0: Window<f32> = Window::new(&self.input_signal, Range(-2, 0));
-            let add_1: Window<f32> = Window::new(&self.signal0, Range(-1, 0));
-            add(&add_0, &add_1, &mut self.signal1);
-
-            let sum_filter_0: Window<f32> = Window::new(&self.signal1, Range(-2, 0));
-            sum_filter(&sum_filter_0, &mut self.output_signal);
-            */
-
-            {}[i] = self.output_signal.read(0);
+            output_slice[i] = self.{}.read(0);
 
             playhead.inc();
         }}
