@@ -16,6 +16,8 @@ use std::println;
 
 use crate::edsl::runtime::range::Range;
 
+const PATCH_LOGGING: bool = true;
+
 #[derive(PartialEq, Eq, Hash, Debug)]
 pub enum Node {
     Input,
@@ -334,11 +336,9 @@ impl GNode {
         let mut serial: usize = 0;
 
         for Step(ports, prim_name, output_signal_index) in steps {
-            /*
-            let add_0: Window<f32> = Window::new(&self.input_signal, Range(-2, 0));
-            let add_1: Window<f32> = Window::new(&self.signal0, Range(-1, 0));
-            add(&add_0, &add_1, &mut self.signal1);
-            */
+            if PATCH_LOGGING {
+                acc.push_str(&format!("println!(\"{{}} {{}}\", {}, \"{}\");\n", output_signal_index, prim_name));
+            }
             let mut port_numbers: Vec<usize> = Vec::new();
             for (port_index, range, type_name) in &ports {
                 let next = serial;

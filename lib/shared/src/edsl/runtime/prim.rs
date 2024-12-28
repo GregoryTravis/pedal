@@ -1,5 +1,8 @@
+// TODO remove for board
+extern crate std;
 use core::default::Default;
 use core::ops::{Add, AddAssign};
+use std::println;
 
 use crate::edsl::runtime::{signal::Signal, window::Window};
 
@@ -7,7 +10,8 @@ pub fn pass_thru<T: Default + Copy>(inn: &Window<T>, out: &mut Signal<T>) {
     out.write(inn.read(0));
 }
 
-pub fn add<T: Add<Output = T> + Default + Copy>(a: &Window<T>, b: &Window<T>, sum: &mut Signal<T>) {
+pub fn add<T: Add<Output = T> + Default + Copy + core::fmt::Display>(a: &Window<T>, b: &Window<T>, sum: &mut Signal<T>) {
+    println!("add: {} {} {}", a.read(0), b.read(0), a.read(0) + b.read(0));
     sum.write(a.read(0) + b.read(0));
 }
 
