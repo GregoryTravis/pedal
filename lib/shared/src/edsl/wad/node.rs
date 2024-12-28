@@ -339,13 +339,15 @@ impl GNode {
             let add_1: Window<f32> = Window::new(&self.signal0, Range(-1, 0));
             add(&add_0, &add_1, &mut self.signal1);
             */
+            let mut port_numbers: Vec<usize> = Vec::new();
             for (port_index, range, type_name) in &ports {
                 let next = serial;
                 serial += 1;
+                port_numbers.push(next);
                 acc.push_str(&format!("let port{}: Window<{}> = Window::new(&self.signal{}, Range({}, {}));\n",
                     next, type_name, port_index, range.0, range.1));
             }
-            let signals: Vec<String> = ports.iter().map(|(port_index,_,_)| format!("&self.signal{}", port_index)).collect();
+            let signals: Vec<String> = port_numbers.iter().map(|port_index| format!("&port{}", port_index)).collect();
             let signals_joined: String = signals.join(", ");
             acc.push_str(&format!("{}({}, &mut self.signal{});\n", prim_name, signals_joined, output_signal_index));
         }

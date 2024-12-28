@@ -48,17 +48,17 @@ impl Patch for NodeyPatch {
             self.signal3.write(input_slice[i]);
 
             let port0: Window<f32> = Window::new(&self.signal2, Range(-6, 0));
-            sum_filter(&self.signal2, &mut self.signal5);
+            sum_filter(&port0, &mut self.signal5);
             let port1: Window<f32> = Window::new(&self.signal3, Range(0, 0));
-            pass_thru(&self.signal3, &mut self.signal4);
+            pass_thru(&port1, &mut self.signal4);
             let port2: Window<f32> = Window::new(&self.signal3, Range(0, 0));
             let port3: Window<f32> = Window::new(&self.signal4, Range(0, 0));
-            add(&self.signal3, &self.signal4, &mut self.signal2);
+            add(&port2, &port3, &mut self.signal2);
             let port4: Window<f32> = Window::new(&self.signal2, Range(-2, 0));
-            sum_filter(&self.signal2, &mut self.signal1);
+            sum_filter(&port4, &mut self.signal1);
             let port5: Window<f32> = Window::new(&self.signal1, Range(0, 0));
             let port6: Window<f32> = Window::new(&self.signal5, Range(0, 0));
-            add(&self.signal1, &self.signal5, &mut self.signal0);
+            add(&port5, &port6, &mut self.signal0);
 
             output_slice[i] = self.signal0.read(0);
 
