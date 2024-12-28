@@ -1702,6 +1702,12 @@ pub const LONG_TEST_INPUT: &'static [f32] = &[
 -0.5962244,
 -0.54902285,
 ];
+pub const EDSL_NODEY_INPUT: &'static [f32] = &[
+    0.0,
+    0.1,
+    0.2,
+    0.3,
+];
 pub const LOW_PASS_OUTPUT: &'static [f32] = &[
 0.0,
 0.14391007,
@@ -4425,4 +4431,10 @@ pub const RUBIN_OUTPUT: &'static [f32] = &[
 -0.08566871,
 -0.07301569,
 -0.049231052,
+];
+pub const EDSL_NODEY_OUTPUT: &'static [f32] = &[
+    0.0,
+    0.4,
+    1.2,
+    2.4,
 ];

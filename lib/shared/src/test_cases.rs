@@ -4,6 +4,7 @@ use alloc::vec::Vec;
 
 use crate::filter::chorus::*;
 use crate::filter::delay::*;
+use crate::filter::edsl_nodey::*;
 use crate::filter::harmoneer::*;
 use crate::filter::high_pass::*;
 use crate::filter::linear_vibrato::*;
@@ -98,6 +99,12 @@ pub fn get_test_cases() -> Vec<Box<TestCase>> {
             patch: rubin(&mut sdram),
             canned_input: TEST_INPUT,
             expected_output: RUBIN_OUTPUT,
+        }),
+        Box::new(TestCase {
+            name: "edsl_nodey",
+            patch: Box::new(EdslNodey::new()),
+            canned_input: EDSL_NODEY_INPUT,
+            expected_output: EDSL_NODEY_OUTPUT,
         }),
     ]
 }

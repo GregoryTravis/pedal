@@ -3,18 +3,18 @@ extern crate libm;
 
 use alloc::boxed::Box;
 
-use shared::edsl::runtime::{
+use crate::edsl::runtime::{
     prim::{add, pass_thru, sum_filter},
     range::Range,
     signal::Signal,
     window::Window,
 };
-use shared::knob::Knobs;
-use shared::patch::Patch;
-use shared::playhead::Playhead;
-use shared::test::*;
+use crate::knob::Knobs;
+use crate::patch::Patch;
+use crate::playhead::Playhead;
+use crate::test::*;
 const MAX: usize = 10;
-pub struct NodeyPatch {
+pub struct EdslNodey {
     signal0: Signal<f32>,
     signal1: Signal<f32>,
     signal2: Signal<f32>,
@@ -23,9 +23,9 @@ pub struct NodeyPatch {
     signal5: Signal<f32>,
 }
 
-impl NodeyPatch {
-    pub fn new() -> NodeyPatch {
-        NodeyPatch {
+impl EdslNodey {
+    pub fn new() -> EdslNodey {
+        EdslNodey {
             signal0: Signal::new(MAX),
             signal1: Signal::new(MAX),
             signal2: Signal::new(MAX),
@@ -34,18 +34,9 @@ impl NodeyPatch {
             signal5: Signal::new(MAX),
         }
     }
-
-    fn per_loop_log(&self) {
-        println!("Signal 0: {:?}", &self.signal0);
-        println!("Signal 1: {:?}", &self.signal1);
-        println!("Signal 2: {:?}", &self.signal2);
-        println!("Signal 3: {:?}", &self.signal3);
-        println!("Signal 4: {:?}", &self.signal4);
-        println!("Signal 5: {:?}", &self.signal5);
-    }
 }
 
-impl Patch for NodeyPatch {
+impl Patch for EdslNodey {
     fn rust_process_audio(
         &mut self,
         input_slice: &[f32],
@@ -56,24 +47,19 @@ impl Patch for NodeyPatch {
         for i in 0..input_slice.len() {
             self.signal3.write(input_slice[i]);
 
-            println!("{} {}", 4, "pass_thru");
             let port4_0: Window<f32> = Window::new(&self.signal3, Range(0, 0));
             pass_thru(&port4_0, &mut self.signal4);
 
-            println!("{} {}", 2, "add");
             let port2_0: Window<f32> = Window::new(&self.signal3, Range(0, 0));
             let port2_1: Window<f32> = Window::new(&self.signal4, Range(0, 0));
             add(&port2_0, &port2_1, &mut self.signal2);
 
-            println!("{} {}", 1, "sum_filter");
             let port1_0: Window<f32> = Window::new(&self.signal2, Range(-2, 0));
             sum_filter(&port1_0, &mut self.signal1);
 
-            println!("{} {}", 5, "sum_filter");
             let port5_0: Window<f32> = Window::new(&self.signal2, Range(-6, 0));
             sum_filter(&port5_0, &mut self.signal5);
 
-            println!("{} {}", 0, "add");
             let port0_0: Window<f32> = Window::new(&self.signal1, Range(0, 0));
             let port0_1: Window<f32> = Window::new(&self.signal5, Range(0, 0));
             add(&port0_0, &port0_1, &mut self.signal0);
@@ -81,7 +67,6 @@ impl Patch for NodeyPatch {
             output_slice[i] = self.signal0.read(0);
 
             playhead.inc();
-            self.per_loop_log();
         }
     }
 }
@@ -91,9 +76,9 @@ pub const INPUT: &'static [f32] = &[0.0, 0.1, 0.2, 0.3];
 pub const OUTPUT: &'static [f32] = &[0.0, 0.4, 1.2, 2.4];
 
 pub fn main() {
-    let patch = Box::new(NodeyPatch::new());
+    let patch = Box::new(EdslNodey::new());
     let test_case = Box::new(TestCase {
-        name: "NodeyPatch",
+        name: "EdslNodey",
         patch: patch,
         canned_input: INPUT,
         expected_output: OUTPUT,

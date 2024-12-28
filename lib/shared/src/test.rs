@@ -14,7 +14,7 @@ use crate::testutil::*;
  * Unit tests for patches.
  */
 
-pub const DO_DUMP: bool = true;
+pub const DO_DUMP: bool = false;
 
 pub struct TestCase {
     pub name: &'static str,

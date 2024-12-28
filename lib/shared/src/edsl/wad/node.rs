@@ -16,7 +16,7 @@ use std::println;
 
 use crate::edsl::runtime::range::Range;
 
-const PATCH_LOGGING: bool = true;
+const PATCH_LOGGING: bool = false;
 
 #[derive(PartialEq, Eq, Hash, Debug)]
 pub enum Node {
@@ -332,7 +332,7 @@ impl GNode {
             acc_lines.push_str(&format!("    signal{}: Signal::new(MAX),\n", gn.index));
         });
 
-        let per_loop_log = self.generate_per_loop_log();
+        let per_loop_log = if PATCH_LOGGING { self.generate_per_loop_log() } else { "".to_string() };
 
         acc.push_str(&format!(
             r#"
@@ -461,11 +461,11 @@ extern crate libm;
 
 use alloc::boxed::Box;
 
-use shared::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::{add, pass_thru, sum_filter}};
-use shared::knob::Knobs;
-use shared::patch::Patch;
-use shared::playhead::Playhead;
-use shared::test::*;
+use crate::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::{add, pass_thru, sum_filter}};
+use crate::knob::Knobs;
+use crate::patch::Patch;
+use crate::playhead::Playhead;
+use crate::test::*;
 const MAX: usize = 10;
 "#);
 

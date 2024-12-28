@@ -38,6 +38,3 @@ required-features = ["hound"]
 
 [[bin]]
 name = "edsltest"
-
-[[bin]]
-name = "edslpatch"

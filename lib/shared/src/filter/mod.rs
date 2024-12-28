@@ -1,5 +1,6 @@
 pub mod chorus;
 pub mod delay;
+pub mod edsl_nodey;
 pub mod envelope_follower;
 pub mod fuzz;
 pub mod gain;
