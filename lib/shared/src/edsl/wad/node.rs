@@ -156,89 +156,14 @@ impl GNode {
     }
 
     pub fn dump(&self) {
-        println!("{} {}", self.index, self.node.shew());
+        println!("{}", self.shew());
         for input in &self.inputs {
-            println!("  {} {}", input.borrow().index, input.borrow().node.shew());
+            println!("  {}", input.borrow().shew());
         }
         for input in &self.inputs {
             input.borrow().dump();
         }
     }
-
-    /*
-    pub fn make_causal(&self) -> GNode {
-        let futurest: isize = self.ports.iter().map(|p| p.range.1).fold(std::isize::MIN, |a, b| a.max(b));
-        println!("Translate node {:?}", self.node);
-        for port in &self.ports {
-            println!("port {:?}", port);
-        }
-        println!("Translate node {:?} {}", self.node.shew(), futurest);
-        GNode {
-            index: self.index,
-            node: self.node.clone(),
-            inputs: self.inputs.iter().map(|input| Rc::new(input.make_causal())).collect(),
-            ports: self.ports.iter().map(|port| {
-                let translated = port.translate(-futurest);
-                println!("Translate {} {:?} {:?} {:?}", futurest, self.node.shew(), port, translated);
-                translated
-            }).collect(),
-        }
-    }
-
-    pub fn traverse_each<F>(&self, f: &F)
-    where F: Fn(&GNode) {
-        f(self);
-        for input in &self.inputs {
-            input.traverse_each(f);
-        }
-    }
-
-    // Mutable in the sense of mutating the closure.
-    pub fn traverse_mut<F>(&self, f: &mut F) -> GNode
-    where F: FnMut(&GNode) -> GNode {
-        let new_self = f(self);
-        GNode {
-            inputs: self.inputs.iter().map(|gnode| Rc::new(gnode.traverse_mut(f))).collect(),
-            ..new_self
-        }
-    }
-
-    pub fn number_nodes(&self) -> GNode {
-        let mut serial = 0;
-        let mut numberer = |gnode: &GNode| {
-            let next = serial;
-            serial += 1;
-            GNode {
-                index: next,
-                ..(*gnode).clone()
-            }
-        };
-        self.traverse_mut(&mut numberer)
-    }
-
-    pub fn shew(&self) -> String {
-        format!("{} {:?} {:?}", self.node.shew(), self.inputs, self.ports)
-    }
-
-    pub fn dump(&self) {
-        self.traverse_each(&|gnode| {
-            println!("TR {}", gnode.shew());
-        });
-    }
-
-    pub fn rtl(root: Rc<GNode>) -> Vec<Rc<GNode>> {
-        let mut gnodes: Vec<Rc<GNode>> = vec![];
-        GNode::rtl_accum(&root, &mut gnodes);
-        gnodes
-    }
-
-    pub fn rtl_accum(gnode: &Rc<GNode>, accum: &mut Vec<Rc<GNode>>) {
-        accum.push(gnode.clone());
-        for child in &gnode.inputs {
-            GNode::rtl_accum(child, accum);
-        }
-    }
-*/
 
         /*
     pub fn generate(&self, name: &str) -> String {
