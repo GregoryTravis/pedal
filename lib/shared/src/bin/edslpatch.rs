@@ -56,9 +56,6 @@ impl Patch for NodeyPatch {
         for i in 0..input_slice.len() {
             self.signal3.write(input_slice[i]);
 
-            println!("{} {}", 5, "sum_filter");
-            let port5_0: Window<f32> = Window::new(&self.signal2, Range(-6, 0));
-            sum_filter(&port5_0, &mut self.signal5);
             println!("{} {}", 4, "pass_thru");
             let port4_0: Window<f32> = Window::new(&self.signal3, Range(0, 0));
             pass_thru(&port4_0, &mut self.signal4);
@@ -69,6 +66,9 @@ impl Patch for NodeyPatch {
             println!("{} {}", 1, "sum_filter");
             let port1_0: Window<f32> = Window::new(&self.signal2, Range(-2, 0));
             sum_filter(&port1_0, &mut self.signal1);
+            println!("{} {}", 5, "sum_filter");
+            let port5_0: Window<f32> = Window::new(&self.signal2, Range(-6, 0));
+            sum_filter(&port5_0, &mut self.signal5);
             println!("{} {}", 0, "add");
             let port0_0: Window<f32> = Window::new(&self.signal1, Range(0, 0));
             let port0_1: Window<f32> = Window::new(&self.signal5, Range(0, 0));
@@ -101,7 +101,7 @@ pub const INPUT: &'static [f32] = &[0.0, 0.1, 0.2, 0.3];
 12
 */
 
-pub const OUTPUT: &'static [f32] = &[0.0, 0.4, 0.12, 0.24];
+pub const OUTPUT: &'static [f32] = &[0.0, 0.4, 1.2, 2.4];
 
 pub fn main() {
     let patch = Box::new(NodeyPatch::new());

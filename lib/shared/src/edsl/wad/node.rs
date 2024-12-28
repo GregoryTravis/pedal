@@ -93,6 +93,7 @@ pub struct GNode {
     ports: Vec<Port>,
 }
 
+#[derive(Debug)]
 pub struct Step(Vec<(u32,Range,String)>,String,u32);
 
 impl GNode {
@@ -155,6 +156,26 @@ impl GNode {
             //f(&mut *input.borrow_mut());
         }
         f(self);
+    }
+
+    // Breath-first, so it's in dependency order.
+    pub fn dep_trav_mut<F>(&self, f: &mut F)
+    where F: FnMut(&GNode) {
+        let mut hs = HashSet::new();
+        self.dep_trav_mut1(f, &mut hs);
+        f(self);
+    }
+
+    pub fn dep_trav_mut1<F>(&self, f: &mut F, hs: &mut HashSet<Rc<Node>>)
+    where F: FnMut(&GNode) {
+        for input in &self.inputs {
+            input.borrow_mut().dep_trav_mut1(f, hs);
+
+            if !hs.contains(&input.borrow().node) {
+                hs.insert(input.borrow().node.clone());
+                f(&*input.borrow());
+            }
+        }
     }
 
     pub fn trav_mut<F>(&self, f: &mut F)
@@ -331,7 +352,7 @@ impl GNode {
 
     fn gather_steps(&self) -> Vec<Step> {
         let mut steps = Vec::new();
-        self.trav_mut(&mut |gn: &GNode| {
+        self.dep_trav_mut(&mut |gn: &GNode| {
             if *gn.node != Node::Input {
                 let ports:Vec<(u32,Range,String)> = gn.inputs.iter().zip(&gn.ports).map(|(input, port)| {
                     (input.borrow().index, port.range, input.borrow().node.type_name().to_string())
@@ -339,13 +360,17 @@ impl GNode {
                 steps.push(Step(ports, gn.node.prim_name().to_string(), gn.index));
             }
         });
-        steps.reverse();
+        //steps.reverse();
         steps
     }
 
     fn generate_patch_routing(&self) -> String {
         let mut acc: String = "".to_owned();
         let steps = self.gather_steps();
+        println!("Steps:");
+        for step in &steps {
+            println!("  {:?}", step);
+        }
 
         for Step(ports, prim_name, output_signal_index) in steps {
             if PATCH_LOGGING {
@@ -426,8 +451,8 @@ pub const INPUT: &'static [f32] = &[
 pub const OUTPUT: &'static [f32] = &[
     0.0,
     0.4,
-    0.12,
-    0.24,
+    1.2,
+    2.4,
 ];
 
 pub fn main() {{
