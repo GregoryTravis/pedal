@@ -203,13 +203,44 @@ impl GNode {
         });
     }
 
-    pub fn generate(&self, name: &str) -> String {
+    fn generate_struct(&self, name: &str) -> String {
         let mut acc: String = "".to_owned();
         acc.push_str(&format!("pub struct {} {{\n", name).to_owned());
         self.trav_mut(&mut |gn: &GNode| {
             acc.push_str(&format!("    signal{}: Signal<{}>,\n", gn.index, gn.node.type_name()).to_owned());
         });
         acc.push_str("}\n");
+        acc
+    }
+
+    fn generate_impl(&self, name: &str) -> String {
+        let mut acc: String = "".to_owned();
+        let mut acc_lines: String = "".to_owned();
+
+        self.trav_mut(&mut |gn: &GNode| {
+            acc_lines.push_str(&format!("    signal{}: Signal::new(MAX),\n", gn.index));
+        });
+
+        acc.push_str(&format!(
+            r#"
+impl {} {{
+    pub fn new() -> {} {{
+        {} {{
+            {}
+        }}
+    }}
+}}
+"#,
+                name, name, name, acc_lines));
+
+        acc
+    }
+
+    pub fn generate(&self, name: &str) -> String {
+        let mut acc: String = "".to_owned();
+        acc.push_str("const MAX: usize = 10;\n\n");
+        acc.push_str(&self.generate_struct(name));
+        acc.push_str(&self.generate_impl(name));
         acc
     }
 }

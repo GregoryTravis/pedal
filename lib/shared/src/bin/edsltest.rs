@@ -28,7 +28,11 @@ fn build() {
     groot.borrow_mut().make_causal();
     groot.borrow_mut().number_nodes();
     groot.borrow().dump();
-    println!("{}", GNode::generate(&mut groot.borrow(), "NodeyPatch"));
+
+    //println!("{}", GNode::generate(&mut groot.borrow(), "NodeyPatch"));
+    let f = File::create("src/bin/edslpatch_gen.rs").expect("Unable to create file");
+    let mut f = BufWriter::new(f);
+    f.write_all(GNode::generate(&mut groot.borrow(), "NodeyPatch").as_bytes()).unwrap();
 }
 
 fn main() {
