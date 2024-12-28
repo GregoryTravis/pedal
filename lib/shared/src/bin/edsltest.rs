@@ -37,10 +37,12 @@ fn build() {
 }
 
 fn main() {
+    /*
     let f = File::create("src/bin/edslpatch_old.rs").expect("Unable to create file");
     let mut f = BufWriter::new(f);
     f.write_all(S0.as_bytes()).expect("Unable to write data");
     f.write_all(S1.as_bytes()).expect("Unable to write data");
+    */
     build();
     println!("hi edsl");
 }
