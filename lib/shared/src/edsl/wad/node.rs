@@ -169,9 +169,9 @@ impl GNode {
         //println!("mc {}", self.node.shew());
         let futurest: isize = self.ports.iter().map(|p| p.range.1).fold(std::isize::MIN, |a, b| a.max(b));
         for port in &mut self.ports {
-            let orig = port.clone();
+            //let orig = port.clone();
             *port = port.translate(-futurest);
-            println!("mc {} {:?} {:?}", self.node.shew(), orig, port);
+            //println!("mc {} {:?} {:?}", self.node.shew(), orig, port);
         }
     }
 
@@ -184,7 +184,7 @@ impl GNode {
         let mut numberer = |gnode: &mut GNode| {
             let next = serial;
             serial += 1;
-            println!("nn {} {}", gnode.index, next);
+            //println!("nn {} {}", gnode.index, next);
             gnode.index = next;
         };
         self.travm_mut(&mut numberer)
