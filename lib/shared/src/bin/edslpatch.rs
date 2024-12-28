@@ -88,23 +88,6 @@ impl Patch for NodeyPatch {
 
 pub const INPUT: &'static [f32] = &[0.0, 0.1, 0.2, 0.3];
 
-/*
-0
-2
-4
-6
-
-0
-2
-6
-10
-
-0
-2
-6
-12
-*/
-
 pub const OUTPUT: &'static [f32] = &[0.0, 0.4, 1.2, 2.4];
 
 pub fn main() {
