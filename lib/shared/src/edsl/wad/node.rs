@@ -165,6 +165,52 @@ impl GNode {
         }
     }
 
+    /*
+    // TODO creating new refcells means its not really shared
+    pub fn find_nodes<P>(&self, pred: P) -> Vec<Rc<RefCell<GNode>>>
+    where P: Fn(&GNode) -> bool {
+        let mut vec = Vec::new();
+        self.trav(&|gn: &GNode| {
+            if pred(gn) {
+                vec.push(Rc::new(RefCell::new(*gn)));
+            }
+        });
+        vec
+    }
+
+    pub fn find_node<P>(&self, pred: P) -> Rc<RefCell<GNode>>
+    where P: Fn(&GNode) -> bool {
+        let vec = self.find_nodes(pred);
+        assert!(vec.len() == 1);
+        vec[0]
+    }
+
+    pub fn get_input_slice(&self) -> Rc<RefCell<GNode>> {
+        self.find_node(|gn: &GNode| {
+            // TODO shouldn't need match here
+            match gn.node {
+                Input => true,
+                _ => false,
+            }
+        })
+    }
+    */
+
+    // TODO doing this because find is hard
+    pub fn get_input_slice_index(&self) -> u32 {
+        let mut index: Option<u32> = None;
+        self.trav_mut(&mut |gn: &GNode| {
+            match *gn.node {
+                Node::Input => {
+                    assert!(index == None);
+                    index = Some(gn.index);
+                },
+                _ => {}
+            }
+        });
+        index.unwrap()
+    }
+
     fn make_causal_me(&mut self) {
         //println!("mc {}", self.node.shew());
         let futurest: isize = self.ports.iter().map(|p| p.range.1).fold(std::isize::MIN, |a, b| a.max(b));
@@ -236,11 +282,81 @@ impl GNode {
         acc
     }
 
+    fn generate_patch_impl(&self, name: &str) -> String {
+        let mut acc: String = "".to_owned();
+
+        let input_signal = format!("signal{}", self.get_input_slice_index());
+        let output_signal = format!("signal{}", self.index);
+        let body = "";
+
+        acc.push_str(&format!(r#"
+impl Patch for {} {{
+    fn rust_process_audio(
+        &mut self,
+        input_slice: &[f32],
+        output_slice: &mut [f32],
+        _knobs: &Box<dyn Knobs>,
+        mut playhead: Playhead,
+    ) {{
+        for i in 0..input_slice.len() {{
+            self.input_signal.write({}[i]);
+
+            {}
+            /*
+            let pass_thru_0: Window<f32> = Window::new(&self.input_signal, Range(-3, 0));
+
+            pass_thru(&pass_thru_0, &mut self.signal0);
+
+            let add_0: Window<f32> = Window::new(&self.input_signal, Range(-2, 0));
+            let add_1: Window<f32> = Window::new(&self.signal0, Range(-1, 0));
+            add(&add_0, &add_1, &mut self.signal1);
+
+            let sum_filter_0: Window<f32> = Window::new(&self.signal1, Range(-2, 0));
+            sum_filter(&sum_filter_0, &mut self.output_signal);
+            */
+
+            {}[i] = self.output_signal.read(0);
+
+            playhead.inc();
+        }}
+    }}
+}}
+
+pub const INPUT: &'static [f32] = &[
+0.0,
+0.057564028,
+0.11493716,
+0.1719291,
+];
+
+pub const OUTPUT: &'static [f32] = &[
+    0.0,
+    0.115128055,
+    0.34500235,
+    0.68886054,
+];
+
+pub fn main() {{
+    let patch = Box::new({}::new());
+    let test_case = Box::new(TestCase {{
+            name: "{}",
+            patch: patch,
+            canned_input: INPUT,
+            expected_output: OUTPUT,
+        }});
+    test_patch(test_case.name, test_case.patch, test_case.canned_input, test_case.expected_output);
+}}
+"#,
+            name, input_signal, body, output_signal, name, name));
+        acc
+    }
+
     pub fn generate(&self, name: &str) -> String {
         let mut acc: String = "".to_owned();
         acc.push_str("const MAX: usize = 10;\n\n");
         acc.push_str(&self.generate_struct(name));
         acc.push_str(&self.generate_impl(name));
+        acc.push_str(&self.generate_patch_impl(name));
         acc
     }
 }
