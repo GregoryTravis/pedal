@@ -549,10 +549,12 @@ pub fn genericize1(node: &Rc<Node>, hm: &mut HashMap<Rc<Node>, Rc<RefCell<GNode>
 + add main sample field
 + make claims causal; add causality delay
 - make main samples line up (try rtl, then ltr if that fails); add main sample delay
++ generate signals, windows, prim calls
+  + signal decl type
+  + window type (from signal)
+  + window size
+- look at optimized asm
+- better approach to graph
 - combine claims to get stream window sizes
-- generate signals, windows, prim calls
-  - signal decl type
-  - window type (from signal)
-  - window size
 
 */
