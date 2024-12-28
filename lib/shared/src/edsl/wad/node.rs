@@ -127,10 +127,12 @@ impl GNode {
     }
 
     fn make_causal_me(&mut self) {
-        println!("mc {}", self.node.shew());
+        //println!("mc {}", self.node.shew());
         let futurest: isize = self.ports.iter().map(|p| p.range.1).fold(std::isize::MIN, |a, b| a.max(b));
         for port in &mut self.ports {
+            let orig = port.clone();
             *port = port.translate(-futurest);
+            println!("mc {} {:?} {:?}", self.node.shew(), orig, port);
         }
     }
 
