@@ -388,6 +388,7 @@ impl GNode {
             let signals: Vec<String> = port_numbers.iter().map(|port_index| format!("&port{}_{}", output_signal_index, port_index)).collect();
             let signals_joined: String = signals.join(", ");
             acc.push_str(&format!("{}({}, &mut self.signal{});\n", prim_name, signals_joined, output_signal_index));
+            acc.push_str("\n");
         }
 
         acc
@@ -415,7 +416,6 @@ impl Patch for {} {{
             self.{}.write(input_slice[i]);
 
             {}
-
             output_slice[i] = self.{}.read(0);
 
             playhead.inc();

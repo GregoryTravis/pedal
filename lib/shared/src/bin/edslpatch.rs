@@ -59,16 +59,20 @@ impl Patch for NodeyPatch {
             println!("{} {}", 4, "pass_thru");
             let port4_0: Window<f32> = Window::new(&self.signal3, Range(0, 0));
             pass_thru(&port4_0, &mut self.signal4);
+
             println!("{} {}", 2, "add");
             let port2_0: Window<f32> = Window::new(&self.signal3, Range(0, 0));
             let port2_1: Window<f32> = Window::new(&self.signal4, Range(0, 0));
             add(&port2_0, &port2_1, &mut self.signal2);
+
             println!("{} {}", 1, "sum_filter");
             let port1_0: Window<f32> = Window::new(&self.signal2, Range(-2, 0));
             sum_filter(&port1_0, &mut self.signal1);
+
             println!("{} {}", 5, "sum_filter");
             let port5_0: Window<f32> = Window::new(&self.signal2, Range(-6, 0));
             sum_filter(&port5_0, &mut self.signal5);
+
             println!("{} {}", 0, "add");
             let port0_0: Window<f32> = Window::new(&self.signal1, Range(0, 0));
             let port0_1: Window<f32> = Window::new(&self.signal5, Range(0, 0));
