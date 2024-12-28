@@ -6,7 +6,7 @@ use alloc::rc::Rc;
 
 use shared::edsl::wad::node::{Node, compile};
 
-fn build() {
+fn build_edsl_nodey() {
     let input = Rc::new(Node::Input);
     let pt = Rc::new(Node::PassThru(input.clone()));
     let add = Rc::new(Node::Add(input.clone(), pt.clone()));
@@ -18,6 +18,6 @@ fn build() {
 }
 
 fn main() {
-    build();
+    build_edsl_nodey();
     println!("hi edsl");
 }
