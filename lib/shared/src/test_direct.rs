@@ -3,7 +3,7 @@ extern crate alloc;
 use crate::testdata::*;
 use crate::test_cases::*;
 use crate::test::*;
-#[cfg(feature = "for_host")]
+//#[cfg(feature = "for_host")]
 
 /*
  * Unit tests for patches.

@@ -45,7 +45,7 @@ use shared::r#override::*;
 use shared::spew::*;
 use shared::switch::Toggle;
 use shared::switch_board::*;
-use shared::test::test_direct;
+use shared::test_direct::test_direct;
 
 #[allow(dead_code)]
 fn harmoneer(sdram: &mut SDRAM) -> Box<dyn Patch> {
