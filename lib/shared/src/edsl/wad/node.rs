@@ -11,6 +11,8 @@ use core::cmp::{Eq, PartialEq};
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::format;
+use std::fs::File;
+use std::io::{BufWriter, Write};
 use std::hash::Hash;
 use std::println;
 
@@ -542,6 +544,17 @@ pub fn genericize1(node: &Rc<Node>, hm: &mut HashMap<Rc<Node>, Rc<RefCell<GNode>
         hm.insert(node.clone(), gnrc.clone());
         gnrc
     }
+}
+
+pub fn compile(node: &Rc<Node>, filename: &str, patch_name: &str) {
+    let groot = genericize(&node);
+    groot.borrow_mut().make_causal();
+    groot.borrow_mut().number_nodes();
+    groot.borrow().dump();
+
+    let f = File::create(filename).expect("Unable to create file");
+    let mut f = BufWriter::new(f);
+    f.write_all(GNode::generate(&mut groot.borrow(), patch_name).as_bytes()).unwrap();
 }
 
 /*
