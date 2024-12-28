@@ -223,15 +223,15 @@ impl GNode {
 
         acc.push_str(&format!(
             r#"
-impl {} {{
-    pub fn new() -> {} {{
-        {} {{
-            {}
-        }}
-    }}
-}}
-"#,
-                name, name, name, acc_lines));
+            impl {} {{
+                pub fn new() -> {} {{
+                    {} {{
+                        {}
+                    }}
+                }}
+            }}
+            "#,
+            name, name, name, acc_lines));
 
         acc
     }
