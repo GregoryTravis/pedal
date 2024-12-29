@@ -1,7 +1,4 @@
-(cargo run --bin edsltest --features for_host && \
- rustfmt src/filter/edsl_*.rs && \
- echo ok \
- ) 2>&1 | tee out
+./build-edsl-patches.sh 2>&1 | tee out
 exit
 
 (cargo run --bin edsltest --features for_host && \

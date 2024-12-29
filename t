@@ -1,11 +1,12 @@
 set -x
 set -e
 
-pushd host
-cargo run --bin test --features for_host
-cargo test --features for_host
-popd
+pushd host && \
+cargo run --bin test --features for_host && \
+cargo test --features for_host && \
+popd && \
 
-pushd lib/shared
-cargo test --lib --features for_host
+pushd lib/shared && \
+./build-edsl-patches.sh && \
+cargo test --lib --features for_host && \
 popd

@@ -1,3 +1,6 @@
+cargo run --bin benchmark_test --features for_host 2>&1 | tee out
+exit
+
 cargo run --bin test --features for_host 2>&1 | tee out
 exit
 

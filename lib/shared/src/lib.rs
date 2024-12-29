@@ -3,8 +3,8 @@
 #[macro_use]
 extern crate alloc;
 
-#[cfg(not(feature = "for_host"))]
 pub mod bench;
+pub mod benchmark_test;
 pub mod ds;
 pub mod convert;
 pub mod constants;

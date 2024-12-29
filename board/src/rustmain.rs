@@ -8,6 +8,8 @@ use alloc::vec::Vec;
 #[allow(unused_imports)]
 use shared::bench::benchmark;
 #[allow(unused_imports)]
+use shared::benchmark_test::benchmark_direct;
+#[allow(unused_imports)]
 use shared::fft_bench::*;
 #[allow(unused_imports)]
 use shared::filter::chorus::*;
@@ -150,12 +152,19 @@ pub fn benchmark_fft() {
     do_benchmark_fft();
 }
 
+#[allow(dead_code)]
+pub fn benchmark_patches() {
+    hw_init(true, BLOCK_SIZE);
+    benchmark_direct();
+}
+
 #[no_mangle]
 pub fn main() {
     spew!("start of main");
 
     //live_main();
-    all_tests();
+    //all_tests();
+    benchmark_patches();
     //oom_test();
     //benchmark_fft();
 

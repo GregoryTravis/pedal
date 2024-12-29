@@ -6,6 +6,7 @@ pub struct BenchmarkResults {
     pub duration: f32,
     pub execution_count: u32,
     pub avg_time: f32,
+    pub per_second: f32,
 }
 
 pub fn benchmark<F>(duration: f32, mut code: F) -> BenchmarkResults 
@@ -22,5 +23,6 @@ pub fn benchmark<F>(duration: f32, mut code: F) -> BenchmarkResults
         duration: total_duration,
         execution_count: count,
         avg_time: total_duration / (count as f32),
+        per_second: (count as f32) / total_duration,
     }
 }
