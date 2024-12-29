@@ -1,6 +1,7 @@
 pub mod chorus;
 pub mod delay;
 pub mod edsl_nodey;
+pub mod edsl_high_pass;
 pub mod envelope_follower;
 pub mod fuzz;
 pub mod gain;

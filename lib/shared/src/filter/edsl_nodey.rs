@@ -4,7 +4,7 @@ extern crate libm;
 use alloc::boxed::Box;
 
 use crate::edsl::runtime::{
-    prim::{add, pass_thru, sum_filter},
+    prim::{add, high_pass, pass_thru, sum_filter},
     range::Range,
     signal::Signal,
     window::Window,

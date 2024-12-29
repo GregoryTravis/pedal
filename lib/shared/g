@@ -1,5 +1,6 @@
 (cargo run --bin edsltest --features for_host && \
  rustfmt src/filter/edsl_nodey.rs && \
+ rustfmt src/filter/edsl_high_pass.rs && \
  cat src/filter/edsl_nodey.rs && \
  echo ok \
  ) 2>&1 | tee out

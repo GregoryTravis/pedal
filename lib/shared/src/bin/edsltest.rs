@@ -17,7 +17,14 @@ fn build_edsl_nodey() {
     compile(&out, "src/filter/edsl_nodey.rs", "EdslNodey");
 }
 
+fn build_edsl_high_pass() {
+    let input = Rc::new(Node::Input);
+    let out = Rc::new(Node::HighPass(input.clone()));
+    compile(&out, "src/filter/edsl_high_pass.rs", "EdslHighPass");
+}
+
 fn main() {
     build_edsl_nodey();
+    build_edsl_high_pass();
     println!("hi edsl");
 }

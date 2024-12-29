@@ -26,6 +26,7 @@ pub enum Node {
     PassThru(Rc<Node>),
     Add(Rc<Node>, Rc<Node>),
     SumFilter(Rc<Node>, isize, isize),
+    HighPass(Rc<Node>),
 }
 
 impl Node {
@@ -35,6 +36,7 @@ impl Node {
             Node::PassThru(_) => "PassThru",
             Node::Add(_, _) => "Add",
             Node::SumFilter(_, _, _) => "SumFilter",
+            Node::HighPass(_) => "HighPass",
         }
     }
 
@@ -44,6 +46,7 @@ impl Node {
             Node::PassThru(inn) => format!("PassThru({})", inn.name()),
             Node::Add(a, b) => format!("Add({}, {})", a.name(), b.name()),
             Node::SumFilter(inn, low, high) => format!("SumFilter({}, {}, {})", inn.name(), low, high),
+            Node::HighPass(inn) => format!("SumFilter({})", inn.name()),
         }
     }
 
@@ -53,6 +56,7 @@ impl Node {
             Node::PassThru(_) => "pass_thru",
             Node::Add(_, _) => "add",
             Node::SumFilter(_, _, _) => "sum_filter",
+            Node::HighPass(_) => "high_pass",
         }
     }
 
@@ -62,6 +66,7 @@ impl Node {
             Node::PassThru(inn) => inn.type_name(),
             Node::Add(a, b) => same_type(a.type_name(), b.type_name()),
             Node::SumFilter(inn, _, _) => inn.type_name(),
+            Node::HighPass(inn) => inn.type_name(),
         }
     }
 }
@@ -463,7 +468,7 @@ extern crate libm;
 
 use alloc::boxed::Box;
 
-use crate::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::{add, pass_thru, sum_filter}};
+use crate::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::{add, pass_thru, sum_filter, high_pass}};
 use crate::knob::Knobs;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
@@ -535,6 +540,19 @@ pub fn genericize1(node: &Rc<Node>, hm: &mut HashMap<Rc<Node>, Rc<RefCell<GNode>
                 ports: vec![
                     Port {
                         range: Range(*low, *high),
+                        main_sample: 0,
+                    },
+                ]
+            },
+            Node::HighPass(inn) => GNode {
+                index: 0,
+                node: (*node).clone(),
+                inputs: vec![
+                    genericize1(&inn, hm),
+                ],
+                ports: vec![
+                    Port {
+                        range: Range(-2, 0),
                         main_sample: 0,
                     },
                 ]
