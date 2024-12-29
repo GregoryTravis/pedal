@@ -374,10 +374,12 @@ impl GNode {
     fn generate_patch_routing(&self) -> String {
         let mut acc: String = "".to_owned();
         let steps = self.gather_steps();
+        /*
         println!("Steps:");
         for step in &steps {
             println!("  {:?}", step);
         }
+        */
 
         for Step(ports, prim_name, output_signal_index) in steps {
             if PATCH_LOGGING {
@@ -468,6 +470,7 @@ extern crate libm;
 
 use alloc::boxed::Box;
 
+#[allow(unused_imports)]
 use crate::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::{add, pass_thru, sum_filter, high_pass}};
 use crate::knob::Knobs;
 use crate::patch::Patch;

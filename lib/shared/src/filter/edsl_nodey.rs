@@ -3,6 +3,7 @@ extern crate libm;
 
 use alloc::boxed::Box;
 
+#[allow(unused_imports)]
 use crate::edsl::runtime::{
     prim::{add, high_pass, pass_thru, sum_filter},
     range::Range,
