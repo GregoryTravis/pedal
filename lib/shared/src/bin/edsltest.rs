@@ -23,8 +23,22 @@ fn build_edsl_high_pass() {
     compile(&out, "src/filter/edsl_high_pass.rs", "EdslHighPass");
 }
 
+fn build_edsl_low_pass() {
+    let input = Rc::new(Node::Input);
+    let out = Rc::new(Node::LowPass(input.clone()));
+    compile(&out, "src/filter/edsl_low_pass.rs", "EdslLowPass");
+}
+
+fn build_edsl_pass_thru() {
+    let input = Rc::new(Node::Input);
+    let out = Rc::new(Node::PassThru(input.clone()));
+    compile(&out, "src/filter/edsl_pass_thru.rs", "EdslPassThru");
+}
+
 fn main() {
     build_edsl_nodey();
     build_edsl_high_pass();
+    build_edsl_low_pass();
+    build_edsl_pass_thru();
     println!("hi edsl");
 }

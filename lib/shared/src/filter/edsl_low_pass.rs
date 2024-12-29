@@ -15,21 +15,21 @@ use crate::patch::Patch;
 use crate::playhead::Playhead;
 use crate::test::*;
 const MAX: usize = 10;
-pub struct EdslHighPass {
+pub struct EdslLowPass {
     signal0: Signal<f32>,
     signal1: Signal<f32>,
 }
 
-impl EdslHighPass {
-    pub fn new() -> EdslHighPass {
-        EdslHighPass {
+impl EdslLowPass {
+    pub fn new() -> EdslLowPass {
+        EdslLowPass {
             signal0: Signal::new(MAX),
             signal1: Signal::new(MAX),
         }
     }
 }
 
-impl Patch for EdslHighPass {
+impl Patch for EdslLowPass {
     fn rust_process_audio(
         &mut self,
         input_slice: &[f32],
@@ -41,7 +41,7 @@ impl Patch for EdslHighPass {
             self.signal1.write(input_slice[i]);
 
             let port0_0: Window<f32> = Window::new(&self.signal1, Range(-1, 0));
-            high_pass(&port0_0, &mut self.signal0);
+            low_pass(&port0_0, &mut self.signal0);
 
             output_slice[i] = self.signal0.read(0);
 
@@ -55,9 +55,9 @@ pub const INPUT: &'static [f32] = &[0.0, 0.1, 0.2, 0.3];
 pub const OUTPUT: &'static [f32] = &[0.0, 0.4, 1.2, 2.4];
 
 pub fn main() {
-    let patch = Box::new(EdslHighPass::new());
+    let patch = Box::new(EdslLowPass::new());
     let test_case = Box::new(TestCase {
-        name: "EdslHighPass",
+        name: "EdslLowPass",
         patch: patch,
         canned_input: INPUT,
         expected_output: OUTPUT,

@@ -36,6 +36,10 @@ pub fn high_pass(inn: &Window<f32>, out: &mut Signal<f32>) {
     out.write(5.0 * ((inn.read(0) - inn.read(-1)) / 2.0));
 }
 
+pub fn low_pass(inn: &Window<f32>, out: &mut Signal<f32>) {
+    out.write(5.0 * ((inn.read(0) + inn.read(-1)) / 2.0));
+}
+
 // Dum filter that sums the entire input range.
 pub fn sum_filter<T: Add<Output = T> + AddAssign + Default + Copy>(inn: &Window<T>, out: &mut Signal<T>) {
     let mut sum: T = Default::default();
