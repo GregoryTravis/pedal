@@ -1,14 +1,16 @@
 use alloc::vec::Vec;
 use core::default::Default;
 
+pub type Signal<T> = VecSignal<T>;
+
 #[derive(Debug)]
-pub struct Signal<T: Default + Copy> {
+pub struct VecSignal<T: Default + Copy> {
     vec: Vec<T>,
 }
 
-impl <T: Default + Copy> Signal<T> {
-    pub fn new(size: usize) -> Signal<T> {
-        Signal {
+impl <T: Default + Copy> VecSignal<T> {
+    pub fn new(size: usize) -> VecSignal<T> {
+        VecSignal {
             vec: vec![Default::default(); size],
         }
     }
