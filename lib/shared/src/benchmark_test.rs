@@ -13,7 +13,7 @@ pub fn benchmark_direct() {
     for test_case in get_test_cases() {
         let mut patch = test_case.patch;
         let canned_input = test_case.canned_input;
-        let results = benchmark(0.1, &mut || {
+        let results = benchmark(1.0, &mut || {
             run_patch_direct(&mut patch, canned_input);
         });
         spew!("bench", test_case.name,
