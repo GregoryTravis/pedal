@@ -13,6 +13,7 @@ pub fn test_direct() {
     if DO_DUMP {
         local_test_dump_as_source("TEST_INPUT", &TEST_INPUT);
         local_test_dump_as_source("LONG_TEST_INPUT", &LONG_TEST_INPUT);
+        local_test_dump_as_source("EDSL_NODEY_INPUT", EDSL_NODEY_INPUT);
     }
 
     for test_case in get_test_cases() {

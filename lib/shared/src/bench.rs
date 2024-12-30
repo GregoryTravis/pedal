@@ -1,5 +1,7 @@
 use crate::time::Timer;
 
+const WARMUP_DURATION: f32 = 0.1;
+
 #[derive(Debug)]
 pub struct BenchmarkResults {
     pub requested_duration: f32,
@@ -9,7 +11,7 @@ pub struct BenchmarkResults {
     pub per_second: f32,
 }
 
-pub fn benchmark<F>(duration: f32, mut code: F) -> BenchmarkResults 
+pub fn run_for<F>(duration: f32, code: &mut F) -> BenchmarkResults
     where F: FnMut() {
     let timer = Timer::new();
     let mut count = 0;
@@ -25,4 +27,10 @@ pub fn benchmark<F>(duration: f32, mut code: F) -> BenchmarkResults
         avg_time: total_duration / (count as f32),
         per_second: (count as f32) / total_duration,
     }
+}
+
+pub fn benchmark<F>(duration: f32, code: &mut F) -> BenchmarkResults
+    where F: FnMut() {
+    run_for(WARMUP_DURATION, code);
+    run_for(duration, code)
 }
