@@ -310,8 +310,8 @@ impl GNode {
     pub fn dump(&self) {
         self.trav(&|gn: &GNode| {
             println!("{}", gn.shew());
-            for input in &gn.inputs {
-                println!("  {}", input.borrow().shew());
+            for (input, port) in gn.inputs.iter().zip(&gn.ports) {
+                println!("  {} : {:?}", input.borrow().shew(), port);
             }
         });
     }
