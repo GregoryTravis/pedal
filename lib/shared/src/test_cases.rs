@@ -7,6 +7,7 @@ use crate::filter::delay::*;
 use crate::filter::edsl_nodey::*;
 use crate::filter::edsl_high_pass::*;
 use crate::filter::edsl_low_pass::*;
+use crate::filter::edsl_low_pass_6::*;
 use crate::filter::edsl_pass_thru::*;
 use crate::filter::harmoneer::*;
 use crate::filter::high_pass::*;
@@ -126,6 +127,12 @@ pub fn get_test_cases() -> Vec<Box<TestCase>> {
             patch: Box::new(EdslPassThru::new()),
             canned_input: TEST_INPUT,
             expected_output: PASS_THRU_OUTPUT,
+        }),
+        Box::new(TestCase {
+            name: "edsl_low_pass_6",
+            patch: Box::new(EdslLowPass6::new()),
+            canned_input: TEST_INPUT,
+            expected_output: EDSL_LOW_PASS_6_OUTPUT,
         }),
     ]
 }

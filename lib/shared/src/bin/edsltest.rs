@@ -35,10 +35,20 @@ fn build_edsl_pass_thru() {
     compile(&out, "src/filter/edsl_pass_thru.rs", "EdslPassThru");
 }
 
+fn build_edsl_low_pass_6() {
+    let input = Rc::new(Node::Input);
+    let mut n = input;
+    for _ in 0..6 {
+        n = Rc::new(Node::LowPass(n));
+    }
+    compile(&n, "src/filter/edsl_low_pass_6.rs", "EdslLowPass6");
+}
+
 fn main() {
     build_edsl_nodey();
     build_edsl_high_pass();
     build_edsl_low_pass();
     build_edsl_pass_thru();
+    build_edsl_low_pass_6();
     println!("hi edsl");
 }
