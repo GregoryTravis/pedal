@@ -18,6 +18,7 @@ impl <T: Default + Copy> EdslCircbuf<T> {
         }
     }
 
+    #[inline(always)]
     pub fn write(&mut self, t: T) {
         self.cursor = self.cursor + 1;
         if self.cursor == self.size {
@@ -28,6 +29,7 @@ impl <T: Default + Copy> EdslCircbuf<T> {
     }
 
     // Valid range [-(size-1)..0] (inclusive)
+    #[inline(always)]
     pub fn read(&self, i: isize) -> T {
         // TODO remove
         //assert!(self.index_ok(i));

@@ -36,6 +36,7 @@ pub fn high_pass(inn: &Window<f32>, out: &mut Signal<f32>) {
     out.write(5.0 * ((inn.read(0) - inn.read(-1)) / 2.0));
 }
 
+#[inline(always)]
 pub fn low_pass(inn: &Window<f32>, out: &mut Signal<f32>) {
     out.write(5.0 * ((inn.read(0) + inn.read(-1)) / 2.0));
 }

@@ -15,11 +15,13 @@ impl <'a, T: Default + Copy> Window<'a, T> {
         }
     }
 
+    #[inline(always)]
     pub fn read(&self, i: isize) -> T {
         assert!(self.range.contains(i));
         self.signal.read(i)
     }
 
+    #[inline(always)]
     pub fn range(&self) -> Range {
         self.range
     }

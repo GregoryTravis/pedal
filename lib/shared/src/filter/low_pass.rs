@@ -15,6 +15,7 @@ impl LowPassFilter {
 }
 
 impl Patch for LowPassFilter {
+    #[inline(always)]
     fn rust_process_audio(
         &mut self,
         input_slice: &[f32],

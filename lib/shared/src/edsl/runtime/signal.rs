@@ -45,10 +45,12 @@ impl <T: Default + Copy> EdslCircbufSignal<T> {
         }
     }
 
+    #[inline(always)]
     pub fn write(&mut self, x: T) {
         self.buf.write(x);
     }
 
+    #[inline(always)]
     pub fn read(&self, i: isize) -> T {
         self.buf.read(i)
     }
