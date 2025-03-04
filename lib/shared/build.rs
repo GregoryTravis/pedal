@@ -5,5 +5,5 @@ fn main() {
     cc::Build::new()
         .file("src/yin/Yin.c")
         .compile("yin");
-    println!("cargo:rustc-link-lib=libyin");
+    println!("cargo:rustc-link-lib=yin");
 }

@@ -5,11 +5,11 @@
 
 static Yin my_yin;
 
-void yin_init(int16_t buffer_size, float threshold) {
+void yin_init_c(int16_t buffer_size, float threshold) {
   Yin_init(&my_yin, buffer_size, threshold);
 }
 
-float yin_process(int16_t *buffer) {
+float yin_process_c(int16_t *buffer) {
   for (int i = 0; i < 4; ++i) {
     printf("c: %d\n", buffer[i]);
   }

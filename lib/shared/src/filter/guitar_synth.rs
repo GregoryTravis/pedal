@@ -12,11 +12,7 @@ use crate::knob::Knobs;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
 use crate::spew::*;
-
-extern "C" {
-    fn yin_init(buffer_size: i16, threshold: f32);
-    fn yin_process(buffer: *const i16) -> f32;
-}
+use crate::yin::*;
 
 const BUFFER_SIZE: usize = 1024;
 
@@ -28,9 +24,7 @@ pub struct GuitarSynth {
 
 impl GuitarSynth {
     pub fn new() -> GuitarSynth {
-        unsafe {
-            yin_init(BUFFER_SIZE as i16, 0.05);
-        }
+        yin_init(BUFFER_SIZE as i16, 0.05);
         GuitarSynth {
             buffer: [0.0; BUFFER_SIZE],
             int_buffer: [0; BUFFER_SIZE],
@@ -60,11 +54,7 @@ impl Patch for GuitarSynth {
             spew!(self.buffer[i], self.int_buffer[1]);
         }
 
-        let int_buffer_slice: &[i16] = &self.int_buffer;
-        let int_buffer_ptr: *const i16 = int_buffer_slice.as_ptr();
-        let pitch: f32 = unsafe {
-            yin_process(int_buffer_ptr)
-        };
+        let pitch: f32 = yin_process(&self.int_buffer);
 
         spew!(pitch);
 
