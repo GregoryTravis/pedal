@@ -16,6 +16,12 @@ impl Spewable for i32 {
     }
 }
 
+impl Spewable for i16 {
+    fn do_spew(&self) {
+        print!("{}", self);
+    }
+}
+
 impl Spewable for u32 {
     fn do_spew(&self) {
         print!("{}", self);

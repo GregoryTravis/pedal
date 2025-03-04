@@ -21,7 +21,7 @@ clean_pedal_dependent_o:
 	rm -f build/pedal.o
 
 # Sources
-CPP_SOURCES = spew.cpp hw.cpp load.cpp vibrato.cpp playhead.cpp circbuf.cpp patch.cpp speed_test.cpp daisy_seed.cpp rig.cpp knob.cpp switch.cpp
+CPP_SOURCES = spew.cpp hw.cpp load.cpp vibrato.cpp playhead.cpp circbuf.cpp patch.cpp speed_test.cpp daisy_seed.cpp rig.cpp knob.cpp switch.cpp Yin.c
 # CPP_SOURCES omitted since they take up code and bss space even when not used
 # arm_fft.cpp shy_fft.cpp
 

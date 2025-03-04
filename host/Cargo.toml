@@ -25,3 +25,6 @@ libm = "0.2.8"
 #board = { path = "../lib/board" }
 shared = { path = "../lib/shared", optional = true, features = ["for_host"] }
 #host = { path = "../lib/host", optional = true, features = ["for_host"] }
+
+[build-dependencies]
+cc = "1.2.16"
