@@ -15,6 +15,7 @@ float yin_process_c(int16_t *buffer) {
   }
   float pitch = Yin_getPitch(&my_yin, buffer);
   printf("c returning %f\n", pitch);
+  fflush(stdout);
   return pitch;
 }
 

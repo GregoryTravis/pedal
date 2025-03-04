@@ -44,9 +44,10 @@ impl Patch for GuitarSynth {
         // TODO don't do this.
         let slice_len = input_slice.len();
         for i in 0..BUFFER_SIZE-slice_len {
-            self.int_buffer[i] = sample_f32_to_i16(self.buffer[i+slice_len]);
+            self.int_buffer[i] = self.int_buffer[i+slice_len];
         }
         for i in 0..slice_len {
+            //spew!("um", input_slice[i]);
             self.int_buffer[i+BUFFER_SIZE-slice_len] = sample_f32_to_i16(input_slice[i]);
         }
 
