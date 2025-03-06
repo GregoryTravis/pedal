@@ -10,11 +10,7 @@ void yin_init_c(int16_t buffer_size, float threshold) {
 }
 
 float yin_process_c(int16_t *buffer) {
-  for (int i = 0; i < 4; ++i) {
-    printf("c: %d\n", buffer[i]);
-  }
   float pitch = Yin_getPitch(&my_yin, buffer);
-  printf("c returning %f\n", pitch);
   fflush(stdout);
   return pitch;
 }
@@ -193,11 +189,6 @@ void Yin_init(Yin *yin, int16_t bufferSize, float threshold){
 
 	/* Allocate the autocorellation buffer and initialise it to zero */
 	yin->yinBuffer = (float *) malloc(sizeof(float)* yin->halfBufferSize);
-
-	int16_t i;
-	for(i = 0; i < yin->halfBufferSize; i++){
-		yin->yinBuffer[i] = 0;
-	}
 }
 
 /**
@@ -210,6 +201,11 @@ float Yin_getPitch(Yin *yin, int16_t* buffer){
 	int16_t tauEstimate = -1;
 	float pitchInHertz = -1;
 	
+	int16_t i;
+	for(i = 0; i < yin->halfBufferSize; i++){
+		yin->yinBuffer[i] = 0;
+	}
+
 	/* Step 1: Calculates the squared difference of the signal with a shifted version of itself. */
 	Yin_difference(yin, buffer);
 	

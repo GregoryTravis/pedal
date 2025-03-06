@@ -6,4 +6,5 @@ fn main() {
         .file("src/yin/Yin.c")
         .compile("yin");
     println!("cargo:rustc-link-lib=yin");
+    println!("cargo:rerun-if-changed=src/yin");
 }
