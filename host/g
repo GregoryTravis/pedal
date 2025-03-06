@@ -1,4 +1,4 @@
-cargo run --bin sim --features for_host -- yoyoma.wav /dev/null 2>&1 | tee out
+cargo run --bin sim --features for_host -- yoyoma.wav yoyoma.out.wav 2>&1 | tee out
 exit
 
 cargo run --bin test --features for_host 2>&1 | tee out
