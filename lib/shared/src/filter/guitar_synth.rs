@@ -19,6 +19,9 @@ use crate::yin::*;
 
 const BUFFER_SIZE: usize = 1024;
 
+// Use 0 instead of last pitch, and write the pitch to the output
+const PITCH_MODE: bool = false;
+
 pub struct GuitarSynth {
     // TODO put in sdram
     int_buffer: [i16; BUFFER_SIZE],
@@ -60,10 +63,14 @@ impl Patch for GuitarSynth {
         }
 
         let pitch_maybe: f32 = yin_process(&self.int_buffer);
-        let pitch = if pitch_maybe == -1.0 { self.last_pitch } else { pitch_maybe };
+        let pitch = if PITCH_MODE {
+            if pitch_maybe == -1.0 { 0.0 } else { pitch_maybe }
+        } else {
+            if pitch_maybe == -1.0 { self.last_pitch } else { pitch_maybe }
+        };
         self.last_pitch = pitch;
 
-        // spew!("pitch", pitch);
+        //spew!("pitch", pitch);
 
         let oscf: f32 = 2.0 * libm::sinf(PI * (pitch / SAMPLE_RATE as f32));
 
@@ -79,6 +86,12 @@ impl Patch for GuitarSynth {
             self.buf1 = self.buf1 + oscf * (self.buf0 - self.buf1);
             let out = self.buf1;
             output_slice[i] = out;
+
+            if PITCH_MODE {
+                // Render pitch as wav output
+                output_slice[i] = pitch / 500.0;
+            }
+
             playhead.inc();
         }
     }
