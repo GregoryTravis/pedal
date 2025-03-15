@@ -8,6 +8,7 @@ use shared::constants::*;
 use shared::filter::chorus::*;
 use shared::filter::delay::*;
 use shared::filter::envelope_follower::*;
+use shared::filter::fft_analyzer::*;
 use shared::filter::fuzz::*;
 use shared::filter::harmoneer::*;
 use shared::filter::linear_vibrato::*;
@@ -77,6 +78,12 @@ fn envelope_follower(input_file: &str, output_file: &str) {
     sim_main(input_file, output_file, Box::new(patch));
 }
 
+#[allow(dead_code)]
+fn fft_analyzer(input_file: &str, output_file: &str) {
+    let patch: FFTAnalyzer = FFTAnalyzer::new();
+    sim_main(input_file, output_file, Box::new(patch));
+}
+
 // min 3rd: 1.189
 // maj 3rd 1.26
 // 4th 1.335
@@ -102,13 +109,17 @@ fn harmoneer(sdram: &mut SDRAM, input_file: &str, output_file: &str) {
 }
 
 pub fn main() {
-    let mut sdram = SDRAM::new();
-
     let args: Vec<String> = env::args().collect();
     assert!(args.len() == 3);
     let input_file = &args[1];
     let output_file = &args[2];
+
+    /*
+    let mut sdram = SDRAM::new();
     //harmoneer(&mut sdram, input_file, output_file);
     let rubin = shared::rubin::rubin(&mut sdram);
     sim_main(input_file, output_file, rubin);
+    */
+
+    fft_analyzer(input_file, output_file);
 }

@@ -1,6 +1,7 @@
 pub mod chorus;
 pub mod delay;
 pub mod envelope_follower;
+pub mod fft_analyzer;
 pub mod fuzz;
 pub mod gain;
 pub mod harmoneer;
