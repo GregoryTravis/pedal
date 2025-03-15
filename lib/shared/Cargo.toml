@@ -35,3 +35,6 @@ required-features = ["hound"]
 [[bin]]
 name = "dump"
 required-features = ["hound"]
+
+[build-dependencies]
+cc = "1.2.16"
