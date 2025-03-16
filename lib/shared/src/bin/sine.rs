@@ -11,9 +11,10 @@ use shared::constants::SAMPLE_RATE;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    assert_eq!(args.len(), 3);
+    assert_eq!(args.len(), 4);
     let filename = &args[1];
-    let duration = args[2].parse::<f32>().unwrap();
+    let frequency: f32 = args[2].parse::<f32>().unwrap();
+    let duration = args[3].parse::<f32>().unwrap();
 
     let spec = hound::WavSpec {
         channels: 1,
@@ -25,11 +26,10 @@ fn main() {
 
     let length = (duration * SAMPLE_RATE as f32) as usize;
     let mut output: Vec<f32> = vec![0.0; length];
-    let freq = 440.0;
 
     for i in 0..length {
         let t = (i as f32) / (SAMPLE_RATE as f32);
-        let ph = t * 2.0 * PI * freq;
+        let ph = t * 2.0 * PI * frequency;
         output[i] = libm::sinf(ph);
     }
 

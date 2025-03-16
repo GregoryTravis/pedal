@@ -30,7 +30,7 @@ impl Patch for FFTAnalyzer {
     fn rust_process_audio(
         &mut self,
         input_slice: &[f32],
-        _output_slice: &mut [f32],
+        output_slice: &mut [f32],
         _knobs: &Box<dyn Knobs>,
         mut playhead: Playhead,
     ) {
@@ -52,8 +52,13 @@ impl Patch for FFTAnalyzer {
 
         fft(&mut self.input, &mut self.output);
 
+        spew!("====");
         for i in 0..FFT_SIZE {
             spew!("fft", i, self.output[i]);
+        }
+
+        for i in 0..input_slice.len() {
+            output_slice[i] = self.buf[i];
         }
 
         playhead.increment_samples(inlen as u32);

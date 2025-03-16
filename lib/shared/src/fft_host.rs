@@ -1,26 +1,23 @@
+use microfft::real::rfft_512;
+
 use crate::constants::*;
 
-extern "C" {
-    //pub fn do_arm_fft(input: *mut f32, output: *mut f32);
-    //pub fn do_arm_ifft(input: *mut f32, output: *mut f32);
-    pub fn do_shy_fft(input: *mut f32, output: *mut f32);
-    pub fn do_shy_ifft(input: *mut f32, output: *mut f32);
-}
-
 pub fn fft_boh(input: &mut [f32; FFT_SIZE], output: &mut [f32; FFT_SIZE]) {
-    let input_ptr: *mut f32 = input.as_mut_ptr();
-    let output_ptr: *mut f32 = output.as_mut_ptr();
-    unsafe {
-        //do_arm_fft(input_ptr, output_ptr);
-        do_shy_fft(input_ptr, output_ptr);
+    // Don't do this copy
+    let mut input_copy: [f32; FFT_SIZE] = [0.0; FFT_SIZE];
+    input_copy.copy_from_slice(input);
+    // Figure out in what sense microfft works in-place
+    let returned_output = rfft_512(input);
+    // Why is this half size
+    for i in 0..FFT_SIZE/2 {
+        output[i] = returned_output[i].norm_sqr().sqrt();
+    }
+    // Don't do this, maybe it's not used anyway
+    for i in FFT_SIZE/2..FFT_SIZE {
+        output[i] = 0.0;
     }
 }
 
-pub fn ifft_boh(input: &mut [f32; FFT_SIZE], output: &mut [f32; FFT_SIZE]) {
-    let input_ptr: *mut f32 = input.as_mut_ptr();
-    let output_ptr: *mut f32 = output.as_mut_ptr();
-    unsafe {
-        //do_arm_ifft(input_ptr, output_ptr);
-        do_shy_ifft(input_ptr, output_ptr);
-    }
+pub fn ifft_boh(_input: &mut [f32; FFT_SIZE], _output: &mut [f32; FFT_SIZE]) {
+    unimplemented!();
 }
