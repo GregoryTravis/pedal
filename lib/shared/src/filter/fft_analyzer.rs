@@ -3,6 +3,7 @@ extern crate std;
 extern crate libm;
 
 use alloc::boxed::Box;
+use alloc::vec::Vec;
 use core::f32::consts::PI;
 
 use crate::constants::*;
@@ -82,9 +83,13 @@ impl Patch for FFTAnalyzer {
 
         fft(&mut self.input, &mut self.output);
 
+        let mut peaks: Vec<(f32, f32)> = Vec::new();
+
+        let amp_threshold = 0.01;
+
         spew!("====");
         for i in 0..FFT_SIZE {
-            spew!("fft", i, self.output[i]);
+            //spew!("fft", i, self.output[i]);
 
             let not_edge = i > 0 && i < FFT_SIZE-1;
             if not_edge {
@@ -98,16 +103,22 @@ impl Patch for FFTAnalyzer {
                     let x_peak = (i as f32) + relative_x_peak;
                     let amp_peak = y_peak / (FFT_SIZE / 2) as f32;
                     let freq_peak = x_peak * (SAMPLE_RATE as f32 / FFT_SIZE as f32);
+                    if amp_peak > amp_threshold {
+                        peaks.push((freq_peak, amp_peak));
+                    }
                     spew!("*** peak", x_peak, y_peak, freq_peak, amp_peak);
                 }
             }
         }
 
         for i in 0..input_slice.len() {
-            output_slice[i] = self.buf[i];
+            output_slice[i] = 0.0;
+            for (frequency, amp) in &peaks {
+                let ph = playhead.sinf(*frequency);
+                output_slice[i] += amp * libm::sinf(ph);
+            }
+            playhead.inc();
         }
-
-        playhead.increment_samples(inlen as u32);
     }
 }
 
