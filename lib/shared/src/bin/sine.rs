@@ -1,6 +1,8 @@
 extern crate std;
+extern crate alloc;
 extern crate libm;
 
+use alloc::vec::Vec;
 use core::f32::consts::PI;
 use std::env;
 
@@ -11,10 +13,18 @@ use shared::constants::SAMPLE_RATE;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    assert_eq!(args.len(), 4);
+    // prog, filename, duration, then (freq, amp) pairs
+    assert_eq!(args.len() % 2, 1);
     let filename = &args[1];
-    let frequency: f32 = args[2].parse::<f32>().unwrap();
-    let duration = args[3].parse::<f32>().unwrap();
+    let duration = args[2].parse::<f32>().unwrap();
+    let num_freq_amp_pairs = (args.len() - 3) / 2;
+
+    let mut freq_amp_pairs: Vec<(f32, f32)> = vec![(0.0, 0.0); num_freq_amp_pairs];
+    for i in 0..num_freq_amp_pairs {
+      let frequency: f32 = args[3+(i*2)].parse::<f32>().unwrap();
+      let amp: f32 = args[3+(i*2)+1].parse::<f32>().unwrap();
+      freq_amp_pairs[i] = (frequency, amp);
+    }
 
     let spec = hound::WavSpec {
         channels: 1,
@@ -29,8 +39,11 @@ fn main() {
 
     for i in 0..length {
         let t = (i as f32) / (SAMPLE_RATE as f32);
-        let ph = t * 2.0 * PI * frequency;
-        output[i] = libm::sinf(ph);
+        output[i] = 0.0;
+        for (frequency, amp) in &freq_amp_pairs {
+            let ph = t * 2.0 * PI * frequency;
+            output[i] += amp * libm::sinf(ph);
+        }
     }
 
     for i in 0..length {

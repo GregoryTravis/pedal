@@ -83,7 +83,8 @@ impl Patch for FFTAnalyzer {
                     let (relative_x_peak, y_peak) = quadratic_interpolate(self.output[i-1], self.output[i], self.output[i+1]);
                     let x_peak = (i as f32) + relative_x_peak;
                     let amp_peak = y_peak / (FFT_SIZE / 2) as f32;
-                    spew!("*** peak", x_peak, y_peak, amp_peak);
+                    let freq_peak = x_peak * (SAMPLE_RATE as f32 / FFT_SIZE as f32);
+                    spew!("*** peak", x_peak, y_peak, freq_peak, amp_peak);
                 }
             }
         }
