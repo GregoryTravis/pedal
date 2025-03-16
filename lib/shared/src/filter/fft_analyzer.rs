@@ -1,7 +1,9 @@
 #[cfg(feature = "for_host")]
 extern crate std;
+extern crate libm;
 
 use alloc::boxed::Box;
+use core::f32::consts::PI;
 
 use crate::constants::*;
 use crate::fft::*;
@@ -41,6 +43,12 @@ fn quadratic_interpolate(xpp: f32, xp: f32, x: f32) -> (f32, f32) {
     let x_max = a - ((b * b) / (4.0 * c));
     (tau, x_max)
 }
+//
+// Hann window
+// w(n) = 0.5 * [1 - cos(2*pi*n / N)]
+fn hann(n: usize, num_samples: usize) -> f32 {
+    0.5 * (1.0 - libm::cosf((2.0 * PI * n as f32) / num_samples as f32))
+}
 
 impl Patch for FFTAnalyzer {
     fn rust_process_audio(
@@ -64,6 +72,12 @@ impl Patch for FFTAnalyzer {
 
         for i in 0..FFT_SIZE {
             self.input[i] = self.buf[i]
+        }
+
+        // Hann window
+        for i in 0..FFT_SIZE {
+            // TODO Don't pass FFT_SIZE?
+            self.input[i] *= hann(i, FFT_SIZE);
         }
 
         fft(&mut self.input, &mut self.output);
