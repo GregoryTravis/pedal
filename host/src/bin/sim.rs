@@ -10,6 +10,7 @@ use shared::filter::delay::*;
 use shared::filter::envelope_follower::*;
 use shared::filter::fft_analyzer::*;
 use shared::filter::fuzz::*;
+use shared::filter::guitar_synth::*;
 use shared::filter::harmoneer::*;
 use shared::filter::linear_vibrato::*;
 use shared::filter::low_pass::*;
@@ -84,6 +85,12 @@ fn fft_analyzer(input_file: &str, output_file: &str) {
     sim_main(input_file, output_file, Box::new(patch));
 }
 
+#[allow(dead_code)]
+fn guitar_synth(input_file: &str, output_file: &str) {
+    let patch: GuitarSynth = GuitarSynth::new();
+    sim_main(input_file, output_file, Box::new(patch));
+}
+
 // min 3rd: 1.189
 // maj 3rd 1.26
 // 4th 1.335
@@ -121,5 +128,5 @@ pub fn main() {
     sim_main(input_file, output_file, rubin);
     */
 
-    fft_analyzer(input_file, output_file);
+    guitar_synth(input_file, output_file);
 }
