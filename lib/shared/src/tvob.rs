@@ -120,7 +120,7 @@ fn line_up(before: &Vec<TVO>, biu: usize, after: &Vec<(f32, f32)>, aiu: usize) -
 
     let mut d: isize = -1;
     while bi+d >= 0 || ai+d >= 0 {
-        println!("line_up 0");
+        //println!("line_up 0");
         if bi+d >= 0 && ai+d >= 0 {
             matches.push(((bi+d) as usize, (ai+d) as usize));
         } else if bi+d >= 0 {
@@ -135,8 +135,8 @@ fn line_up(before: &Vec<TVO>, biu: usize, after: &Vec<(f32, f32)>, aiu: usize) -
 
     let mut d = 1;
     while bi+d < before.len() as isize || ai+d < after.len() as isize {
-        println!("line_up 1");
-        if bi+d < before.len() as isize || ai+d < after.len() as isize {
+        //println!("line_up 1");
+        if bi+d < before.len() as isize && ai+d < after.len() as isize {
             matches.push(((bi+d) as usize, (ai+d) as usize));
         } else if bi+d < before.len() as isize {
             removed.push((bi+d) as usize);
