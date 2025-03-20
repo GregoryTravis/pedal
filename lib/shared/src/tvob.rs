@@ -20,7 +20,7 @@ in and old ones out.
 
 */
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Debug)]
 pub struct TVO {
     // Per sample TODO make this per second
     max_frequency_delta: f32,
@@ -66,16 +66,16 @@ impl TVO {
     pub fn next_sample(&mut self) -> f32 {
         self.update_freq_amp();
         let phase_delta = self.frequency / SAMPLE_RATE as f32;
-        println!("um {} {}", self.phase, phase_delta);
+        //println!("um {} {}", self.phase, phase_delta);
         self.phase += phase_delta;
         //println!("um2 {} {}", self.phase, phase_delta);
         while self.phase > 2.0 * PI {
-            println!("phase down {}", self.phase);
+            //println!("phase down {}", self.phase);
             self.phase -= 2.0 * PI;
-            println!("phase down 2 {}", self.phase);
+            //println!("phase down 2 {}", self.phase);
         }
         //println!("um3 {} {}", self.phase, phase_delta);
-        println!("phase down done");
+        //println!("phase down done");
         libm::sinf(self.phase * 2.0 * PI) * self.amplitude
     }
 
@@ -219,8 +219,8 @@ impl TVOB {
         let mut sample: f32 = 0.0;
         // do with iter
         for i in 0..self.oscs.len() {
-            let mut osc = self.oscs[i];
-            println!("osc {}: {:?}", i, osc);
+            let osc = &mut self.oscs[i];
+            //println!("osc {}: {:?}", i, osc);
             sample += osc.next_sample();
         }
         sample
@@ -286,7 +286,11 @@ impl TVOB {
         println!("{:?}", self.oscs);
         //self.oscs = self.oscs.iter().filter(|o| !o.is_done()).collect::<Vec<TVO>>();
         // TODO no clone?
-        self.oscs = self.oscs.clone().into_iter().filter(|o| !o.is_done()).collect::<Vec<TVO>>();
+        //let new_oscs = Vec::new();
+        // TODO no
+        //self.oscs = self.oscs.clone().into_iter().filter(|o| !o.is_done()).collect::<Vec<TVO>>();
+        //self.oscs = self.oscs.iter().filter(|o| !o.is_done()).collect::<Vec<TVO>>();
+        self.oscs.retain(|o| o.is_done());
         println!("{:?}", self.oscs);
     }
 }
