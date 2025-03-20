@@ -31,6 +31,7 @@ pub struct TVO {
     amplitude: f32,
     target_frequency: f32,
     target_amplitude: f32,
+    ramping_down: bool,
 }
 
 // a is going to b, but no faster than max
@@ -46,7 +47,7 @@ fn clip_delta(a: f32, b:f32, max: f32) -> f32 {
 
 impl TVO {
     pub fn new(max_frequency_delta: f32, max_amplitude_delta: f32,
-               frequency: f32, amplitude: f32) -> TVO {
+               frequency: f32, amplitude: f32, target_amplitude: f32) -> TVO {
         TVO {
             max_frequency_delta: max_frequency_delta,
             max_amplitude_delta: max_amplitude_delta,
@@ -54,7 +55,8 @@ impl TVO {
             frequency: frequency,
             amplitude: amplitude,
             target_frequency: frequency,
-            target_amplitude: amplitude,
+            target_amplitude: target_amplitude,
+            ramping_down: false,
         }
     }
 
@@ -88,10 +90,11 @@ impl TVO {
 
     pub fn to_zero(&mut self) {
         self.target_amplitude = 0.0;
+        self.ramping_down = true;
     }
 
     fn is_done(&self) -> bool {
-        self.amplitude > 0.0
+        self.amplitude > 0.0 && self.ramping_down
     }
 }
 
@@ -234,7 +237,7 @@ impl TVOB {
         if self.oscs.is_empty() {
             // First time, just adopt them
             self.oscs = after.iter().map(
-                |fa| TVO::new(self.max_frequency_delta, self.max_amplitude_delta, fa.0, fa.1)).collect();
+                |fa| TVO::new(self.max_frequency_delta, self.max_amplitude_delta, fa.0, 0.0, fa.1)).collect();
         } else {
             let mr = self.matcher.mtch(&self.oscs, &after);
             match mr {
@@ -252,7 +255,7 @@ impl TVOB {
 
                     for i in mr.added {
                         let fa = after[i];
-                        let new_osc = TVO::new(self.max_frequency_delta, self.max_amplitude_delta, fa.0, fa.1);
+                        let new_osc = TVO::new(self.max_frequency_delta, self.max_amplitude_delta, fa.0, 0.0, fa.1);
                         self.oscs.push(new_osc);
                     }
 
