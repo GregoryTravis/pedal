@@ -12,11 +12,13 @@ use crate::knob::Knobs;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
 use crate::spew::*;
+use crate::tvob::*;
 
 pub struct GuitarSynth {
     buf: [f32; FFT_SIZE],
     input: [f32; FFT_SIZE],
     output: [f32; FFT_SIZE],
+    tvob: TVOB,
 }
 
 impl GuitarSynth {
@@ -25,6 +27,7 @@ impl GuitarSynth {
             buf: [0.0; FFT_SIZE],
             input: [0.0; FFT_SIZE],
             output: [0.0; FFT_SIZE],
+            tvob: TVOB::new(1000.0, 1000.0, Matcher::ClosestFreq),
         }
     }
 }
@@ -57,7 +60,7 @@ impl Patch for GuitarSynth {
         input_slice: &[f32],
         output_slice: &mut [f32],
         _knobs: &Box<dyn Knobs>,
-        mut playhead: Playhead,
+        _playhead: Playhead,
     ) {
         let inlen = input_slice.len();
         let overlap = FFT_SIZE - inlen;
@@ -111,6 +114,13 @@ impl Patch for GuitarSynth {
             }
         }
 
+        self.tvob.update(peaks);
+
+        for i in 0..input_slice.len() {
+            output_slice[i] = self.tvob.next_sample();
+        }
+
+        /*
         for i in 0..input_slice.len() {
             output_slice[i] = 0.0;
             for (frequency, amp) in &peaks {
@@ -119,5 +129,6 @@ impl Patch for GuitarSynth {
             }
             playhead.inc();
         }
+        */
     }
 }
