@@ -66,13 +66,15 @@ impl TVO {
     pub fn next_sample(&mut self) -> f32 {
         self.update_freq_amp();
         let phase_delta = self.frequency / SAMPLE_RATE as f32;
-        println!("um {} {}", self.frequency, phase_delta);
+        println!("um {} {}", self.phase, phase_delta);
         self.phase += phase_delta;
+        //println!("um2 {} {}", self.phase, phase_delta);
         while self.phase > 2.0 * PI {
             println!("phase down {}", self.phase);
             self.phase -= 2.0 * PI;
             println!("phase down 2 {}", self.phase);
         }
+        //println!("um3 {} {}", self.phase, phase_delta);
         println!("phase down done");
         libm::sinf(self.phase * 2.0 * PI) * self.amplitude
     }
