@@ -108,8 +108,10 @@ impl Patch for GuitarSynth {
                     let freq_peak = x_peak * (SAMPLE_RATE as f32 / FFT_SIZE as f32);
                     if amp_peak > amp_threshold {
                         peaks.push((freq_peak, amp_peak));
+                        spew!("*** peak", x_peak, y_peak, freq_peak, amp_peak);
+                    } else {
+                        spew!("... peak", x_peak, y_peak, freq_peak, amp_peak);
                     }
-                    spew!("*** peak", x_peak, y_peak, freq_peak, amp_peak);
                 }
             }
         }
