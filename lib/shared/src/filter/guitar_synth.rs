@@ -28,7 +28,7 @@ impl GuitarSynth {
             buf: [0.0; FFT_SIZE],
             input: [0.0; FFT_SIZE],
             output: [0.0; FFT_SIZE],
-            tvob: TVOB::new(1000.0, 0.0005, Matcher::ClosestFreq),
+            tvob: TVOB::new(0.5, 0.00005, Matcher::ClosestFreq),
         }
     }
 }
@@ -91,7 +91,9 @@ impl Patch for GuitarSynth {
 
         let amp_threshold = 0.005;
 
-        //let int max_peak_to_show = 40;
+        let t = playhead.time_in_samples();
+        let low_show_peak = 85776 ;
+        let high_show_peak = low_show_peak + (48 * 10);
 
         spew!("====");
         for i in 0..FFT_SIZE {
@@ -99,12 +101,16 @@ impl Patch for GuitarSynth {
 
             let not_edge = i > 0 && i < FFT_SIZE-1;
             if not_edge {
+                let bin_freq = i as f32 * (SAMPLE_RATE as f32 / FFT_SIZE as f32); 
+                let max_freq = 60000.0;
+                let too_high = bin_freq > max_freq;
+
                 let a = self.output[i-1];
                 let b = self.output[i];
                 let c = self.output[i+1];
                 // TODO what if they are equal
                 let is_peak = not_edge && a < b && b > c;
-                if is_peak {
+                if is_peak && !too_high {
                     //let left_peakiness = b - a;
                     //let right_peakiness = b - a;
                     let peakiness = (b - ((a+c)/2.0)) / b;
@@ -117,13 +123,22 @@ impl Patch for GuitarSynth {
                         peaks.push((freq_peak, amp_peak));
                         spew!("*** peak", i, x_peak, y_peak, freq_peak, amp_peak, a, b, c, peakiness);
                     } else {
-                        spew!("... peak", i, x_peak, y_peak, freq_peak, amp_peak, a, b, c, peakiness);
+                        if t >= low_show_peak && t < high_show_peak {
+                            spew!("... peak", i, x_peak, y_peak, freq_peak, amp_peak, a, b, c, peakiness);
+                        }
+                    }
+                } else {
+                    if t >= low_show_peak && t < high_show_peak {
+                        let freq = i as f32 * (SAMPLE_RATE as f32 / FFT_SIZE as f32);
+                        spew!("--- peak", i, i as f32, self.output[i], freq, self.output[i] / (FFT_SIZE / 2) as f32);
                     }
                 }
             }
         }
 
         self.tvob.update(playhead.time_in_samples(), peaks);
+
+        self.tvob.ratio_report();
 
         for i in 0..input_slice.len() {
             println!("srender {} ", playhead.time_in_samples());

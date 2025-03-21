@@ -2,6 +2,7 @@
 extern crate std;
 extern crate libm;
 
+use std::print;
 use std::println;
 //use alloc::boxed::Box;
 use alloc::vec::Vec;
@@ -304,5 +305,15 @@ impl TVOB {
         //self.oscs = self.oscs.iter().filter(|o| !o.is_done()).collect::<Vec<TVO>>();
         self.oscs.retain(|o| !o.is_done());
         println!("{:?}", self.oscs);
+    }
+
+    pub fn ratio_report(&self) {
+        print!("rats ");
+        if self.oscs.len() > 1 {
+            for i in 0..self.oscs.len()-1 {
+                print!("{} ", self.oscs[i+1].frequency / self.oscs[i].frequency);
+            }
+        }
+        println!("");
     }
 }
