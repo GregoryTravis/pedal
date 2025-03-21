@@ -5,6 +5,7 @@ extern crate libm;
 use alloc::boxed::Box;
 use alloc::vec::Vec;
 use core::f32::consts::PI;
+use std::println;
 
 use crate::constants::*;
 use crate::fft::*;
@@ -27,7 +28,7 @@ impl GuitarSynth {
             buf: [0.0; FFT_SIZE],
             input: [0.0; FFT_SIZE],
             output: [0.0; FFT_SIZE],
-            tvob: TVOB::new(1000.0, 1000.0, Matcher::ClosestFreq),
+            tvob: TVOB::new(1000.0, 0.0005, Matcher::ClosestFreq),
         }
     }
 }
@@ -60,7 +61,7 @@ impl Patch for GuitarSynth {
         input_slice: &[f32],
         output_slice: &mut [f32],
         _knobs: &Box<dyn Knobs>,
-        _playhead: Playhead,
+        mut playhead: Playhead,
     ) {
         let inlen = input_slice.len();
         let overlap = FFT_SIZE - inlen;
@@ -88,7 +89,9 @@ impl Patch for GuitarSynth {
 
         let mut peaks: Vec<(f32, f32)> = Vec::new();
 
-        let amp_threshold = 0.01;
+        let amp_threshold = 0.005;
+
+        //let int max_peak_to_show = 40;
 
         spew!("====");
         for i in 0..FFT_SIZE {
@@ -102,24 +105,31 @@ impl Patch for GuitarSynth {
                 // TODO what if they are equal
                 let is_peak = not_edge && a < b && b > c;
                 if is_peak {
+                    //let left_peakiness = b - a;
+                    //let right_peakiness = b - a;
+                    let peakiness = (b - ((a+c)/2.0)) / b;
+
                     let (relative_x_peak, y_peak) = quadratic_interpolate(self.output[i-1], self.output[i], self.output[i+1]);
                     let x_peak = (i as f32) + relative_x_peak;
                     let amp_peak = y_peak / (FFT_SIZE / 2) as f32;
                     let freq_peak = x_peak * (SAMPLE_RATE as f32 / FFT_SIZE as f32);
                     if amp_peak > amp_threshold {
                         peaks.push((freq_peak, amp_peak));
-                        spew!("*** peak", x_peak, y_peak, freq_peak, amp_peak);
+                        spew!("*** peak", i, x_peak, y_peak, freq_peak, amp_peak, a, b, c, peakiness);
                     } else {
-                        spew!("... peak", x_peak, y_peak, freq_peak, amp_peak);
+                        spew!("... peak", i, x_peak, y_peak, freq_peak, amp_peak, a, b, c, peakiness);
                     }
                 }
             }
         }
 
-        self.tvob.update(peaks);
+        self.tvob.update(playhead.time_in_samples(), peaks);
 
         for i in 0..input_slice.len() {
+            println!("srender {} ", playhead.time_in_samples());
             output_slice[i] = self.tvob.next_sample();
+            println!("srender result {} {} ", playhead.time_in_samples(), output_slice[i]);
+            playhead.inc();
         }
 
         /*

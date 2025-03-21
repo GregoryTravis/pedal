@@ -6,6 +6,7 @@ use std::println;
 //use alloc::boxed::Box;
 use alloc::vec::Vec;
 use core::f32::consts::PI;
+use core::fmt;
 
 use crate::constants::*;
 
@@ -20,7 +21,6 @@ in and old ones out.
 
 */
 
-#[derive(Debug)]
 pub struct TVO {
     // Per sample TODO make this per second
     max_frequency_delta: f32,
@@ -68,24 +68,26 @@ impl TVO {
     pub fn next_sample(&mut self) -> f32 {
         self.update_freq_amp();
         let phase_delta = self.frequency / SAMPLE_RATE as f32;
-        //println!("um {} {}", self.phase, phase_delta);
+        let oph = self.phase;
         self.phase += phase_delta;
-        //println!("um2 {} {}", self.phase, phase_delta);
+        /*
         while self.phase > 2.0 * PI {
-            //println!("phase down {}", self.phase);
             self.phase -= 2.0 * PI;
-            //println!("phase down 2 {}", self.phase);
         }
-        //println!("um3 {} {}", self.phase, phase_delta);
-        //println!("phase down done");
-        libm::sinf(self.phase * 2.0 * PI) * self.amplitude
+        */
+        let s = libm::sinf(self.phase * 2.0 * PI) * self.amplitude;
+        println!("ren {:?} {} {} {} {}", (self.frequency, self.amplitude),
+            oph, phase_delta, self.phase, s);
+        s
     }
 
     fn update_freq_amp(&mut self) {
+        println!("update_fa b {:?}", (self.frequency, self.amplitude));
         let frequency_delta = clip_delta(self.frequency, self.target_frequency, self.max_frequency_delta);
         self.frequency += frequency_delta;
         let amplitude_delta = clip_delta(self.amplitude, self.target_amplitude, self.max_amplitude_delta);
         self.amplitude += amplitude_delta;
+        println!("update_fa a {:?}", (self.frequency, self.amplitude));
     }
 
     pub fn to_zero(&mut self) {
@@ -94,7 +96,13 @@ impl TVO {
     }
 
     fn is_done(&self) -> bool {
-        self.amplitude > 0.0 && self.ramping_down
+        self.amplitude <= 0.0 && self.ramping_down
+    }
+}
+
+impl fmt::Debug for TVO {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "({}, {})", self.frequency, self.amplitude)
     }
 }
 
@@ -229,7 +237,8 @@ impl TVOB {
         sample
     }
 
-    pub fn update(&mut self, after: Vec<(f32, f32)>) {
+    // remove t
+    pub fn update(&mut self, t: u32, after: Vec<(f32, f32)>) {
         println!("update");
         println!("{:?}", self.oscs);
         println!("{:?}", after);
@@ -242,7 +251,7 @@ impl TVOB {
             let mr = self.matcher.mtch(&self.oscs, &after);
             match mr {
                 Some(mr) => {
-                    println!("{:?}", mr);
+                    println!("{} {:?}", t, mr);
 
                     for fa in mr.matches {
                         let new_fa = after[fa.1];
@@ -293,7 +302,7 @@ impl TVOB {
         // TODO no
         //self.oscs = self.oscs.clone().into_iter().filter(|o| !o.is_done()).collect::<Vec<TVO>>();
         //self.oscs = self.oscs.iter().filter(|o| !o.is_done()).collect::<Vec<TVO>>();
-        self.oscs.retain(|o| o.is_done());
+        self.oscs.retain(|o| !o.is_done());
         println!("{:?}", self.oscs);
     }
 }
