@@ -1,3 +1,6 @@
+./sine_stack && jbe stack.wav
+exit
+
 cargo test --lib --features for_host 2>&1 | tee out
 exit
 
