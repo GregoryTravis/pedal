@@ -5,6 +5,7 @@ extern crate libm;
 use alloc::boxed::Box;
 use alloc::vec::Vec;
 use core::f32::consts::PI;
+#[allow(unused)]
 use std::println;
 
 use crate::constants::*;
@@ -13,13 +14,15 @@ use crate::knob::Knobs;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
 use crate::spew::*;
-use crate::tvob::*;
+use crate::unit::reso::*;
+
+const NUM_RESOS: usize = 3;
 
 pub struct GuitarSynth {
     buf: [f32; FFT_SIZE],
     input: [f32; FFT_SIZE],
     output: [f32; FFT_SIZE],
-    tvob: TVOB,
+    resos: [Reso; NUM_RESOS],
 }
 
 impl GuitarSynth {
@@ -28,7 +31,7 @@ impl GuitarSynth {
             buf: [0.0; FFT_SIZE],
             input: [0.0; FFT_SIZE],
             output: [0.0; FFT_SIZE],
-            tvob: TVOB::new(0.5, 0.00005, Matcher::ClosestFreq),
+            resos: [Reso::new(), Reso::new(), Reso::new()],
         }
     }
 }
@@ -136,6 +139,24 @@ impl Patch for GuitarSynth {
             }
         }
 
+        for i in 0..NUM_RESOS {
+            if i >= peaks.len() {
+                break;
+            }
+            self.resos[i].set_pitch(peaks[i].0);
+        }
+
+        for i in 0..input_slice.len() {
+            let mut s = input_slice[i];
+            for i in 0..NUM_RESOS {
+                spew!("reso", i);
+                s = self.resos[i].process(s);
+            }
+            output_slice[i] = s;
+            playhead.inc();
+        }
+
+        /*
         self.tvob.update(playhead.time_in_samples(), peaks);
 
         self.tvob.ratio_report();
@@ -146,6 +167,7 @@ impl Patch for GuitarSynth {
             println!("srender result {} {} ", playhead.time_in_samples(), output_slice[i]);
             playhead.inc();
         }
+        */
 
         /*
         for i in 0..input_slice.len() {
