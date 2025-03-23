@@ -1,9 +1,9 @@
-rm -f stack-fft.wav
-cargo run --bin fft --features for_host -- stack.wav stack-fft.wav 2>&1 | tee out
-exit
-
 rm -rf simout.wav
 cargo run --bin sim --features for_host -- simin.wav simout.wav 2>&1 | tee out
+exit
+
+rm -f stack-fft.wav
+cargo run --bin fft --features for_host -- stack.wav stack-fft.wav 2>&1 | tee out
 exit
 
 cargo run --bin test --features for_host 2>&1 | tee out

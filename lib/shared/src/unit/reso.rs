@@ -5,6 +5,7 @@ extern crate libm;
 use core::f32::consts::PI;
 
 use crate::constants::*;
+#[allow(unused)]
 use crate::spew::*;
 
 const MAX_PITCH_DELTA_PER_SEC: f32 = 10000000.0;
@@ -24,6 +25,7 @@ fn clip_delta(a: f32, b:f32, max: f32) -> f32 {
 pub struct Reso {
     target_pitch: f32,
     pitch: f32,
+    amp: f32,
     buf0: f32,
     buf1: f32,
 }
@@ -31,8 +33,9 @@ pub struct Reso {
 impl Reso {
     pub fn new() -> Reso {
         Reso {
-            target_pitch: 440.0,
-            pitch: 440.0,
+            target_pitch: 450.0,
+            pitch: 450.0,
+            amp: 1.0,
             buf0: 0.0,
             buf1: 0.0,
         }
@@ -40,6 +43,10 @@ impl Reso {
 
     pub fn set_pitch(&mut self, target_pitch: f32) {
         self.target_pitch = target_pitch;
+    }
+
+    pub fn set_amp(&mut self, amp: f32) {
+        self.amp = amp;
     }
 
     fn update(&mut self) {
@@ -52,11 +59,12 @@ impl Reso {
         self.update();
 
         let oscf: f32 = 2.0 * libm::sinf(PI * (self.pitch / SAMPLE_RATE as f32));
-        let q = 0.3; // 0.97f32;
+        let q = 0.8; // 0.97f32;
         let fb = q + q / (1.0 - oscf);
         self.buf0 = self.buf0 + oscf * (inp - self.buf0 + fb * (self.buf0 - self.buf1));
         self.buf1 = self.buf1 + oscf * (self.buf0 - self.buf1);
-        let out = self.buf1;
+        let filtered = self.buf1;
+        let out = (self.amp * filtered) + ((1.0 - self.amp) * inp);
         out
     }
 }

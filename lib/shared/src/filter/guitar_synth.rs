@@ -16,7 +16,7 @@ use crate::playhead::Playhead;
 use crate::spew::*;
 use crate::unit::reso::*;
 
-const NUM_RESOS: usize = 3;
+const NUM_RESOS: usize = 1;
 
 pub struct GuitarSynth {
     buf: [f32; FFT_SIZE],
@@ -31,7 +31,7 @@ impl GuitarSynth {
             buf: [0.0; FFT_SIZE],
             input: [0.0; FFT_SIZE],
             output: [0.0; FFT_SIZE],
-            resos: [Reso::new(), Reso::new(), Reso::new()],
+            resos: [Reso::new()], // , Reso::new()], // , Reso::new()],
         }
     }
 }
@@ -98,7 +98,7 @@ impl Patch for GuitarSynth {
         let low_show_peak = 85776 ;
         let high_show_peak = low_show_peak + (48 * 10);
 
-        spew!("====");
+        spew!("====", t);
         for i in 0..FFT_SIZE {
             //spew!("fft", i, self.output[i]);
 
@@ -139,11 +139,44 @@ impl Patch for GuitarSynth {
             }
         }
 
+        /*
         for i in 0..NUM_RESOS {
             if i >= peaks.len() {
                 break;
             }
             self.resos[i].set_pitch(peaks[i].0);
+        }
+        */
+        //self.resos[0].set_pitch(187.0);
+
+        let highest_pitch: Option<usize> = {
+            let mut best: usize = 0;
+            let mut best_amp: f32 = 0.0;
+            let mut found: bool = false;
+
+            for i in 0..peaks.len() {
+                if !found || peaks[i].1 > best_amp {
+                    best = i;
+                    best_amp = peaks[i].1;
+                    found = true;
+                }
+            }
+
+            if found {
+                Some(best)
+            } else {
+                None
+            }
+        };
+
+        match highest_pitch {
+            Some(i) => {
+                self.resos[0].set_pitch(peaks[i].0);
+                self.resos[0].set_amp(1.0);
+            },
+            None => {
+                self.resos[0].set_amp(0.0);
+            },
         }
 
         for i in 0..input_slice.len() {

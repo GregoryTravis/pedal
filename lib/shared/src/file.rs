@@ -26,7 +26,7 @@ pub fn file_read(filename: &str) -> Vec<f32> {
     vec
 }
 
-pub fn file_write(filename: &str, samples: Vec<f32>) {
+pub fn file_write(filename: &str, samples: &Vec<f32>) {
     let spec = hound::WavSpec {
         channels: 1,
         sample_rate: SAMPLE_RATE,
