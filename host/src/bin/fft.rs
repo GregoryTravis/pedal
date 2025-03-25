@@ -31,5 +31,5 @@ fn main() {
     }
 
     let output_vec = Vec::from(output);
-    file_write(output_filename, output_vec);
+    file_write(output_filename, &output_vec);
 }

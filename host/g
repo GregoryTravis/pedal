@@ -1,5 +1,12 @@
 rm -rf simout.wav
-cargo run --bin sim --features for_host -- simin.wav simout.wav 2>&1 | tee out
+rm -rf out
+./anal
+cargo run --bin sim --features for_host -- simin.wav-input.wav /dev/null 2>&1 | tee -a out
+jbe simin.wav-input.wav simin.wav-filtered.wav simin.wav-input-fft.wav simin.wav-filtered-fft.wav
+exit
+
+rm -rf simout.wav
+cargo run --bin sim --features for_host -- simin.wav simout.wav 2>&1 | tee -a out
 exit
 
 rm -f stack-fft.wav

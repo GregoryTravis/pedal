@@ -90,7 +90,7 @@ impl Patch for GuitarSynth {
 
         fft(&mut self.input, &mut self.output);
 
-        let mut peaks: Vec<(f32, f32)> = Vec::new();
+        let mut peaks: Vec<(usize, f32, f32)> = Vec::new();
 
         let amp_threshold = 0.005;
 
@@ -123,7 +123,7 @@ impl Patch for GuitarSynth {
                     let amp_peak = y_peak / (FFT_SIZE / 2) as f32;
                     let freq_peak = x_peak * (SAMPLE_RATE as f32 / FFT_SIZE as f32);
                     if amp_peak > amp_threshold {
-                        peaks.push((freq_peak, amp_peak));
+                        peaks.push((i, freq_peak, amp_peak));
                         spew!("*** peak", i, x_peak, y_peak, freq_peak, amp_peak, a, b, c, peakiness);
                     } else {
                         if t >= low_show_peak && t < high_show_peak {
@@ -155,23 +155,25 @@ impl Patch for GuitarSynth {
             let mut found: bool = false;
 
             for i in 0..peaks.len() {
-                if !found || peaks[i].1 > best_amp {
+                if !found || peaks[i].2 > best_amp {
                     best = i;
-                    best_amp = peaks[i].1;
+                    best_amp = peaks[i].2;
                     found = true;
                 }
             }
 
             if found {
+                spew!("max peak", peaks[best].0);
                 Some(best)
             } else {
+                //spew!("no peak");
                 None
             }
         };
 
         match highest_pitch {
             Some(i) => {
-                self.resos[0].set_pitch(peaks[i].0);
+                self.resos[0].set_pitch(peaks[i].1);
                 self.resos[0].set_amp(1.0);
             },
             None => {
