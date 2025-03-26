@@ -31,7 +31,7 @@ impl GuitarSynth {
             buf: [0.0; FFT_SIZE],
             input: [0.0; FFT_SIZE],
             output: [0.0; FFT_SIZE],
-            resos: [Reso::new()], // , Reso::new()], // , Reso::new()],
+            resos: [Reso::new(0.8)], // , Reso::new()], // , Reso::new()],
         }
     }
 }
@@ -95,8 +95,8 @@ impl Patch for GuitarSynth {
         let amp_threshold = 0.005;
 
         let t = playhead.time_in_samples();
-        let low_show_peak = 85776 ;
-        let high_show_peak = low_show_peak + (48 * 10);
+        //let low_show_peak = 85776 ;
+        //let high_show_peak = low_show_peak + (48 * 10);
 
         spew!("====", t);
         for i in 0..FFT_SIZE {
@@ -126,15 +126,15 @@ impl Patch for GuitarSynth {
                         peaks.push((i, freq_peak, amp_peak));
                         spew!("*** peak", i, x_peak, y_peak, freq_peak, amp_peak, a, b, c, peakiness);
                     } else {
-                        if t >= low_show_peak && t < high_show_peak {
+                        //if t >= low_show_peak && t < high_show_peak {
                             spew!("... peak", i, x_peak, y_peak, freq_peak, amp_peak, a, b, c, peakiness);
-                        }
+                        //}
                     }
                 } else {
-                    if t >= low_show_peak && t < high_show_peak {
+                    //if t >= low_show_peak && t < high_show_peak {
                         let freq = i as f32 * (SAMPLE_RATE as f32 / FFT_SIZE as f32);
                         spew!("--- peak", i, i as f32, self.output[i], freq, self.output[i] / (FFT_SIZE / 2) as f32);
-                    }
+                    //}
                 }
             }
         }

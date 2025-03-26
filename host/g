@@ -1,3 +1,6 @@
+./anal
+exit
+
 rm -rf simout.wav
 rm -rf out
 ./anal

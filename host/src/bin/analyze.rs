@@ -4,6 +4,7 @@ extern crate libm;
 
 use alloc::vec::Vec;
 use std::env;
+use std::format;
 
 use shared::constants::*;
 use shared::file::*;
@@ -15,19 +16,25 @@ fn main() {
     // prog, filename, duration, then (freq, amp) pairs
     let input_filename = &args[1];
     let start = args[2].parse::<usize>().unwrap();
+    let q = args[3].parse::<f32>().unwrap();
+    let freq = args[4].parse::<f32>().unwrap();
 
     let input_entire = file_read(input_filename);
     let input_urr = &input_entire.as_slice()[start..start + FFT_SIZE];
     let input: Vec<f32> = Vec::from(input_urr);
-    file_write(&(input_filename.to_owned() + "-input.wav"), &input);
+    let input_unmodified_filename = format!("{}-input-{}-{}-{}.wav", input_filename, start, q, freq);
+    file_write(&input_unmodified_filename, &input);
 
     let mut input_filtered = vec![0.0; input.len()];
-    let mut reso: Reso = Reso::new();
+    let mut reso: Reso = Reso::new(q);
+    reso.set_pitch(freq);
+    reso.set_amp(1.0);
     for i in 0..input.len() {
         input_filtered[i] = reso.process(input[i]);
     }
 
-    file_write(&(input_filename.to_owned() + "-filtered.wav"), &input_filtered);
+    let filtered_filename = format!("{}-filtered-{}-{}-{}.wav", input_filename, start, q, freq);
+    file_write(&filtered_filename, &input_filtered);
 
     // 15 minutes of googling could not tell me how to do this any other way.
     let mut input_array: [f32; FFT_SIZE] = [0.0; FFT_SIZE];
@@ -54,7 +61,10 @@ fn main() {
     }
 
     let output_vec = Vec::from(output_array);
-    file_write(&(input_filename.to_owned() + "-input-fft.wav"), &output_vec);
+    let output_fft_filename = format!("{}-fft-{}-{}-{}.wav", input_filename, start, q, freq);
+    file_write(&output_fft_filename , &output_vec);
+
     let output_filtered_vec = Vec::from(output_filtered_array);
-    file_write(&(input_filename.to_owned() + "-filtered-fft.wav"), &output_filtered_vec);
+    let output_filtered_fft_filename = format!("{}-filtered-fft-{}-{}-{}.wav", input_filename, start, q, freq);
+    file_write(&output_filtered_fft_filename, &output_filtered_vec);
 }

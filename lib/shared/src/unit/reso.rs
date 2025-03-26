@@ -8,7 +8,7 @@ use crate::constants::*;
 #[allow(unused)]
 use crate::spew::*;
 
-const MAX_PITCH_DELTA_PER_SEC: f32 = 10000000.0;
+const MAX_PITCH_DELTA_PER_SEC: f32 = 100000000000.0;
 const MAX_PITCH_DELTA_PER_SAMPLE: f32 = MAX_PITCH_DELTA_PER_SEC / SAMPLE_RATE as f32;
 
 // a is going to b, but no faster than max
@@ -23,6 +23,7 @@ fn clip_delta(a: f32, b:f32, max: f32) -> f32 {
 }
 
 pub struct Reso {
+    q: f32,
     target_pitch: f32,
     pitch: f32,
     amp: f32,
@@ -31,8 +32,9 @@ pub struct Reso {
 }
 
 impl Reso {
-    pub fn new() -> Reso {
+    pub fn new(q: f32) -> Reso {
         Reso {
+            q: q,
             target_pitch: 450.0,
             pitch: 450.0,
             amp: 1.0,
@@ -59,7 +61,7 @@ impl Reso {
         self.update();
 
         let oscf: f32 = 2.0 * libm::sinf(PI * (self.pitch / SAMPLE_RATE as f32));
-        let q = 0.8; // 0.97f32;
+        let q = self.q; // 0.97f32;
         let fb = q + q / (1.0 - oscf);
         self.buf0 = self.buf0 + oscf * (inp - self.buf0 + fb * (self.buf0 - self.buf1));
         self.buf1 = self.buf1 + oscf * (self.buf0 - self.buf1);
