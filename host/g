@@ -1,3 +1,6 @@
+cargo run --bin hop --features for_host -- simin.wav 2>&1 | tee out
+exit
+
 ./anal
 exit
 

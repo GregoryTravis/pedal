@@ -32,6 +32,8 @@ pub mod knob_dummy;
 #[cfg(not(feature = "for_host"))]
 pub mod knob_board;
 #[cfg(feature = "for_host")]
+pub mod hop_fft;
+#[cfg(feature = "for_host")]
 pub mod hw_host;
 #[cfg(not(feature = "for_host"))]
 pub mod load_board;

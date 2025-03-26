@@ -51,7 +51,7 @@ fn quadratic_interpolate(xpp: f32, xp: f32, x: f32) -> (f32, f32) {
     let x_max = a - ((b * b) / (4.0 * c));
     (tau, x_max)
 }
-//
+
 // Hann window
 // w(n) = 0.5 * [1 - cos(2*pi*n / N)]
 fn hann(n: usize, num_samples: usize) -> f32 {
