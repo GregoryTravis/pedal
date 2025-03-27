@@ -10,32 +10,40 @@ use crate::spew::*;
 
 // Divide input into frames of size hop, fft each one, padded out to fft_size, returning
 // the best fractional peak for each one.
-pub fn hop_fft(input: &[f32], fft_size: usize, hop: usize) -> Vec<f32> {
-    let mut peaks: Vec<f32> = Vec::new();
+pub fn hop_fft(input: &[f32], fft_size: usize, batch_size: usize, hop: usize) -> Vec<f32> {
+    let mut peaks: Vec<f32> = vec![0.0; input.len()];
     let mut fft_in: &mut [f32] = &mut vec![0.0; fft_size];
     let mut fft_out: &mut [f32] = &mut vec![0.0; fft_size];
 
-    let current = 0;
-    while current < input.len() {
+    for current in (0..input.len()).step_by(hop) {
+        spew!("====", current);
         // TODO don't have to clear the beginning
         fft_in[0..fft_size].fill(0.0);
         // Necessary?
         fft_out[0..fft_size].fill(0.0);
 
-        for i in 0..hop {
-            fft_in[i] = if current+i < input.len() {
-                input[current+i]
-            } else {
-                0.0
-            };
+        assert!(batch_size % 2 == 0);
+
+        let batch_start: isize = current as isize - (batch_size/2) as isize;
+
+        for i in 0..batch_size {
+            let si = i as isize + batch_start;
+            let s = if si < 0 || si >= input.len() as isize { 0.0 } else { input[si as usize] };
+            fft_in[i] = s;
         }
-        // TODO try
-        // fft_in[0..hop].clone_from_slice(input[current..current+hop]);
 
         fft_slice(&mut fft_in, &mut fft_out);
 
         let freq = find_peak(fft_out);
-        peaks.push(freq);
+        spew!("==== peak", current, freq);
+        peaks[current] = freq;
+
+        // Duplicate to the rest of the batch.
+        for i in 1..hop {
+            if current+i < input.len() {
+                peaks[current+i] = freq;
+            }
+        }
     }
 
     peaks
