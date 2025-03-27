@@ -50,6 +50,7 @@ pub fn hop_fft(input: &[f32], fft_size: usize, batch_size: usize, hop: usize) ->
 }
 
 fn find_peak(fft: &[f32]) -> f32 {
+    // (bin, freq, amp)
     let mut peaks: Vec<(usize, f32, f32)> = Vec::new();
     let fft_len = fft.len();
 
@@ -76,7 +77,7 @@ fn find_peak(fft: &[f32]) -> f32 {
                     peaks.push((i, freq_peak, amp_peak));
                     spew!("*** peak", i, x_peak, y_peak, freq_peak, amp_peak, a, b, c, peakiness);
                 } else {
-                    spew!("... peak", i, x_peak, y_peak, freq_peak, amp_peak, a, b, c, peakiness);
+                    //spew!("... peak", i, x_peak, y_peak, freq_peak, amp_peak, a, b, c, peakiness);
                 }
             } else {
                 //let freq = i as f32 * (SAMPLE_RATE as f32 / fft_len as f32);
@@ -85,15 +86,41 @@ fn find_peak(fft: &[f32]) -> f32 {
         }
     }
 
+    let ramp_down_by_freq = true;
+    // 1.0 at 200 and 0.5 at 1000
+    let low_ramp_freq = 200.0;
+    let high_ramp_freq = 500.0;
+    let low_ramp_amp_mult = 1.0;
+    let high_ramp_amp_mult = 0.5;
+
+    let do_min_freq = true;
+    let min_freq = 100.0;
+
     let highest_pitch: Option<usize> = {
         let mut best: usize = 0;
         let mut best_amp: f32 = 0.0;
         let mut found: bool = false;
 
         for i in 0..peaks.len() {
-            if !found || peaks[i].2 > best_amp {
+            let freq = peaks[i].1;
+
+            if do_min_freq && freq < min_freq {
+                continue;
+            }
+
+            let orig_amp = peaks[i].2;
+
+            let amp = if ramp_down_by_freq {
+                let alpha = (freq - low_ramp_freq) / (high_ramp_freq - low_ramp_freq);
+                let multiplier = low_ramp_amp_mult + (alpha * (high_ramp_amp_mult - low_ramp_amp_mult));
+                orig_amp * multiplier
+            } else {
+                orig_amp
+            };
+
+            if !found || amp > best_amp {
                 best = i;
-                best_amp = peaks[i].2;
+                best_amp = amp;
                 found = true;
             }
         }

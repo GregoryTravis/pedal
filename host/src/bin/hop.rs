@@ -26,7 +26,9 @@ fn main() {
 
     for i in 0..input.len() {
         spew!("peak", freqs[i]);
-        reso.set_pitch(freqs[i]);
+        if freqs[i] != 0.0 {
+            reso.set_pitch(freqs[i]);
+        }
         output[i] = reso.process(input[i]);
     }
     let output_filename = format!("{}-hop.wav", input_filename);
