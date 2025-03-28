@@ -8,7 +8,7 @@ use crate::constants::*;
 #[allow(unused)]
 use crate::spew::*;
 
-const GAIN: f32 = 0.1; // I don't know why this is needed
+const GAIN: f32 = 1.0; // I don't know why this is needed
 
 // Thanks of course to https://webaudio.github.io/Audio-EQ-Cookbook/Audio-EQ-Cookbook.txt
 
@@ -41,11 +41,20 @@ impl BandPass {
         BandPass {
             freq: freq,
 
-            b0:  libm::sinf(w0)/2.0,
+            // Constant skirt gain
+            // b0:  libm::sinf(w0)/2.0,
+            // b1:  0.0,
+            // b2: -(libm::sinf(w0)/2.0),
+            // a0:  1.0 + alpha,
+            // a1: -2.0 * libm::cosf(w0),
+            // a2:  1.0 - alpha,
+
+            // Constant peak 0 db gain
+            b0:  alpha,
             b1:  0.0,
-            b2: -(libm::sinf(w0)/2.0),
+            b2: -alpha,
             a0:  1.0 + alpha,
-            a1: -2.0 * libm::cosf(w0),
+            a1: -2.0*libm::cosf(w0),
             a2:  1.0 - alpha,
 
             x_n_1: 0.0,
