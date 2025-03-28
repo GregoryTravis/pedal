@@ -1,3 +1,6 @@
+#cargo run --bin bp --features for_host -- simin.wav 220 0.041666 2>&1 | tee out
+#exit
+
 cargo run --bin hop --features for_host -- simin.wav 0.8 2>&1 | tee out
 exit
 

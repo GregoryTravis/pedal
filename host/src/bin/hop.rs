@@ -34,4 +34,3 @@ fn main() {
     let output_filename = format!("{}-hop.wav", input_filename);
     file_write(&output_filename, &output);
 }
-
