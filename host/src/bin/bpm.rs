@@ -15,8 +15,8 @@ fn main() {
     let input_filename = &args[1];
     let bw = args[2].parse::<f32>().unwrap();
 
-    //let freqs: Vec<f32> = vec![172.0, 220.0, 328.0];
-    let freqs: Vec<f32> = vec![770.0];
+    let freqs: Vec<f32> = vec![172.0, 220.0, 328.0];
+    //let freqs: Vec<f32> = vec![770.0];
 
     let input = file_read(input_filename);
     let mut output = vec![0.0; input.len()];
