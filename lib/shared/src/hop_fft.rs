@@ -49,8 +49,8 @@ pub fn hop_fft(input: &[f32], fft_size: usize, batch_size: usize, hop: usize) ->
     peaks
 }
 
-fn find_peak(fft: &[f32]) -> f32 {
-    // (bin, freq, amp)
+// (bin, freq, amp)
+fn find_peaks(fft: &[f32]) -> Vec<(usize, f32, f32)> {
     let mut peaks: Vec<(usize, f32, f32)> = Vec::new();
     let fft_len = fft.len();
 
@@ -85,6 +85,11 @@ fn find_peak(fft: &[f32]) -> f32 {
             }
         }
     }
+    peaks
+}
+
+fn find_peak(fft: &[f32]) -> f32 {
+    let peaks = find_peaks(fft);
 
     let ramp_down_by_freq = true;
     // 1.0 at 200 and 0.5 at 1000
