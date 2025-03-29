@@ -49,7 +49,8 @@ pub fn hop_fft(input: &[f32], fft_size: usize, batch_size: usize, hop: usize) ->
     peaks
 }
 
-// (bin, freq, amp)
+// TODO do we need bin?
+// output: (bin, freq, amp)
 fn find_peaks(fft: &[f32]) -> Vec<(usize, f32, f32)> {
     let mut peaks: Vec<(usize, f32, f32)> = Vec::new();
     let fft_len = fft.len();
@@ -86,6 +87,15 @@ fn find_peaks(fft: &[f32]) -> Vec<(usize, f32, f32)> {
         }
     }
     peaks
+}
+
+const low_amp_threshold: f32 = 0.6;
+
+// input: (bin, freq, amp)
+// output: (freq, mix)
+fn peaks_to_bps(peaks: Vec<(usize, f32, f32)>) -> Vec<(f32, f32)> {
+    // Find highest peak, set low to that times low_amp_threshold, scale all amps to that, remove
+    // negative (there are none above 1), return that.
 }
 
 fn find_peak(fft: &[f32]) -> f32 {
