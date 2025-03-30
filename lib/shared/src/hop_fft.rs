@@ -9,7 +9,7 @@ use crate::fft_host::*;
 use crate::spew::*;
 
 // Divide input into frames of size hop, fft each one, padded out to fft_size, returning
-// the best fractional peak for each one.
+// the peaks.
 pub fn hop_fft(input: &[f32], fft_size: usize, batch_size: usize, hop: usize) -> Vec<f32> {
     let mut peaks: Vec<f32> = vec![0.0; input.len()];
     let mut fft_in: &mut [f32] = &mut vec![0.0; fft_size];
@@ -89,6 +89,11 @@ fn find_peaks(fft: &[f32]) -> Vec<(usize, f32, f32)> {
     peaks
 }
 
+fn linmap(x0: f32, y0: f32, x1: f32, y1: f32, x: f32) -> f32 {
+    let alpha = (x - x0) / (y1 - y0);
+    x1 + (alpha * (y1 - x1))
+}
+
 const low_amp_threshold: f32 = 0.6;
 
 // input: (bin, freq, amp)
@@ -96,6 +101,14 @@ const low_amp_threshold: f32 = 0.6;
 fn peaks_to_bps(peaks: Vec<(usize, f32, f32)>) -> Vec<(f32, f32)> {
     // Find highest peak, set low to that times low_amp_threshold, scale all amps to that, remove
     // negative (there are none above 1), return that.
+    let mut peaks = peaks.clone();
+    peaks.sort_by(|a0, a1| b.2.partial_cmp(a.2).unwrap());
+    println!("amps {}", peaks.map(|x| x.2));
+    let high_amp: f32 = peaks[0].2;
+    let low_amp: f32 = low_amp_threshold * high_amp;
+    peaks.retain(|x| x.2 >= low_amp);
+    println!("amps in range {}", peaks.map(|x| x.2));
+    peaks.map(|x| (x.1, linmap(low_amp, high_amp, 0.0, 1.0, x.2))
 }
 
 fn find_peak(fft: &[f32]) -> f32 {
