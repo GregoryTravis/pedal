@@ -6,9 +6,9 @@ use alloc::vec::Vec;
 use std::env;
 
 use shared::file::*;
-use shared::unit::band_pass::*;
 #[allow(unused)]
 use shared::spew::*;
+use shared::unit::band_pass::*;
 
 fn main() {
     let args: Vec<String> = env::args().collect();

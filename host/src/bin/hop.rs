@@ -7,8 +7,8 @@ use std::env;
 
 use shared::file::*;
 use shared::hop_fft::*;
-use shared::unit::reso::*;
 use shared::spew::*;
+use shared::unit::reso::*;
 
 fn main() {
     let args: Vec<String> = env::args().collect();

@@ -3,13 +3,16 @@ extern crate alloc;
 extern crate libm;
 
 use alloc::vec::Vec;
+#[allow(unused)]
+use std::println;
 
 use crate::constants::*;
 use crate::fft_host::*;
 use crate::spew::*;
 
 // Divide input into frames of size hop, fft each one, padded out to fft_size, returning
-// the peaks.
+// the peaks. One peak is returned for each input sample; within a hop size, the peak is simply
+// repeated.
 pub fn hop_fft(input: &[f32], fft_size: usize, batch_size: usize, hop: usize) -> Vec<f32> {
     let mut peaks: Vec<f32> = vec![0.0; input.len()];
     let mut fft_in: &mut [f32] = &mut vec![0.0; fft_size];
@@ -47,6 +50,41 @@ pub fn hop_fft(input: &[f32], fft_size: usize, batch_size: usize, hop: usize) ->
     }
 
     peaks
+}
+
+// Divide input into frames of size hop, fft each one, padded out to fft_size. Get the loud peaks
+// for each one, and return a vec of vecs of peaks, one for each hop.
+// output: (freq, mix)
+pub fn hop_peaks(input: &[f32], fft_size: usize, batch_size: usize, hop: usize) -> Vec<Vec<(f32, f32)>> {
+    let mut peakses: Vec<Vec<(f32, f32)>> = Vec::new();
+    let mut fft_in: &mut [f32] = &mut vec![0.0; fft_size];
+    let mut fft_out: &mut [f32] = &mut vec![0.0; fft_size];
+
+    for current in (0..input.len()).step_by(hop) {
+        spew!("====", current);
+        // TODO don't have to clear the beginning
+        fft_in[0..fft_size].fill(0.0);
+        // Necessary?
+        fft_out[0..fft_size].fill(0.0);
+
+        assert!(batch_size % 2 == 0);
+
+        let batch_start: isize = current as isize - (batch_size/2) as isize;
+
+        for i in 0..batch_size {
+            let si = i as isize + batch_start;
+            let s = if si < 0 || si >= input.len() as isize { 0.0 } else { input[si as usize] };
+            fft_in[i] = s;
+        }
+
+        fft_slice(&mut fft_in, &mut fft_out);
+
+        let bps = peaks_to_bps(find_peaks(fft_out));
+        println!("==== peaks {} {:?}", current, bps);
+        peakses.push(bps);
+    }
+
+    peakses
 }
 
 // TODO do we need bin?
@@ -94,7 +132,7 @@ fn linmap(x0: f32, y0: f32, x1: f32, y1: f32, x: f32) -> f32 {
     x1 + (alpha * (y1 - x1))
 }
 
-const low_amp_threshold: f32 = 0.6;
+const LOW_AMP_THRESHOLD: f32 = 0.6;
 
 // input: (bin, freq, amp)
 // output: (freq, mix)
@@ -102,13 +140,17 @@ fn peaks_to_bps(peaks: Vec<(usize, f32, f32)>) -> Vec<(f32, f32)> {
     // Find highest peak, set low to that times low_amp_threshold, scale all amps to that, remove
     // negative (there are none above 1), return that.
     let mut peaks = peaks.clone();
-    peaks.sort_by(|a0, a1| b.2.partial_cmp(a.2).unwrap());
-    println!("amps {}", peaks.map(|x| x.2));
-    let high_amp: f32 = peaks[0].2;
-    let low_amp: f32 = low_amp_threshold * high_amp;
-    peaks.retain(|x| x.2 >= low_amp);
-    println!("amps in range {}", peaks.map(|x| x.2));
-    peaks.map(|x| (x.1, linmap(low_amp, high_amp, 0.0, 1.0, x.2))
+    if !peaks.is_empty() {
+        peaks.sort_by(|a, b| b.2.partial_cmp(&a.2).unwrap());
+        println!("amps {:?}", peaks.iter().map(|x| x.2).collect::<Vec<_>>());
+        let high_amp: f32 = peaks[0].2;
+        let low_amp: f32 = LOW_AMP_THRESHOLD * high_amp;
+        peaks.retain(|x| x.2 >= low_amp);
+        println!("amps in range {:?}", peaks.iter().map(|x| x.2));
+        peaks.iter().map(|x| (x.1, linmap(low_amp, high_amp, 0.0, 1.0, x.2))).collect()
+    } else {
+        Vec::new()
+    }
 }
 
 fn find_peak(fft: &[f32]) -> f32 {
