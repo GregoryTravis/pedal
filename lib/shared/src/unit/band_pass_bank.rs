@@ -24,7 +24,7 @@ pub fn closest(x: f32, xs: &Vec<f32>) -> usize {
     let mut dists: Vec<(usize, f32)> = xs.iter().enumerate()
         .map(|(i, xx)| (i, libm::fabsf(x-xx)))
         .collect();
-    dists.sort_by(|(_, x), (_, xx)| xx.partial_cmp(x).unwrap());
+    dists.sort_by(|(_, x), (_, xx)| x.partial_cmp(xx).unwrap());
     dists[0].0
 }
 
@@ -57,6 +57,8 @@ pub fn match_values(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
     for i in 0..nu.len() {
         nu_faves[i] = closest(nu[i], old);
     }
+    println!("old_faves {:?}", old_faves);
+    println!(" nu_faves {:?}", nu_faves);
 
     // For each pair of values (old and new) that agree, add a match. For any value
     // that doesn't agree with its fave nu, add a drop.
@@ -130,11 +132,29 @@ impl BandPassBank {
 
     // (freq, amp)
     pub fn update(&mut self, fas: &Vec<(f32, f32)>) {
+        println!("====");
         let old_freqs: Vec<f32> = self.bps.iter().map(|(bp, _)| bp.get_freq()).collect();
         let new_freqs: Vec<f32> = fas.iter().map(|&fa| fa.0).collect();
+
+        println!("OLD {:?}", old_freqs);
+        println!("NEW {:?}", new_freqs);
+
         let results = match_values(&old_freqs, &new_freqs);
 
         println!("MR {:?}", results);
+        for mr in &results {
+            match mr {
+                MatchResult::AddNew(i) => {
+                    println!("Add {}", new_freqs[*i]);
+                },
+                MatchResult::DropOld(i) => {
+                    println!("Drop {}", old_freqs[*i]);
+                },
+                MatchResult::Match(i, j) => {
+                    println!("Match {} {}", old_freqs[*i], new_freqs[*j]);
+                },
+            }
+        }
 
         for mr in &results {
             match mr {
