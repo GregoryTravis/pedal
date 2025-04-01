@@ -124,6 +124,8 @@ impl BandPassBank {
 
     pub fn process(&mut self, input: f32) -> f32 {
         let mut output: f32 = 0.0;
+        //let final_fas: Vec<(f32, f32)> = self.bps.iter().map(|(bp, a)| (bp.get_freq(), *a)).collect();
+        //println!("PROCESS {:?}", final_fas);
         for (ref mut bp, ref amp) in &mut self.bps {
             output += amp * bp.process(input);
         }
@@ -132,7 +134,6 @@ impl BandPassBank {
 
     // (freq, amp)
     pub fn update(&mut self, fas: &Vec<(f32, f32)>) {
-        println!("====");
         let old_freqs: Vec<f32> = self.bps.iter().map(|(bp, _)| bp.get_freq()).collect();
         let new_freqs: Vec<f32> = fas.iter().map(|&fa| fa.0).collect();
 
@@ -177,35 +178,9 @@ impl BandPassBank {
         self.bps.retain(|(_, amp)| *amp > 0.0);
 
         // Sort the added ones in.
-        self.bps.sort_by(|(_, a0), (_, a1)| a0.partial_cmp(a1).unwrap());
+        self.bps.sort_by(|(bp0, _), (bp1, _)| (bp0.get_freq()).partial_cmp(&bp1.get_freq()).unwrap());
 
-        /*
-        // Matches: update freq and amp
-        for &mr in results {
-            match mr {
-                Match(i, j) => {
-                    bps[i].0.set_freq(fas[i].0);
-                    bps[i].1 = fas[i].1;
-                },
-                _ => {},
-            }
-        }
-
-        // TODO slow
-        let remaining = self.bps.iter().enumerate()
-            .filter(|i, _| results.contains(DropOld(i)))
-            .map(|_, v| v)
-            .collect();
-        self.bps = remaining;
-
-        // Adds: add new bp.
-        for &mr in results {
-            match mr {
-                AddNew(i) => {
-                    bps.push((BandPass::new(fas[i].0), fas[i].1));
-                },
-            }
-        }
-        */
+        //let final_fas: Vec<(f32, f32)> = self.bps.iter().map(|(bp, a)| (bp.get_freq(), *a)).collect();
+        //println!("FINAL {:?}", final_fas);
     }
 }

@@ -132,7 +132,7 @@ fn linmap(x0: f32, y0: f32, x1: f32, y1: f32, x: f32) -> f32 {
     x1 + (alpha * (y1 - x1))
 }
 
-const LOW_AMP_THRESHOLD: f32 = 0.6;
+const LOW_AMP_THRESHOLD: f32 = 0.0;
 
 // input: (bin, freq, amp)
 // output: (freq, mix)
