@@ -15,6 +15,7 @@ const GAIN: f32 = 1.0; // I don't know why this is needed
 pub struct BandPass {
     // Center frequency
     freq: f32,
+    bw: f32,
 
     // Filter params
     b0: f32,
@@ -34,38 +35,50 @@ pub struct BandPass {
 impl BandPass {
     // Center frequency; bandwidth in octaves between -3 frequencies
     pub fn new(freq: f32, bw: f32) -> BandPass {
-        let w0 = 2.0 * PI * (freq / SAMPLE_RATE as f32);
+        let mut bp = BandPass {
+            freq: 0.0,
+            bw: bw,
 
-        let alpha = libm::sinf(w0) * libm::sinhf(
-                (libm::logf(2.0)/2.0) * bw * (w0 / libm::sinf(w0)) );
-        BandPass {
-            freq: freq,
-
-            // Constant skirt gain
-            // b0:  libm::sinf(w0)/2.0,
-            // b1:  0.0,
-            // b2: -(libm::sinf(w0)/2.0),
-            // a0:  1.0 + alpha,
-            // a1: -2.0 * libm::cosf(w0),
-            // a2:  1.0 - alpha,
-
-            // Constant peak 0 db gain
-            b0:  alpha,
-            b1:  0.0,
-            b2: -alpha,
-            a0:  1.0 + alpha,
-            a1: -2.0*libm::cosf(w0),
-            a2:  1.0 - alpha,
+            b0: 0.0,
+            b1: 0.0,
+            b2: 0.0,
+            a0: 0.0,
+            a1: 0.0,
+            a2: 0.0,
 
             x_n_1: 0.0,
             x_n_2: 0.0,
             y_n_1: 0.0,
             y_n_2: 0.0,
-        }
+        };
+
+        bp.set_freq(freq);
+        bp
     }
 
+    pub fn get_freq(&self) -> f32 { self.freq }
+
     pub fn set_freq(&mut self, freq: f32) {
+        let w0 = 2.0 * PI * (freq / SAMPLE_RATE as f32);
+        let alpha = libm::sinf(w0) * libm::sinhf(
+                (libm::logf(2.0)/2.0) * self.bw * (w0 / libm::sinf(w0)) );
         self.freq = freq;
+
+        // Constant skirt gain
+        // b0:  libm::sinf(w0)/2.0,
+        // b1:  0.0,
+        // b2: -(libm::sinf(w0)/2.0),
+        // a0:  1.0 + alpha,
+        // a1: -2.0 * libm::cosf(w0),
+        // a2:  1.0 - alpha,
+
+        // Constant peak 0 db gain
+        self.b0 =  alpha;
+        self.b1 =  0.0;
+        self.b2 = -alpha;
+        self.a0 =  1.0 + alpha;
+        self.a1 = -2.0*libm::cosf(w0);
+        self.a2 =  1.0 - alpha;
     }
 
     pub fn process(&mut self, x_n: f32) -> f32 {

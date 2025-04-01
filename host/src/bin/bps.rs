@@ -9,7 +9,7 @@ use shared::file::*;
 use shared::hop_fft::*;
 #[allow(unused)]
 use shared::spew::*;
-use shared::unit::band_pass::*;
+use shared::unit::band_pass_bank::*;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -19,20 +19,20 @@ fn main() {
     let input = file_read(input_filename);
     let mut output = vec![0.0; input.len()];
 
-    let hop = 48;
-    let fmses: Vec<Vec<(f32, f32)>> = hop_peaks(&input, 4096, 2048, hop);
+    let mut bank = BandPassBank::new();
 
-    for (batch, fms) in fmses.iter().enumerate() {
-        let mut bpas: Vec<(BandPass, f32)> = fms.iter().map(|(freq, amp)| (BandPass::new(*freq, bw), *amp)).collect();
+    let hop = 48;
+    let fases: Vec<Vec<(f32, f32)>> = hop_peaks(&input, 4096, 2048, hop);
+
+    for (batch, fas) in fases.iter().enumerate() {
+        bank.update(&fas);
         let current_start = batch * hop;
         for i in 0..hop {
             let current = current_start + i;
             if current >= input.len() {
                 break;
             }
-            for (ref mut bp, amp) in &mut bpas {
-                output[current] += *amp * bp.process(input[current]);
-            }
+            output[current] = bank.process(input[current]);
         }
     }
 
