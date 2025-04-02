@@ -6,11 +6,15 @@ use alloc::vec::Vec;
 #[allow(unused)]
 use std::println;
 
+use crate::constants::*;
+use crate::inertial::*;
 #[allow(unused)]
 use crate::spew::*;
 use crate::unit::band_pass::*;
 
 const BW: f32 = 0.01;
+//const AMP_DM: f32 = 10000000.0;
+const AMP_DM: f32 = 16.0 / SAMPLE_RATE as f32;
 
 #[derive(Debug)]
 pub enum MatchResult {
@@ -112,7 +116,7 @@ pub fn match_values(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
 
 pub struct BandPassBank {
     // (bp, amp)
-    bps: Vec<(BandPass, f32)>,
+    bps: Vec<(BandPass, Inertial, bool)>,
 }
 
 impl BandPassBank {
@@ -126,15 +130,16 @@ impl BandPassBank {
         let mut output: f32 = 0.0;
         //let final_fas: Vec<(f32, f32)> = self.bps.iter().map(|(bp, a)| (bp.get_freq(), *a)).collect();
         //println!("PROCESS {:?}", final_fas);
-        for (ref mut bp, ref amp) in &mut self.bps {
-            output += amp * bp.process(input);
+        for (ref mut bp, ref mut amp, _) in &mut self.bps {
+            amp.update();
+            output += amp.get() * bp.process(input);
         }
         output
     }
 
     // (freq, amp)
     pub fn update(&mut self, fas: &Vec<(f32, f32)>) {
-        let old_freqs: Vec<f32> = self.bps.iter().map(|(bp, _)| bp.get_freq()).collect();
+        let old_freqs: Vec<f32> = self.bps.iter().map(|(bp, _, _)| bp.get_freq()).collect();
         let new_freqs: Vec<f32> = fas.iter().map(|&fa| fa.0).collect();
 
         println!("OLD {:?}", old_freqs);
@@ -160,25 +165,27 @@ impl BandPassBank {
         for mr in &results {
             match mr {
                 MatchResult::AddNew(i) => {
-                    self.bps.push((BandPass::new(fas[*i].0, BW), fas[*i].1));
+                    self.bps.push((BandPass::new(fas[*i].0, BW), Inertial::new_from(0.0, fas[*i].1, AMP_DM), false));
                 },
                 MatchResult::DropOld(i) => {
                     // Doing this in case we make it inertial and it doesn't drop out
                     // right away.
-                    self.bps[*i].1 = 0.0;
+                    self.bps[*i].1.set(0.0);
+                    self.bps[*i].2 = true;
                 },
                 MatchResult::Match(i, j) => {
                     self.bps[*i].0.set_freq(fas[*j].0);
-                    self.bps[*i].1 = fas[*j].1;
+                    self.bps[*i].1.set(fas[*j].1);
+                    self.bps[*i].2 = false;
                 },
             }
         }
 
-        // Remove the ones that have gone to 0.
-        self.bps.retain(|(_, amp)| *amp > 0.0);
+        // Remove the ones that have been dropped and then gone to 0.
+        self.bps.retain(|(_, amp, dropping)| !*dropping || (*amp).get() > 0.0);
 
         // Sort the added ones in.
-        self.bps.sort_by(|(bp0, _), (bp1, _)| (bp0.get_freq()).partial_cmp(&bp1.get_freq()).unwrap());
+        self.bps.sort_by(|(bp0, _, _), (bp1, _, _)| (bp0.get_freq()).partial_cmp(&bp1.get_freq()).unwrap());
 
         //let final_fas: Vec<(f32, f32)> = self.bps.iter().map(|(bp, a)| (bp.get_freq(), *a)).collect();
         //println!("FINAL {:?}", final_fas);

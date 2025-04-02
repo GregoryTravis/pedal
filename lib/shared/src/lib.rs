@@ -27,6 +27,7 @@ pub mod globby_board;
 pub mod globby_host;
 #[cfg(feature = "for_host")]
 pub mod graphing;
+pub mod inertial;
 pub mod knob;
 pub mod knob_dummy;
 #[cfg(not(feature = "for_host"))]
