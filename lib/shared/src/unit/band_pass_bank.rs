@@ -145,6 +145,14 @@ fn filter_some_fas(freqs: Vec<(f32, f32)>) -> Vec<(f32, f32)> {
     }).collect()
 }
 
+// This disgustingly-named function returns 1.0, except that it ramps it up to a higher value over
+// the course of a frequency range. So freqs (0..HIGH) go from 1.0 to 1+GAIN.
+const RAMP_ONE_HIGH: f32 = 1200.0;
+const RAMP_ONE_GAIN: f32 = 0;
+fn ramp_one(freq: f32) -> f32 {
+    1.0 + (RAMP_ONE_GAIN * (freq / RAMP_ONE_HIGH))
+}
+
 impl BandPassBank {
     pub fn new() -> BandPassBank {
         BandPassBank {
@@ -200,7 +208,7 @@ impl BandPassBank {
         for mr in &results {
             match mr {
                 MatchResult::AddNew(i) => {
-                    let amp = if ALL_ONES { 1.0 } else { fas[*i].1 * GAIN };
+                    let amp = if ALL_ONES { ramp_one(fas[*i].0) } else { fas[*i].1 * GAIN };
                     self.bps.push((BandPass::new(fas[*i].0, BW), Inertial::new_from(0.0, amp, AMP_DM), false));
                 },
                 MatchResult::DropOld(i) => {
@@ -210,7 +218,7 @@ impl BandPassBank {
                     self.bps[*i].2 = true;
                 },
                 MatchResult::Match(i, j) => {
-                    let amp = if ALL_ONES { 1.0 } else { fas[*j].1 * GAIN };
+                    let amp = if ALL_ONES { ramp_one(fas[*j].0) } else { fas[*j].1 * GAIN };
                     //println!("GGG set f {} {} {} {}", *i, self.bps[*i].0.get_freq(), *j, fas[*j].0);
                     self.bps[*i].0.set_freq(fas[*j].0);
                     self.bps[*i].1.set(amp);
