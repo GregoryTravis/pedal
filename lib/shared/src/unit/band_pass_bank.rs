@@ -122,6 +122,21 @@ pub struct BandPassBank {
     bps: Vec<(BandPass, Inertial, bool)>,
 }
 
+/*
+#[allow(unused)]
+fn filter_some(freqs: Vec<f32>) -> Vec<f32> {
+    freqs.into_iter().filter(|f| {
+        *f < 1700.0
+    }).collect()
+}
+*/
+
+fn filter_some_fas(freqs: Vec<(f32, f32)>) -> Vec<(f32, f32)> {
+    freqs.into_iter().filter(|f| {
+        (*f).0 < 200.0
+    }).collect()
+}
+
 impl BandPassBank {
     pub fn new() -> BandPassBank {
         BandPassBank {
@@ -141,9 +156,18 @@ impl BandPassBank {
     }
 
     // (freq, amp)
-    pub fn update(&mut self, fas: &Vec<(f32, f32)>) {
+    pub fn update(&mut self, orig_fas: &Vec<(f32, f32)>) {
+        //self.dump("INITIAL");
         let old_freqs: Vec<f32> = self.bps.iter().map(|(bp, _, _)| bp.get_freq()).collect();
+
+        // good
+        let fas: Vec<(f32, f32)> = filter_some_fas(orig_fas.to_vec());
         let new_freqs: Vec<f32> = fas.iter().map(|&fa| fa.0).collect();
+
+        // bad
+        //let new_freqs: Vec<f32> = filter_some(fas.iter().map(|&fa| fa.0).collect());
+
+        //println!("NEWF {:?}", new_freqs);
 
         println!("OLD {:?}", old_freqs);
         println!("NEW {:?}", new_freqs);
@@ -179,6 +203,7 @@ impl BandPassBank {
                 },
                 MatchResult::Match(i, j) => {
                     let amp = if ALL_ONES { 1.0 } else { fas[*j].1 * GAIN };
+                    //println!("GGG set f {} {} {} {}", *i, self.bps[*i].0.get_freq(), *j, fas[*j].0);
                     self.bps[*i].0.set_freq(fas[*j].0);
                     self.bps[*i].1.set(amp);
                     self.bps[*i].2 = false;
@@ -194,5 +219,11 @@ impl BandPassBank {
 
         //let final_fas: Vec<(f32, f32)> = self.bps.iter().map(|(bp, a, _)| (bp.get_freq(), (*a).get())).collect();
         //println!("FINAL {:?}", final_fas);
+        //self.dump("FINAL");
+    }
+
+    pub fn dump(&self, tag: &str) {
+        let final_fas: Vec<(f32, f32)> = self.bps.iter().map(|(bp, a, _)| (bp.get_freq(), (*a).get())).collect();
+        println!("{} {:?}", tag, final_fas);
     }
 }

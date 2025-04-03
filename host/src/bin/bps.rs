@@ -35,6 +35,7 @@ fn main() {
             }
             output[current] = bank.process(input[current]);
         }
+        bank.dump("FINAL FINAL");
     }
 
     let output_filename = format!("{}-bp-{}.wav", input_filename, bw);
