@@ -16,6 +16,9 @@ const BW: f32 = 0.01;
 //const AMP_DM: f32 = 10000000.0;
 const AMP_DM: f32 = 16.0 / SAMPLE_RATE as f32;
 
+const GAIN: f32 = 15.0;
+const ALL_ONES: bool = false;
+
 #[derive(Debug)]
 pub enum MatchResult {
     DropOld(usize),
@@ -165,7 +168,8 @@ impl BandPassBank {
         for mr in &results {
             match mr {
                 MatchResult::AddNew(i) => {
-                    self.bps.push((BandPass::new(fas[*i].0, BW), Inertial::new_from(0.0, fas[*i].1, AMP_DM), false));
+                    let amp = if ALL_ONES { 1.0 } else { fas[*i].1 * GAIN };
+                    self.bps.push((BandPass::new(fas[*i].0, BW), Inertial::new_from(0.0, amp, AMP_DM), false));
                 },
                 MatchResult::DropOld(i) => {
                     // Doing this in case we make it inertial and it doesn't drop out
@@ -174,8 +178,9 @@ impl BandPassBank {
                     self.bps[*i].2 = true;
                 },
                 MatchResult::Match(i, j) => {
+                    let amp = if ALL_ONES { 1.0 } else { fas[*j].1 * GAIN };
                     self.bps[*i].0.set_freq(fas[*j].0);
-                    self.bps[*i].1.set(fas[*j].1);
+                    self.bps[*i].1.set(amp);
                     self.bps[*i].2 = false;
                 },
             }
@@ -187,7 +192,7 @@ impl BandPassBank {
         // Sort the added ones in.
         self.bps.sort_by(|(bp0, _, _), (bp1, _, _)| (bp0.get_freq()).partial_cmp(&bp1.get_freq()).unwrap());
 
-        //let final_fas: Vec<(f32, f32)> = self.bps.iter().map(|(bp, a)| (bp.get_freq(), *a)).collect();
+        //let final_fas: Vec<(f32, f32)> = self.bps.iter().map(|(bp, a, _)| (bp.get_freq(), (*a).get())).collect();
         //println!("FINAL {:?}", final_fas);
     }
 }
