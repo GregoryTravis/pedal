@@ -17,7 +17,7 @@ const BW: f32 = 0.01;
 const AMP_DM: f32 = 16.0 / SAMPLE_RATE as f32;
 
 const GAIN: f32 = 15.0;
-const ALL_ONES: bool = false;
+const ALL_ONES: bool = true;
 
 #[derive(Debug)]
 pub enum MatchResult {
@@ -26,12 +26,15 @@ pub enum MatchResult {
     Match(usize, usize),
 }
 
+// Two frequencies aren't considered by closest() unless they're closer than this.
+//const MAX_CLOSE: f32 = 50.0;
 pub fn closest(x: f32, xs: &Vec<f32>) -> usize {
     assert!(!xs.is_empty());
     let mut dists: Vec<(usize, f32)> = xs.iter().enumerate()
         .map(|(i, xx)| (i, libm::fabsf(x-xx)))
         .collect();
     dists.sort_by(|(_, x), (_, xx)| x.partial_cmp(xx).unwrap());
+    //dists.retain(|(_,x)| *x < MAX_CLOSE);
     dists[0].0
 }
 
@@ -132,8 +135,13 @@ fn filter_some(freqs: Vec<f32>) -> Vec<f32> {
 */
 
 fn filter_some_fas(freqs: Vec<(f32, f32)>) -> Vec<(f32, f32)> {
-    freqs.into_iter().filter(|f| {
-        (*f).0 < 200.0
+    freqs.into_iter().filter(|_f| {
+        true
+        /*
+        let low = 0.0;
+        let high = 800.0;
+        (*f).0 >= low && (*f).0 <= high
+        */
     }).collect()
 }
 
