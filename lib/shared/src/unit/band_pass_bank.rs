@@ -27,7 +27,7 @@ pub enum MatchResult {
 }
 
 // Two frequencies aren't considered by closest() unless they're closer than this.
-const MAX_CLOSE: f32 = 20000000.0;
+const MAX_CLOSE: f32 = 120.0;
 pub fn closest(x: f32, xs: &Vec<f32>) -> Option<usize> {
     assert!(!xs.is_empty());
     let mut dists: Vec<(usize, f32)> = xs.iter().enumerate()

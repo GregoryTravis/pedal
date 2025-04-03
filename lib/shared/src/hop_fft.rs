@@ -93,7 +93,7 @@ fn find_peaks(fft: &[f32]) -> Vec<(usize, f32, f32)> {
     let mut peaks: Vec<(usize, f32, f32)> = Vec::new();
     let fft_len = fft.len();
 
-    let amp_threshold = 0.005;
+    let amp_threshold = 0.01;
 
     for i in 0..fft_len {
         let not_edge = i > 0 && i < fft_len-1;
