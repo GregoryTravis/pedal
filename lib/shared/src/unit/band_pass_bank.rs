@@ -27,20 +27,20 @@ pub enum MatchResult {
 }
 
 // Two frequencies aren't considered by closest() unless they're closer than this.
-//const MAX_CLOSE: f32 = 50.0;
-pub fn closest(x: f32, xs: &Vec<f32>) -> usize {
+const MAX_CLOSE: f32 = 20000000.0;
+pub fn closest(x: f32, xs: &Vec<f32>) -> Option<usize> {
     assert!(!xs.is_empty());
     let mut dists: Vec<(usize, f32)> = xs.iter().enumerate()
         .map(|(i, xx)| (i, libm::fabsf(x-xx)))
         .collect();
     dists.sort_by(|(_, x), (_, xx)| x.partial_cmp(xx).unwrap());
-    //dists.retain(|(_,x)| *x < MAX_CLOSE);
-    dists[0].0
+    dists.retain(|(_,x)| *x < MAX_CLOSE);
+    if dists.is_empty() { None } else { Some(dists[0].0) }
 }
 
 pub fn match_values(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
-    let mut old_faves: Vec<usize> = vec![0; old.len()];
-    let mut nu_faves: Vec<usize> = vec![0; nu.len()];
+    let mut old_faves: Vec<Option<usize>> = vec![None; old.len()];
+    let mut nu_faves: Vec<Option<usize>> = vec![None; nu.len()];
 
     let mut results: Vec<MatchResult> = Vec::new();
 
@@ -73,8 +73,11 @@ pub fn match_values(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
     // For each pair of values (old and new) that agree, add a match. For any value
     // that doesn't agree with its fave nu, add a drop.
     for i in 0..old.len() {
-        if nu_faves[old_faves[i]] == i {
-            results.push(MatchResult::Match(i, old_faves[i]));
+        // TODO don't use unwrap?
+        if old_faves[i].is_some()
+            && nu_faves[old_faves[i].unwrap()].is_some()
+            && nu_faves[old_faves[i].unwrap()].unwrap() == i {
+            results.push(MatchResult::Match(i, old_faves[i].unwrap()));
         } else {
             results.push(MatchResult::DropOld(i));
         }
@@ -82,7 +85,10 @@ pub fn match_values(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
 
     // Same for nu -> old, but no need to add the matches again
     for i in 0..nu.len() {
-        if old_faves[nu_faves[i]] == i {
+        // TODO don't repeat this, don't do this at all maybe.
+        if nu_faves[i].is_some()
+            && old_faves[nu_faves[i].unwrap()].is_some()
+            && old_faves[nu_faves[i].unwrap()].unwrap() == i {
             // Do nothing
         } else {
             results.push(MatchResult::AddNew(i));
@@ -148,7 +154,7 @@ fn filter_some_fas(freqs: Vec<(f32, f32)>) -> Vec<(f32, f32)> {
 // This disgustingly-named function returns 1.0, except that it ramps it up to a higher value over
 // the course of a frequency range. So freqs (0..HIGH) go from 1.0 to 1+GAIN.
 const RAMP_ONE_HIGH: f32 = 1200.0;
-const RAMP_ONE_GAIN: f32 = 0;
+const RAMP_ONE_GAIN: f32 = 0.0;
 fn ramp_one(freq: f32) -> f32 {
     1.0 + (RAMP_ONE_GAIN * (freq / RAMP_ONE_HIGH))
 }
