@@ -158,6 +158,8 @@ pub fn main() {
     //all_tests();
     //oom_test();
     benchmark_fft();
+    // crashes -- probably too much allocation
+    //fft_output_comparison(40);
 
     spew!("end of main");
 }
