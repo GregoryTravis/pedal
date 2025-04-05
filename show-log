@@ -1,7 +1,7 @@
 # Only uncomment one of these
 
 # first daisy seed
-tail -F /dev/cu.usbmodem397D335A33301
+# tail -F /dev/cu.usbmodem397D335A33301
 
 # second daisy seed
-# tail -F /dev/cu.usbmodem327E396130321
+tail -F /dev/cu.usbmodem327E396130321

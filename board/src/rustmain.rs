@@ -154,10 +154,10 @@ pub fn benchmark_fft() {
 pub fn main() {
     spew!("start of main");
 
-    live_main();
+    //live_main();
     //all_tests();
     //oom_test();
-    //benchmark_fft();
+    benchmark_fft();
 
     spew!("end of main");
 }
