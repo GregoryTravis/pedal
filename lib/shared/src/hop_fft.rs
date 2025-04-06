@@ -87,13 +87,17 @@ pub fn hop_peaks(input: &[f32], fft_size: usize, batch_size: usize, hop: usize) 
     peakses
 }
 
+fn ramp_threshold(freq: f32) -> f32 {
+    0.005 * linmap(60.0, 1500.0, 1.0, 2.0, freq)
+}
+
 // TODO do we need bin?
 // output: (bin, freq, amp)
 fn find_peaks(fft: &[f32]) -> Vec<(usize, f32, f32)> {
     let mut peaks: Vec<(usize, f32, f32)> = Vec::new();
     let fft_len = fft.len();
 
-    let amp_threshold = 0.01;
+    let _amp_threshold = 0.005;
 
     for i in 0..fft_len {
         let not_edge = i > 0 && i < fft_len-1;
@@ -112,8 +116,13 @@ fn find_peaks(fft: &[f32]) -> Vec<(usize, f32, f32)> {
                 let x_peak = (i as f32) + relative_x_peak;
                 let amp_peak = y_peak / (fft_len / 2) as f32;
                 let freq_peak = x_peak * (SAMPLE_RATE as f32 / fft_len as f32);
-                if amp_peak > amp_threshold {
+                //spew!("VVV", i, amp_peak, freq_peak, ramp_threshold(freq_peak));
+                if amp_peak > ramp_threshold(freq_peak) { // amp_threshold {
                     peaks.push((i, freq_peak, amp_peak));
+                    peaks.push((i, freq_peak * 2.0, amp_peak));
+                    peaks.push((i, freq_peak * 3.0, amp_peak));
+                    //peaks.push((i, freq_peak * 4.0, amp_peak));
+                    peaks.push((i, freq_peak * 5.0, amp_peak));
                     spew!("*** peak", i, x_peak, y_peak, freq_peak, amp_peak, a, b, c, peakiness);
                 } else {
                     //spew!("... peak", i, x_peak, y_peak, freq_peak, amp_peak, a, b, c, peakiness);
@@ -127,8 +136,10 @@ fn find_peaks(fft: &[f32]) -> Vec<(usize, f32, f32)> {
     peaks
 }
 
+// Map [x0,y0] to [x1,y1], apply that to x.
 fn linmap(x0: f32, y0: f32, x1: f32, y1: f32, x: f32) -> f32 {
-    let alpha = (x - x0) / (y1 - y0);
+    let alpha = (x - x0) / (y0 - x0);
+    //spew!("alpha", alpha);
     x1 + (alpha * (y1 - x1))
 }
 
