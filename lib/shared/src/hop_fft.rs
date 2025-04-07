@@ -13,7 +13,6 @@ use crate::spew::*;
 // Divide input into frames of size hop, fft each one, padded out to fft_size, returning
 // the peaks. One peak is returned for each input sample; within a hop size, the peak is simply
 // repeated.
-//let fases: Vec<Vec<(f32, f32)>> = hop_peaks(&input, 4096, 2048, 48);
 pub fn hop_fft(input: &[f32], fft_size: usize, batch_size: usize, hop: usize) -> Vec<f32> {
     let mut peaks: Vec<f32> = vec![0.0; input.len()];
     let mut fft_in: &mut [f32] = &mut vec![0.0; fft_size];
@@ -56,6 +55,7 @@ pub fn hop_fft(input: &[f32], fft_size: usize, batch_size: usize, hop: usize) ->
 // Divide input into frames of size hop, fft each one, padded out to fft_size. Get the loud peaks
 // for each one, and return a vec of vecs of peaks, one for each hop.
 // output: (freq, mix)
+//let fases: Vec<Vec<(f32, f32)>> = hop_peaks(&input, 4096, 2048, 48);
 pub fn hop_peaks(input: &[f32], fft_size: usize, batch_size: usize, hop: usize) -> Vec<Vec<(f32, f32)>> {
     let mut peakses: Vec<Vec<(f32, f32)>> = Vec::new();
     let mut fft_in: &mut [f32] = &mut vec![0.0; fft_size];
