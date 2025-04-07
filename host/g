@@ -1,4 +1,5 @@
-cargo run --bin bps --features for_host -- simin.wav 0.01 2>&1 | tee out
+(cargo run --bin bps --features for_host -- simin.wav 0.01 && diff simin.wav-bp-0.01.wav golden.wav && diff out golden.out) 2>&1 | tee out
+#cargo run --bin bps --features for_host -- simin.wav 0.01 2>&1 | tee out
 exit
 
 #cargo run --bin bpm --features for_host -- simin.wav 0.01 2>&1 | tee out
