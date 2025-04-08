@@ -10,48 +10,6 @@ use crate::constants::*;
 use crate::fft_host::*;
 use crate::spew::*;
 
-// Divide input into frames of size hop, fft each one, padded out to fft_size, returning
-// the peaks. One peak is returned for each input sample; within a hop size, the peak is simply
-// repeated.
-pub fn hop_fft(input: &[f32], fft_size: usize, batch_size: usize, hop: usize) -> Vec<f32> {
-    let mut peaks: Vec<f32> = vec![0.0; input.len()];
-    let mut fft_in: &mut [f32] = &mut vec![0.0; fft_size];
-    let mut fft_out: &mut [f32] = &mut vec![0.0; fft_size];
-
-    for current in (0..input.len()).step_by(hop) {
-        spew!("====", current);
-        // TODO don't have to clear the beginning
-        fft_in[0..fft_size].fill(0.0);
-        // Necessary?
-        fft_out[0..fft_size].fill(0.0);
-
-        assert!(batch_size % 2 == 0);
-
-        let batch_start: isize = current as isize - (batch_size/2) as isize;
-
-        for i in 0..batch_size {
-            let si = i as isize + batch_start;
-            let s = if si < 0 || si >= input.len() as isize { 0.0 } else { input[si as usize] };
-            fft_in[i] = s;
-        }
-
-        fft_slice(&mut fft_in, &mut fft_out);
-
-        let freq = find_peak(fft_out);
-        spew!("==== peak", current, freq);
-        peaks[current] = freq;
-
-        // Duplicate to the rest of the batch.
-        for i in 1..hop {
-            if current+i < input.len() {
-                peaks[current+i] = freq;
-            }
-        }
-    }
-
-    peaks
-}
-
 // Divide input into frames of size hop, fft each one, padded out to fft_size. Get the loud peaks
 // for each one, and return a vec of vecs of peaks, one for each hop.
 // output: (freq, mix)
@@ -163,65 +121,6 @@ fn peaks_to_bps(peaks: Vec<(usize, f32, f32)>) -> Vec<(f32, f32)> {
     } else {
         Vec::new()
     }
-}
-
-fn find_peak(fft: &[f32]) -> f32 {
-    let peaks = find_peaks(fft);
-
-    let ramp_down_by_freq = true;
-    // 1.0 at 200 and 0.5 at 1000
-    let low_ramp_freq = 200.0;
-    let high_ramp_freq = 500.0;
-    let low_ramp_amp_mult = 1.0;
-    let high_ramp_amp_mult = 0.5;
-
-    let do_min_freq = true;
-    let min_freq = 100.0;
-
-    let highest_pitch: Option<usize> = {
-        let mut best: usize = 0;
-        let mut best_amp: f32 = 0.0;
-        let mut found: bool = false;
-
-        for i in 0..peaks.len() {
-            let freq = peaks[i].1;
-
-            if do_min_freq && freq < min_freq {
-                continue;
-            }
-
-            let orig_amp = peaks[i].2;
-
-            let amp = if ramp_down_by_freq {
-                let alpha = (freq - low_ramp_freq) / (high_ramp_freq - low_ramp_freq);
-                let multiplier = low_ramp_amp_mult + (alpha * (high_ramp_amp_mult - low_ramp_amp_mult));
-                orig_amp * multiplier
-            } else {
-                orig_amp
-            };
-
-            if !found || amp > best_amp {
-                best = i;
-                best_amp = amp;
-                found = true;
-            }
-        }
-
-        if found {
-            spew!("max peak", peaks[best].0);
-            Some(best)
-        } else {
-            //spew!("no peak");
-            None
-        }
-    };
-
-    let freq = match highest_pitch {
-        Some(i) => peaks[i].1,
-        None => 0.0,
-    };
-
-    freq
 }
 
 // Return peak of the curve described by the values.
