@@ -29,7 +29,8 @@ pub fn hop_peaks(input: &[f32], fft_size: usize, batch_size: usize, hop: usize) 
 
         assert!(batch_size % 2 == 0);
 
-        let batch_start: isize = current as isize - (batch_size/2) as isize;
+        //let batch_start: isize = current as isize - (batch_size/2) as isize;
+        let batch_start: isize = current as isize - ((batch_size - hop) as isize);
 
         for i in 0..batch_size {
             let si = i as isize + batch_start;
