@@ -7,7 +7,7 @@ pub fn fft_boh(input: &mut [f32; FFT_SIZE], output: &mut [f32; FFT_SIZE]) {
     let mut input_copy: [f32; FFT_SIZE] = [0.0; FFT_SIZE];
     input_copy.copy_from_slice(input);
     // Figure out in what sense microfft works in-place
-    let returned_output = rfft_4096(input);
+    let returned_output = rfft_2048(input);
     // Why is this half size
     for i in 0..FFT_SIZE/2 {
         output[i] = returned_output[i].norm_sqr().sqrt();
@@ -51,7 +51,7 @@ pub fn fft_slice(input: &mut [f32], output: &mut [f32]) {
 
     let complex_result = match input.len() {
         //4096 => rfft_4096(input.try_into().unwrap()),
-        4096 => rfft_4096(<&mut [f32; 4096]>::try_from(input).unwrap()),
+        2048 => rfft_2048(<&mut [f32; 2048]>::try_from(input).unwrap()),
         _ => unimplemented!(),
     };
 

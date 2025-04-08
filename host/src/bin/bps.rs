@@ -22,7 +22,7 @@ fn main() {
     let mut bank = BandPassBank::new();
 
     let hop = 48;
-    let fases: Vec<Vec<(f32, f32)>> = hop_peaks(&input, 4096, 2048, hop);
+    let fases: Vec<Vec<(f32, f32)>> = hop_peaks(&input, 2048, 2048, hop);
 
     for (batch, fas) in fases.iter().enumerate() {
         let current_start = batch * hop;
