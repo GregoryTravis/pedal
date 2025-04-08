@@ -46,6 +46,7 @@ pub mod r#override;
 pub mod panic;
 pub mod patch;
 pub mod playhead;
+pub mod quadratic_interpolate;
 pub mod rig;
 pub mod rig_util;
 #[cfg(not(feature = "for_host"))]

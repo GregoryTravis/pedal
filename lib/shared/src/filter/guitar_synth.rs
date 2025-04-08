@@ -13,6 +13,7 @@ use crate::fft::*;
 use crate::knob::Knobs;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
+use crate::quadratic_interpolate::*;
 use crate::spew::*;
 use crate::unit::reso::*;
 
@@ -36,24 +37,10 @@ impl GuitarSynth {
     }
 }
 
-// Return peak of the curve described by the values.
-// Returns (x_peak, y_peak).
-// x_peak is relative to xp which is treated as 0.
-// https://www.physics.drexel.edu/~steve/Courses/Comp_Phys/Physics-105/quad_int.pdf
-fn quadratic_interpolate(xpp: f32, xp: f32, x: f32) -> (f32, f32) {
-    // Remove mult by 1 and other stupid things.
-    let dt = 1.0;
-    let tp = 0.0;
-    let a = xp;
-    let b = (x - xpp) / (2.0 * dt);
-    let c = (x - (2.0 * xp) + xpp) / (2.0 * dt * dt);
-    let tau = tp - (b / (2.0 * c));
-    let x_max = a - ((b * b) / (4.0 * c));
-    (tau, x_max)
-}
-
 // Hann window
 // w(n) = 0.5 * [1 - cos(2*pi*n / N)]
+// Usage;
+//   self.input[i] *= hann(i, FFT_SIZE);
 fn hann(n: usize, num_samples: usize) -> f32 {
     0.5 * (1.0 - libm::cosf((2.0 * PI * n as f32) / num_samples as f32))
 }
