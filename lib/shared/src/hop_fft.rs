@@ -15,37 +15,27 @@ use crate::spew::*;
 // for each one, and return a vec of vecs of peaks, one for each hop.
 // output: (freq, mix)
 //let fases: Vec<Vec<(f32, f32)>> = hop_peaks(&input, 4096, 2048, 48);
-pub fn hop_peaks(input: &[f32], fft_size: usize, batch_size: usize, hop: usize) -> Vec<Vec<(f32, f32)>> {
-    let mut peakses: Vec<Vec<(f32, f32)>> = Vec::new();
+pub fn hop_peaks(current:usize, input: &[f32; 2048], fft_size: usize, batch_size: usize) -> Vec<(f32, f32)> {
     let mut fft_in: &mut [f32] = &mut vec![0.0; fft_size];
     let mut fft_out: &mut [f32] = &mut vec![0.0; fft_size];
 
-    for current in (0..input.len()).step_by(hop) {
-        spew!("====", current);
-        // TODO don't have to clear the beginning
-        fft_in[0..fft_size].fill(0.0);
-        // Necessary?
-        fft_out[0..fft_size].fill(0.0);
-
-        assert!(batch_size % 2 == 0);
-
-        //let batch_start: isize = current as isize - (batch_size/2) as isize;
-        let batch_start: isize = current as isize - ((batch_size - hop) as isize);
-
-        for i in 0..batch_size {
-            let si = i as isize + batch_start;
-            let s = if si < 0 || si >= input.len() as isize { 0.0 } else { input[si as usize] };
-            fft_in[i] = s;
-        }
-
-        fft_slice(&mut fft_in, &mut fft_out);
-
-        let bps = peaks_to_bps(find_peaks(fft_out));
-        println!("==== peaks {} {:?}", current, bps);
-        peakses.push(bps);
+    for i in 0..input.len() {
+        fft_in[i] = input[i];
     }
 
-    peakses
+    spew!("====", current);
+    // TODO don't have to clear the beginning
+    //fft_in[0..fft_size].fill(0.0);
+    // Necessary?
+    //fft_out[0..fft_size].fill(0.0);
+
+    assert!(batch_size % 2 == 0);
+
+    fft_slice(&mut fft_in, &mut fft_out);
+
+    let bps = peaks_to_bps(find_peaks(fft_out));
+    println!("==== peaks {} {:?}", current, bps);
+    bps
 }
 
 fn ramp_threshold(freq: f32) -> f32 {
