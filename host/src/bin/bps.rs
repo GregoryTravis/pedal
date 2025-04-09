@@ -43,10 +43,10 @@ fn main() {
         }
 
         let fas: Vec<(f32, f32)> = hop_peaks(current_start, &buf, 2048, 2048);
+        bank.update(&fas);
 
         let mut output_batch: Vec<f32> = vec![0.0; hop];
 
-        bank.update(&fas);
         for i in 0..hop {
             output_batch[i] = bank.process(input_batch[i]);
         }

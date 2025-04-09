@@ -65,7 +65,7 @@ impl BandPass {
 
     pub fn set_freq(&mut self, freq: f32) {
         let w0 = 2.0 * PI * (freq / SAMPLE_RATE as f32);
-        let alpha = libm::sinf(w0) * fast_sinhf(
+        let alpha = libm::sinf(w0) * fast_sinh(
                 (libm::logf(2.0)/2.0) * self.bw * (w0 / libm::sinf(w0)) );
         self.freq = freq;
 
