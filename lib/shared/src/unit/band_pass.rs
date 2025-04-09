@@ -32,6 +32,11 @@ pub struct BandPass {
     y_n_2: f32,
 }
 
+// First time I used AI to solve an equation.
+fn fast_sinh(x: f32) -> f32 {
+  (0.20335755098 * x * x * x) + x
+}
+
 impl BandPass {
     // Center frequency; bandwidth in octaves between -3 frequencies
     pub fn new(freq: f32, bw: f32) -> BandPass {
@@ -60,7 +65,7 @@ impl BandPass {
 
     pub fn set_freq(&mut self, freq: f32) {
         let w0 = 2.0 * PI * (freq / SAMPLE_RATE as f32);
-        let alpha = libm::sinf(w0) * libm::sinhf(
+        let alpha = libm::sinf(w0) * fast_sinhf(
                 (libm::logf(2.0)/2.0) * self.bw * (w0 / libm::sinf(w0)) );
         self.freq = freq;
 
