@@ -16,7 +16,7 @@ const BW: f32 = 0.01;
 //const AMP_DM: f32 = 10000000.0;
 const AMP_DM: f32 = 16.0 / SAMPLE_RATE as f32;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum MatchResult {
     DropOld(usize),
     AddNew(usize),
@@ -25,7 +25,7 @@ pub enum MatchResult {
 
 // Two frequencies aren't considered by closest() unless they're closer than this.
 const MAX_CLOSE: f32 = 120.0;
-pub fn closest(x: f32, xs: &Vec<f32>) -> Option<usize> {
+fn closest(x: f32, xs: &Vec<f32>) -> Option<usize> {
     assert!(!xs.is_empty());
     let mut dists: Vec<(usize, f32)> = xs.iter().enumerate()
         .map(|(i, xx)| (i, libm::fabsf(x-xx)))
@@ -36,6 +36,163 @@ pub fn closest(x: f32, xs: &Vec<f32>) -> Option<usize> {
 }
 
 pub fn match_values(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
+    let slow_results = match_values_slow(old, nu);
+    let fast_results = match_values_fast(old, nu);
+    assert!(slow_results == fast_results);
+    fast_results
+}
+
+fn closests(xs: &Vec<f32>, ys: &Vec<f32>) -> Vec<Option<usize>> {
+    let mut faves: Vec<Option<usize>> = vec![None; xs.len()];
+
+    let mut xi: usize = 0;
+    let mut yi: usize = 0;
+
+    println!("CLOSESTS");
+    println!("xs {} {:?}", xs.len(), xs);
+    println!("ys {} {:?}", ys.len(), ys);
+
+    // In the middle of this, either the current x is between the current y and its successor, in
+    // which case we pick whichever is closer (and within threshold). Then advance x.
+    //
+    // At this point, y and its successor are both below x, so we advance until again x is between
+    // y and its successor.
+    //
+    // The edge case at the end: y has no successor, and is less than x, pick it.
+    //
+    // The edge case at the beginning: xi == yi == 0, so pick yi, and advance x.
+    while xi < xs.len() && yi < ys.len() {
+        println!("loop {} {}", xi, yi);
+        if yi + 1 < ys.len() && ys[yi] < xs[xi] && xs[xi] < ys[yi+1] {
+            // Current x is between two ys, pick closest.
+            //
+            //   y
+            // x
+            //   y
+            let prev_dist = xs[xi] - ys[yi];
+            let next_dist = ys[yi+1] - xs[xi];
+
+            assert!(prev_dist > 0.0);
+            assert!(next_dist > 0.0);
+
+            if prev_dist < next_dist {
+                // Pick previous
+                if prev_dist < MAX_CLOSE {
+                    faves[xi] = Some(yi);
+                }
+            } else {
+                // Pick next
+                if prev_dist < MAX_CLOSE {
+                    faves[xi] = Some(yi+1);
+                }
+            }
+
+            // Next x
+            xi += 1;
+        } else if yi + 1 < ys.len() && ys[yi] < xs[xi] && ys[yi+1] < xs[xi] {
+            // Both ys are less, next y
+            //
+            // x
+            //   y
+            //   y
+            yi += 1;
+        } else if yi == ys.len() - 1 {
+            // Last y, pick it
+            //
+            // x
+            //   y
+            assert!(ys[yi] < xs[xi]);
+            let dist = xs[xi] - ys[yi];
+            if dist < MAX_CLOSE {
+                faves[xi] = Some(yi);
+            }
+            xi += 1;
+        } else {
+            // Only remaining case, pick y
+            // xi == 0
+            // y is greater
+            assert!(xi == 0);
+            assert!(ys[yi] > xs[xi]);
+            let dist = ys[yi] - xs[xi];
+            if dist < MAX_CLOSE {
+                faves[xi] = Some(yi);
+            }
+            xi += 1;
+        }
+    }
+
+    faves
+}
+
+fn match_values_fast(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
+    let old_faves: Vec<Option<usize>> = closests(old, nu);
+    let nu_faves: Vec<Option<usize>> = closests(nu, old);
+
+    assert!(old_faves.len() == old.len());
+    assert!(nu_faves.len() == nu.len());
+
+    println!("old_faves {:?}", old_faves);
+    println!(" nu_faves {:?}", nu_faves);
+
+    let mut results: Vec<MatchResult> = Vec::new();
+
+    // For each pair of values (old and new) that agree, add a match. For any value
+    // that doesn't agree with its fave nu, add a drop.
+    for i in 0..old.len() {
+        // TODO don't use unwrap?
+        if old_faves[i].is_some()
+            && nu_faves[old_faves[i].unwrap()].is_some()
+            && nu_faves[old_faves[i].unwrap()].unwrap() == i {
+            results.push(MatchResult::Match(i, old_faves[i].unwrap()));
+        } else {
+            results.push(MatchResult::DropOld(i));
+        }
+    }
+
+    // Same for nu -> old, but no need to add the matches again
+    for i in 0..nu.len() {
+        // TODO don't repeat this, don't do this at all maybe.
+        if nu_faves[i].is_some()
+            && old_faves[nu_faves[i].unwrap()].is_some()
+            && old_faves[nu_faves[i].unwrap()].unwrap() == i {
+            // Do nothing
+        } else {
+            results.push(MatchResult::AddNew(i));
+        }
+    }
+
+    // Check everything is accounted for exactly once.
+    // TODO comment out / test only
+    let check = true;
+    if check {
+        let mut old_used: Vec<bool> = vec![false; old.len()];
+        let mut nu_used: Vec<bool> = vec![false; nu.len()];
+        for mr in &results {
+            match mr {
+                MatchResult::DropOld(i) => {
+                    assert!(!old_used[*i]);
+                    old_used[*i] = true;
+                }
+                MatchResult::AddNew(i) => {
+                    assert!(!nu_used[*i]);
+                    nu_used[*i] = true;
+                }
+                MatchResult::Match(i, j) => {
+                    assert!(!old_used[*i]);
+                    assert!(!nu_used[*j]);
+                    old_used[*i] = true;
+                    nu_used[*j] = true;
+                }
+            }
+        }
+        assert!(old_used.iter().all(|&b| b));
+        assert!(nu_used.iter().all(|&b| b));
+    }
+
+    results
+}
+
+fn match_values_slow(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
     let mut old_faves: Vec<Option<usize>> = vec![None; old.len()];
     let mut nu_faves: Vec<Option<usize>> = vec![None; nu.len()];
 

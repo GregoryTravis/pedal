@@ -85,6 +85,12 @@ fn find_peaks(fft: &[f32]) -> Vec<f32> {
             }
         }
     }
+
+    // TODO disable this
+    for i in 0..peaks.len()-1 {
+        assert!(peaks[i] < peaks[i+1]);
+    }
+
     peaks
 }
 
