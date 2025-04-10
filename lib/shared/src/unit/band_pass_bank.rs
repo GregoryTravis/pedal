@@ -164,15 +164,9 @@ impl BandPassBank {
     }
 
     // (freq, amp)
-    pub fn update(&mut self, fas: &Vec<(f32, f32)>) {
+    pub fn update(&mut self, new_freqs: &Vec<f32>) {
         //self.dump("INITIAL");
         let old_freqs: Vec<f32> = self.bps.iter().map(|(bp, _, _)| bp.get_freq()).collect();
-
-        // good
-        let new_freqs: Vec<f32> = fas.iter().map(|&fa| fa.0).collect();
-
-        // bad
-        //let new_freqs: Vec<f32> = filter_some(fas.iter().map(|&fa| fa.0).collect());
 
         //println!("NEWF {:?}", new_freqs);
 
@@ -199,8 +193,8 @@ impl BandPassBank {
         for mr in &results {
             match mr {
                 MatchResult::AddNew(i) => {
-                    let amp = ramp_one(fas[*i].0);
-                    self.bps.push((BandPass::new(fas[*i].0, BW), Inertial::new_from(0.0, amp, AMP_DM), false));
+                    let amp = ramp_one(new_freqs[*i]);
+                    self.bps.push((BandPass::new(new_freqs[*i], BW), Inertial::new_from(0.0, amp, AMP_DM), false));
                 },
                 MatchResult::DropOld(i) => {
                     // Doing this in case we make it inertial and it doesn't drop out
@@ -209,9 +203,9 @@ impl BandPassBank {
                     self.bps[*i].2 = true;
                 },
                 MatchResult::Match(i, j) => {
-                    let amp = ramp_one(fas[*j].0);
+                    let amp = ramp_one(new_freqs[*j]);
                     //println!("GGG set f {} {} {} {}", *i, self.bps[*i].0.get_freq(), *j, fas[*j].0);
-                    self.bps[*i].0.set_freq(fas[*j].0);
+                    self.bps[*i].0.set_freq(new_freqs[*j]);
                     self.bps[*i].1.set(amp);
                     self.bps[*i].2 = false;
                 },

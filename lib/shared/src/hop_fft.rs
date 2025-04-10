@@ -15,7 +15,7 @@ use crate::spew::*;
 // for each one, and return a vec of vecs of peaks, one for each hop.
 // output: (freq, mix)
 //let fases: Vec<Vec<(f32, f32)>> = hop_peaks(&input, 4096, 2048, 48);
-pub fn hop_peaks(current:usize, input: &[f32; 2048], fft_size: usize, batch_size: usize) -> Vec<(f32, f32)> {
+pub fn hop_peaks(current:usize, input: &[f32; 2048], fft_size: usize, batch_size: usize) -> Vec<f32> {
     let mut fft_in: &mut [f32] = &mut vec![0.0; fft_size];
     let mut fft_out: &mut [f32] = &mut vec![0.0; fft_size];
 
@@ -33,7 +33,7 @@ pub fn hop_peaks(current:usize, input: &[f32; 2048], fft_size: usize, batch_size
 
     fft_slice(&mut fft_in, &mut fft_out);
 
-    let bps = peaks_to_bps(find_peaks(fft_out));
+    let bps = find_peaks(fft_out);
     println!("==== peaks {} {:?}", current, bps);
     bps
 }
@@ -44,8 +44,8 @@ fn ramp_threshold(freq: f32) -> f32 {
 
 // TODO do we need bin?
 // output: (bin, freq, amp)
-fn find_peaks(fft: &[f32]) -> Vec<(usize, f32, f32)> {
-    let mut peaks: Vec<(usize, f32, f32)> = Vec::new();
+fn find_peaks(fft: &[f32]) -> Vec<f32> {
+    let mut peaks: Vec<f32> = Vec::new();
     let fft_len = fft.len();
 
     let _amp_threshold = 0.005;
@@ -66,14 +66,15 @@ fn find_peaks(fft: &[f32]) -> Vec<(usize, f32, f32)> {
                 let (relative_x_peak, y_peak) = quadratic_interpolate(a, b, c);
                 let x_peak = (i as f32) + relative_x_peak;
                 let amp_peak = y_peak / (fft_len / 2) as f32;
+                assert!(amp_peak >= 0.0);
                 let freq_peak = x_peak * (SAMPLE_RATE as f32 / fft_len as f32);
                 //spew!("VVV", i, amp_peak, freq_peak, ramp_threshold(freq_peak));
                 if amp_peak > ramp_threshold(freq_peak) { // amp_threshold {
-                    peaks.push((i, freq_peak, amp_peak));
-                    peaks.push((i, freq_peak * 2.0, amp_peak));
-                    peaks.push((i, freq_peak * 3.0, amp_peak));
-                    //peaks.push((i, freq_peak * 4.0, amp_peak));
-                    peaks.push((i, freq_peak * 5.0, amp_peak));
+                    // Throwing away i and amp_peak here
+                    peaks.push(freq_peak);
+                    peaks.push(freq_peak * 2.0);
+                    peaks.push(freq_peak * 3.0);
+                    peaks.push(freq_peak * 5.0);
                     spew!("*** peak", i, x_peak, y_peak, freq_peak, amp_peak, a, b, c, peakiness);
                 } else {
                     //spew!("... peak", i, x_peak, y_peak, freq_peak, amp_peak, a, b, c, peakiness);
@@ -92,25 +93,4 @@ fn linmap(x0: f32, y0: f32, x1: f32, y1: f32, x: f32) -> f32 {
     let alpha = (x - x0) / (y0 - x0);
     //spew!("alpha", alpha);
     x1 + (alpha * (y1 - x1))
-}
-
-const LOW_AMP_THRESHOLD: f32 = 0.0;
-
-// input: (bin, freq, amp)
-// output: (freq, mix)
-fn peaks_to_bps(peaks: Vec<(usize, f32, f32)>) -> Vec<(f32, f32)> {
-    // Find highest peak, set low to that times low_amp_threshold, scale all amps to that, remove
-    // negative (there are none above 1), return that.
-    let mut peaks = peaks.clone();
-    if !peaks.is_empty() {
-        peaks.sort_by(|a, b| b.2.partial_cmp(&a.2).unwrap());
-        println!("amps {:?}", peaks.iter().map(|x| x.2).collect::<Vec<_>>());
-        let high_amp: f32 = peaks[0].2;
-        let low_amp: f32 = LOW_AMP_THRESHOLD * high_amp;
-        peaks.retain(|x| x.2 >= low_amp);
-        println!("amps in range {:?}", peaks.iter().map(|x| x.2));
-        peaks.iter().map(|x| (x.1, linmap(low_amp, high_amp, 0.0, 1.0, x.2))).collect()
-    } else {
-        Vec::new()
-    }
 }

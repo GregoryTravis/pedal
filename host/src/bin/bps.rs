@@ -42,7 +42,7 @@ fn main() {
             buf[2048-hop+i] = input_batch[i];
         }
 
-        let fas: Vec<(f32, f32)> = hop_peaks(current_start, &buf, 2048, 2048);
+        let fas: Vec<f32> = hop_peaks(current_start, &buf, 2048, 2048);
         bank.update(&fas);
 
         let mut output_batch: Vec<f32> = vec![0.0; hop];
