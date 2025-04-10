@@ -16,9 +16,6 @@ const BW: f32 = 0.01;
 //const AMP_DM: f32 = 10000000.0;
 const AMP_DM: f32 = 16.0 / SAMPLE_RATE as f32;
 
-const GAIN: f32 = 15.0;
-const ALL_ONES: bool = true;
-
 #[derive(Debug)]
 pub enum MatchResult {
     DropOld(usize),
@@ -140,17 +137,6 @@ fn filter_some(freqs: Vec<f32>) -> Vec<f32> {
 }
 */
 
-fn filter_some_fas(freqs: Vec<(f32, f32)>) -> Vec<(f32, f32)> {
-    freqs.into_iter().filter(|_f| {
-        true
-        /*
-        let low = 0.0;
-        let high = 800.0;
-        (*f).0 >= low && (*f).0 <= high
-        */
-    }).collect()
-}
-
 // This disgustingly-named function returns 1.0, except that it ramps it up to a higher value over
 // the course of a frequency range. So freqs (0..HIGH) go from 1.0 to 1+GAIN.
 const RAMP_ONE_HIGH: f32 = 1200.0;
@@ -178,12 +164,11 @@ impl BandPassBank {
     }
 
     // (freq, amp)
-    pub fn update(&mut self, orig_fas: &Vec<(f32, f32)>) {
+    pub fn update(&mut self, fas: &Vec<(f32, f32)>) {
         //self.dump("INITIAL");
         let old_freqs: Vec<f32> = self.bps.iter().map(|(bp, _, _)| bp.get_freq()).collect();
 
         // good
-        let fas: Vec<(f32, f32)> = filter_some_fas(orig_fas.to_vec());
         let new_freqs: Vec<f32> = fas.iter().map(|&fa| fa.0).collect();
 
         // bad
@@ -214,7 +199,7 @@ impl BandPassBank {
         for mr in &results {
             match mr {
                 MatchResult::AddNew(i) => {
-                    let amp = if ALL_ONES { ramp_one(fas[*i].0) } else { fas[*i].1 * GAIN };
+                    let amp = ramp_one(fas[*i].0);
                     self.bps.push((BandPass::new(fas[*i].0, BW), Inertial::new_from(0.0, amp, AMP_DM), false));
                 },
                 MatchResult::DropOld(i) => {
@@ -224,7 +209,7 @@ impl BandPassBank {
                     self.bps[*i].2 = true;
                 },
                 MatchResult::Match(i, j) => {
-                    let amp = if ALL_ONES { ramp_one(fas[*j].0) } else { fas[*j].1 * GAIN };
+                    let amp = ramp_one(fas[*j].0);
                     //println!("GGG set f {} {} {} {}", *i, self.bps[*i].0.get_freq(), *j, fas[*j].0);
                     self.bps[*i].0.set_freq(fas[*j].0);
                     self.bps[*i].1.set(amp);
