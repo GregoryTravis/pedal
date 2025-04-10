@@ -31,6 +31,7 @@ fn closest(x: f32, xs: &Vec<f32>) -> Option<usize> {
         .map(|(i, xx)| (i, libm::fabsf(x-xx)))
         .collect();
     dists.sort_by(|(_, x), (_, xx)| x.partial_cmp(xx).unwrap());
+    // We only remove the too-far ones in case they are all too far.
     dists.retain(|(_,x)| *x < MAX_CLOSE);
     if dists.is_empty() { None } else { Some(dists[0].0) }
 }
