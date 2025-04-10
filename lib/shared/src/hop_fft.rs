@@ -86,10 +86,13 @@ fn find_peaks(fft: &[f32]) -> Vec<f32> {
         }
     }
 
+    /* Not in order because of added overtones
     // TODO disable this
-    for i in 0..peaks.len()-1 {
-        assert!(peaks[i] < peaks[i+1]);
+    for i in 1..peaks.len() {
+        assert!(peaks[i-1] < peaks[i]);
     }
+    */
+    peaks.sort_by(|f0, f1| f0.partial_cmp(f1).unwrap());
 
     peaks
 }

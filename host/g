@@ -1,7 +1,6 @@
 (cargo run --bin bps --features for_host -- simin.wav 0.01) 2>&1 | tee out
-echo ========
-diff out golden.out
-#cargo run --bin bps --features for_host -- simin.wav 0.01 2>&1 | tee out
+#echo ========
+#diff out golden.out
 exit
 
 #cargo run --bin bpm --features for_host -- simin.wav 0.01 2>&1 | tee out

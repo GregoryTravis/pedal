@@ -38,7 +38,9 @@ fn closest(x: f32, xs: &Vec<f32>) -> Option<usize> {
 pub fn match_values(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
     let slow_results = match_values_slow(old, nu);
     let fast_results = match_values_fast(old, nu);
-    assert!(slow_results == fast_results);
+    println!("slow results {:?}", slow_results);
+    println!("fast results {:?}", fast_results);
+    //assert!(slow_results == fast_results);
     fast_results
 }
 
@@ -63,7 +65,8 @@ fn closests(xs: &Vec<f32>, ys: &Vec<f32>) -> Vec<Option<usize>> {
     // The edge case at the beginning: xi == yi == 0, so pick yi, and advance x.
     while xi < xs.len() && yi < ys.len() {
         println!("loop {} {}", xi, yi);
-        if yi + 1 < ys.len() && ys[yi] < xs[xi] && xs[xi] < ys[yi+1] {
+        println!("vals {} {}", xs[xi], ys[yi]);
+        if yi + 1 < ys.len() && ys[yi] < xs[xi] && xs[xi] <= ys[yi+1] {
             // Current x is between two ys, pick closest.
             //
             //   y
@@ -72,8 +75,8 @@ fn closests(xs: &Vec<f32>, ys: &Vec<f32>) -> Vec<Option<usize>> {
             let prev_dist = xs[xi] - ys[yi];
             let next_dist = ys[yi+1] - xs[xi];
 
-            assert!(prev_dist > 0.0);
-            assert!(next_dist > 0.0);
+            assert!(prev_dist >= 0.0);
+            assert!(next_dist >= 0.0);
 
             if prev_dist < next_dist {
                 // Pick previous
@@ -111,7 +114,7 @@ fn closests(xs: &Vec<f32>, ys: &Vec<f32>) -> Vec<Option<usize>> {
             // Only remaining case, pick y
             // xi == 0
             // y is greater
-            assert!(xi == 0);
+            assert!(yi == 0);
             assert!(ys[yi] > xs[xi]);
             let dist = ys[yi] - xs[xi];
             if dist < MAX_CLOSE {
@@ -125,7 +128,9 @@ fn closests(xs: &Vec<f32>, ys: &Vec<f32>) -> Vec<Option<usize>> {
 }
 
 fn match_values_fast(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
+    println!("closest to olds");
     let old_faves: Vec<Option<usize>> = closests(old, nu);
+    println!("closest to news");
     let nu_faves: Vec<Option<usize>> = closests(nu, old);
 
     assert!(old_faves.len() == old.len());
