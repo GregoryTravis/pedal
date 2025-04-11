@@ -153,10 +153,29 @@ impl <'a> Iterator for MatchIterator<'a> {
     }
 }
 
+// TODO rename or remove
+fn getem(old: &Vec<f32>, nu: &Vec<f32>, mi: (NO, usize)) -> f32 {
+    if mi.0 == Old { old[mi.1] } else { nu[mi.1] }
+}
+
 fn match_values_fast(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
     println!("AAA {:?} {:?}", old, nu);
     for mi in MatchIterator::new(old, nu) {
         println!("AAA iter {:?}", mi);
+
+        match mi {
+            First(mi0, mi1) => {
+                assert!(getem(old, nu, mi0) < getem(old, nu, mi1));
+            },
+            Middle(mi0, mi1, mi2) => {
+                assert!(getem(old, nu, mi0) < getem(old, nu, mi1));
+                assert!(getem(old, nu, mi1) < getem(old, nu, mi2));
+            },
+            Last(mi0, mi1) => {
+                assert!(getem(old, nu, mi0) < getem(old, nu, mi1));
+            },
+            _ => assert!(false),
+        }
     }
 
     match_values_slow(old, nu)
