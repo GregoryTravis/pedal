@@ -45,157 +45,121 @@ pub fn match_values(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
     fast_results
 }
 
-fn closests(xs: &Vec<f32>, ys: &Vec<f32>) -> Vec<Option<usize>> {
-    let mut faves: Vec<Option<usize>> = vec![None; xs.len()];
+struct MatchIterator<'a> {
+    old: &'a Vec<f32>,
+    nu: &'a Vec<f32>,
+    oi: usize,
+    ni: usize,
+    // Last returned value
+    current: MI,
+}
 
-    let mut xi: usize = 0;
-    let mut yi: usize = 0;
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+enum NO {
+    Old,
+    Nu,
+}
 
-    println!("CLOSESTS");
-    println!("xs {} {:?}", xs.len(), xs);
-    println!("ys {} {:?}", ys.len(), ys);
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+enum MI {
+    Start,
+    First((NO, usize), (NO, usize)),
+    Middle((NO, usize), (NO, usize), (NO, usize)),
+    Last((NO, usize), (NO, usize)),
+    Done,
+}
 
-    // In the middle of this, either the current x is between the current y and its successor, in
-    // which case we pick whichever is closer (and within threshold). Then advance x.
-    //
-    // At this point, y and its successor are both below x, so we advance until again x is between
-    // y and its successor.
-    //
-    // The edge case at the end: y has no successor, and is less than x, pick it.
-    //
-    // The edge case at the beginning: xi == yi == 0, so pick yi, and advance x.
-    while xi < xs.len() && yi < ys.len() {
-        println!("loop {} {}", xi, yi);
-        println!("vals {} {}", xs[xi], ys[yi]);
-        if yi + 1 < ys.len() && ys[yi] < xs[xi] && xs[xi] <= ys[yi+1] {
-            // Current x is between two ys, pick closest.
-            //
-            //   y
-            // x
-            //   y
-            let prev_dist = xs[xi] - ys[yi];
-            let next_dist = ys[yi+1] - xs[xi];
+use MI::*;
+use NO::*;
 
-            assert!(prev_dist >= 0.0);
-            assert!(next_dist >= 0.0);
-
-            if prev_dist < next_dist {
-                // Pick previous
-                if prev_dist < MAX_CLOSE {
-                    faves[xi] = Some(yi);
-                }
-            } else {
-                // Pick next
-                if prev_dist < MAX_CLOSE {
-                    faves[xi] = Some(yi+1);
-                }
-            }
-
-            // Next x
-            xi += 1;
-        } else if yi + 1 < ys.len() && ys[yi] < xs[xi] && ys[yi+1] < xs[xi] {
-            // Both ys are less, next y
-            //
-            // x
-            //   y
-            //   y
-            yi += 1;
-        } else if yi == ys.len() - 1 {
-            // Last y, pick it
-            //
-            // x
-            //   y
-            assert!(ys[yi] < xs[xi]);
-            let dist = xs[xi] - ys[yi];
-            if dist < MAX_CLOSE {
-                faves[xi] = Some(yi);
-            }
-            xi += 1;
-        } else {
-            // Only remaining case, pick y
-            // xi == 0
-            // y is greater
-            assert!(yi == 0);
-            assert!(ys[yi] > xs[xi]);
-            let dist = ys[yi] - xs[xi];
-            if dist < MAX_CLOSE {
-                faves[xi] = Some(yi);
-            }
-            xi += 1;
+impl <'a> MatchIterator<'a> {
+    pub fn new(old: &'a Vec<f32>, nu: &'a Vec<f32>) -> MatchIterator<'a> {
+        MatchIterator {
+            old: old,
+            nu: nu,
+            oi: 0,
+            ni: 0,
+            current: Start,
         }
     }
 
-    faves
+    fn next_interleaved(&mut self) -> Option<(NO, usize)> {
+        let odone = self.oi >= self.old.len();
+        let ndone = self.ni >= self.nu.len();
+        match (odone, ndone) {
+            (true, true) => None,
+            (true, false) => {
+                let ret = Some((Nu, self.ni));
+                self.ni += 1;
+                ret
+            },
+            (false, true) => {
+                let ret = Some((Old, self.oi));
+                self.oi += 1;
+                ret
+            },
+            (false, false) => {
+                let of = self.old[self.oi];
+                let nf = self.nu[self.ni];
+                if of < nf {
+                    let ret = Some((Old, self.oi));
+                    self.oi += 1;
+                    ret
+                } else {
+                    let ret = Some((Nu, self.ni));
+                    self.ni += 1;
+                    ret
+                }
+            }
+        }
+    }
+}
+
+impl <'a> Iterator for MatchIterator<'a> {
+    type Item = MI;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let next = match self.current {
+            Start => {
+                let mi0 = self.next_interleaved();
+                let mi1 = self.next_interleaved();
+                match (mi0, mi1) {
+                    (Some(mi0), Some(mi1)) => First(mi0, mi1),
+                    _ => Done,
+                }
+            },
+            First(mi0, mi1) => {
+                let mi2 = self.next_interleaved();
+                match mi2 {
+                    Some(mi2) => Middle(mi0, mi1, mi2),
+                    None => Last(mi0, mi1),
+                }
+            },
+            Middle(_mi0, mi1, mi2) => {
+                let mi3 = self.next_interleaved();
+                match mi3 {
+                    Some(mi3) => Middle(mi1, mi2, mi3),
+                    None => Last(mi1, mi2),
+                }
+            }
+            Last(_mi0, _mi1) => {
+                assert!(self.next_interleaved().is_none());
+                Done
+            },
+            Done => Done,
+        };
+        self.current = next;
+        if self.current == Done { None } else { Some(next) }
+    }
 }
 
 fn match_values_fast(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
-    println!("closest to olds");
-    let old_faves: Vec<Option<usize>> = closests(old, nu);
-    println!("closest to news");
-    let nu_faves: Vec<Option<usize>> = closests(nu, old);
-
-    assert!(old_faves.len() == old.len());
-    assert!(nu_faves.len() == nu.len());
-
-    println!("old_faves {:?}", old_faves);
-    println!(" nu_faves {:?}", nu_faves);
-
-    let mut results: Vec<MatchResult> = Vec::new();
-
-    // For each pair of values (old and new) that agree, add a match. For any value
-    // that doesn't agree with its fave nu, add a drop.
-    for i in 0..old.len() {
-        // TODO don't use unwrap?
-        if old_faves[i].is_some()
-            && nu_faves[old_faves[i].unwrap()].is_some()
-            && nu_faves[old_faves[i].unwrap()].unwrap() == i {
-            results.push(MatchResult::Match(i, old_faves[i].unwrap()));
-        } else {
-            results.push(MatchResult::DropOld(i));
-        }
+    println!("AAA {:?} {:?}", old, nu);
+    for mi in MatchIterator::new(old, nu) {
+        println!("AAA iter {:?}", mi);
     }
 
-    // Same for nu -> old, but no need to add the matches again
-    for i in 0..nu.len() {
-        // TODO don't repeat this, don't do this at all maybe.
-        if nu_faves[i].is_some()
-            && old_faves[nu_faves[i].unwrap()].is_some()
-            && old_faves[nu_faves[i].unwrap()].unwrap() == i {
-            // Do nothing
-        } else {
-            results.push(MatchResult::AddNew(i));
-        }
-    }
-
-    // Check everything is accounted for exactly once.
-    // TODO comment out / test only
-    let check = true;
-    if check {
-        let mut old_used: Vec<bool> = vec![false; old.len()];
-        let mut nu_used: Vec<bool> = vec![false; nu.len()];
-        for mr in &results {
-            match mr {
-                MatchResult::DropOld(i) => {
-                    assert!(!old_used[*i]);
-                    old_used[*i] = true;
-                }
-                MatchResult::AddNew(i) => {
-                    assert!(!nu_used[*i]);
-                    nu_used[*i] = true;
-                }
-                MatchResult::Match(i, j) => {
-                    assert!(!old_used[*i]);
-                    assert!(!nu_used[*j]);
-                    old_used[*i] = true;
-                    nu_used[*j] = true;
-                }
-            }
-        }
-        assert!(old_used.iter().all(|&b| b));
-        assert!(nu_used.iter().all(|&b| b));
-    }
-
-    results
+    match_values_slow(old, nu)
 }
 
 fn match_values_slow(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
