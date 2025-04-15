@@ -174,6 +174,7 @@ fn match_values_fast(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
         // println!("AAA iter {:?}", mi);
 
         match mi {
+            // For the first two, we only assign a fave to the first one.
             First(mi0, mi1) => {
                 match (mi0, mi1) {
                     ((Old, oi), (Nu, ni)) => {
@@ -191,6 +192,7 @@ fn match_values_fast(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
                     _ => (),
                 }
             },
+            // For the middle groups, we only assign a fave to the middle one.
             Middle(mi0, mi1, mi2) => {
                 match (mi0, mi1, mi2) {
                     ((Old, oi), (Nu, ni), (Old, oi2)) => {
@@ -247,6 +249,7 @@ fn match_values_fast(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
                     ((Nu, _), (Nu, _), (Nu, _)) => (),
                 }
             },
+            // For the last two, we only assign a fave to the last one.
             Last(mi0, mi1) => {
                 match (mi0, mi1) {
                     ((Old, oi), (Nu, ni)) => {
@@ -486,6 +489,7 @@ impl BandPassBank {
         self.bps.retain(|(_, amp, dropping)| !*dropping || (*amp).get() > 0.0);
 
         // Sort the added ones in.
+        // TODO remove this by generating them in order.
         self.bps.sort_by(|(bp0, _, _), (bp1, _, _)| (bp0.get_freq()).partial_cmp(&bp1.get_freq()).unwrap());
 
         //let final_fas: Vec<(f32, f32)> = self.bps.iter().map(|(bp, a, _)| (bp.get_freq(), (*a).get())).collect();
