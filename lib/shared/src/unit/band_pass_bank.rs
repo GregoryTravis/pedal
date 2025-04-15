@@ -41,7 +41,7 @@ pub fn match_values(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
     let fast_results = match_values_fast(old, nu);
     println!("slow results {:?}", slow_results);
     println!("fast results {:?}", fast_results);
-    //assert!(slow_results == fast_results);
+    assert!(slow_results == fast_results);
     fast_results
 }
 
@@ -159,9 +159,82 @@ fn getem(old: &Vec<f32>, nu: &Vec<f32>, mi: (NO, usize)) -> f32 {
 }
 
 fn match_values_fast(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
-    println!("AAA {:?} {:?}", old, nu);
+    println!("AAA mvf {:?} {:?}", old, nu);
+    check_iterator(old, nu);
+
+    let mut old_faves: Vec<Option<usize>> = vec![None; old.len()];
+    let mut nu_faves: Vec<Option<usize>> = vec![None; nu.len()];
+
     for mi in MatchIterator::new(old, nu) {
         println!("AAA iter {:?}", mi);
+
+        match mi {
+            First(mi0, mi1) => {
+                match (mi0, mi1) {
+                    ((Old, oi), (Nu, ni)) =>
+                        old_faves[oi] = Some(ni),
+                    ((Nu, ni), (Old, oi)) =>
+                        nu_faves[ni] = Some(oi),
+                    _ => (),
+                }
+            },
+            Middle(mi0, mi1, mi2) => {
+                match (mi0, mi1, mi2) {
+                    ((Old, oi), (Nu, ni), (Old, oi2)) => {
+                        let dist = nu[ni] - old[oi];
+                        let dist2 = old[oi2] - nu[ni];
+                        if dist < dist2 {
+                            nu_faves[ni] = Some(oi);
+                        } else {
+                            nu_faves[ni] = Some(oi2);
+                        }
+                    },
+                    ((Nu, ni), (Old, oi), (Nu, ni2)) => {
+                        let dist  = old[oi] - nu[ni];
+                        let dist2 = nu[ni2] - old[oi];
+                        if dist < dist2 {
+                            old_faves[oi] = Some(ni);
+                        } else {
+                            old_faves[oi] = Some(ni2);
+                        }
+                    },
+                    ((Old, oi), (Nu, ni), (Nu, _)) =>
+                        nu_faves[ni] = Some(oi),
+                    ((Nu, ni), (Old, oi), (Old, _)) =>
+                        old_faves[oi] = Some(ni),
+                    ((Nu, _), (Nu, ni), (Old, oi)) =>
+                        nu_faves[ni] = Some(oi),
+                    ((Old, _), (Old, oi), (Nu, ni)) =>
+                        old_faves[oi] = Some(ni),
+                    ((Old, _), (Old, _), (Old, _)) => (),
+                    ((Nu, _), (Nu, _), (Nu, _)) => (),
+                }
+            },
+            Last(mi0, mi1) => {
+                match (mi0, mi1) {
+                    ((Old, oi), (Nu, ni)) =>
+                        nu_faves[ni] = Some(oi),
+                    ((Nu, ni), (Old, oi)) =>
+                        old_faves[oi] = Some(ni),
+                    _ => (),
+                }
+            },
+            _ => assert!(false),
+        }
+    }
+
+    println!("old_faves {:?}", old_faves);
+    println!(" nu_faves {:?}", nu_faves);
+
+    let mut results: Vec<MatchResult> = Vec::new();
+    faves_to_results(old_faves, nu_faves, &mut results);
+    results
+}
+
+// TODO disable
+fn check_iterator(old: &Vec<f32>, nu: &Vec<f32>) {
+    for mi in MatchIterator::new(old, nu) {
+        // println!("AAA iter {:?}", mi);
 
         match mi {
             First(mi0, mi1) => {
@@ -177,8 +250,6 @@ fn match_values_fast(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
             _ => assert!(false),
         }
     }
-
-    match_values_slow(old, nu)
 }
 
 fn match_values_slow(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
@@ -213,9 +284,18 @@ fn match_values_slow(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
     println!("old_faves {:?}", old_faves);
     println!(" nu_faves {:?}", nu_faves);
 
+    faves_to_results(old_faves, nu_faves, &mut results);
+    results
+}
+
+fn faves_to_results(
+    old_faves: Vec<Option<usize>>,
+    nu_faves: Vec<Option<usize>>,
+    results: &mut Vec<MatchResult>) {
+
     // For each pair of values (old and new) that agree, add a match. For any value
     // that doesn't agree with its fave nu, add a drop.
-    for i in 0..old.len() {
+    for i in 0..old_faves.len() {
         // TODO don't use unwrap?
         if old_faves[i].is_some()
             && nu_faves[old_faves[i].unwrap()].is_some()
@@ -227,7 +307,7 @@ fn match_values_slow(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
     }
 
     // Same for nu -> old, but no need to add the matches again
-    for i in 0..nu.len() {
+    for i in 0..nu_faves.len() {
         // TODO don't repeat this, don't do this at all maybe.
         if nu_faves[i].is_some()
             && old_faves[nu_faves[i].unwrap()].is_some()
@@ -242,9 +322,9 @@ fn match_values_slow(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
     // TODO comment out / test only
     let check = true;
     if check {
-        let mut old_used: Vec<bool> = vec![false; old.len()];
-        let mut nu_used: Vec<bool> = vec![false; nu.len()];
-        for mr in &results {
+        let mut old_used: Vec<bool> = vec![false; old_faves.len()];
+        let mut nu_used: Vec<bool> = vec![false; nu_faves.len()];
+        for mr in results {
             match mr {
                 MatchResult::DropOld(i) => {
                     assert!(!old_used[*i]);
@@ -265,8 +345,6 @@ fn match_values_slow(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
         assert!(old_used.iter().all(|&b| b));
         assert!(nu_used.iter().all(|&b| b));
     }
-
-    results
 }
 
 pub struct BandPassBank {
