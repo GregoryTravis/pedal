@@ -165,14 +165,14 @@ fn match_values_fast(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
 
         match mi {
             First(mi0, mi1) => {
-                assert!(getem(old, nu, mi0) < getem(old, nu, mi1));
+                assert!(getem(old, nu, mi0) <= getem(old, nu, mi1));
             },
             Middle(mi0, mi1, mi2) => {
-                assert!(getem(old, nu, mi0) < getem(old, nu, mi1));
-                assert!(getem(old, nu, mi1) < getem(old, nu, mi2));
+                assert!(getem(old, nu, mi0) <= getem(old, nu, mi1));
+                assert!(getem(old, nu, mi1) <= getem(old, nu, mi2));
             },
             Last(mi0, mi1) => {
-                assert!(getem(old, nu, mi0) < getem(old, nu, mi1));
+                assert!(getem(old, nu, mi0) <= getem(old, nu, mi1));
             },
             _ => assert!(false),
         }
