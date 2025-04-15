@@ -25,6 +25,7 @@ pub enum MatchResult {
 
 // Two frequencies aren't considered by closest() unless they're closer than this.
 const MAX_CLOSE: f32 = 120.0;
+#[allow(unused)]
 fn closest(x: f32, xs: &Vec<f32>) -> Option<usize> {
     assert!(!xs.is_empty());
     let mut dists: Vec<(usize, f32)> = xs.iter().enumerate()
@@ -37,12 +38,16 @@ fn closest(x: f32, xs: &Vec<f32>) -> Option<usize> {
 }
 
 pub fn match_values(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
+    match_values_fast(old, nu)
+
+    /*
     let slow_results = match_values_slow(old, nu);
     let fast_results = match_values_fast(old, nu);
     println!("slow results {:?}", slow_results);
     println!("fast results {:?}", fast_results);
     assert!(slow_results == fast_results);
     fast_results
+    */
 }
 
 struct MatchIterator<'a> {
@@ -159,22 +164,30 @@ fn getem(old: &Vec<f32>, nu: &Vec<f32>, mi: (NO, usize)) -> f32 {
 }
 
 fn match_values_fast(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
-    println!("AAA mvf {:?} {:?}", old, nu);
+    // println!("AAA mvf {:?} {:?}", old, nu);
     check_iterator(old, nu);
 
     let mut old_faves: Vec<Option<usize>> = vec![None; old.len()];
     let mut nu_faves: Vec<Option<usize>> = vec![None; nu.len()];
 
     for mi in MatchIterator::new(old, nu) {
-        println!("AAA iter {:?}", mi);
+        // println!("AAA iter {:?}", mi);
 
         match mi {
             First(mi0, mi1) => {
                 match (mi0, mi1) {
-                    ((Old, oi), (Nu, ni)) =>
-                        old_faves[oi] = Some(ni),
-                    ((Nu, ni), (Old, oi)) =>
-                        nu_faves[ni] = Some(oi),
+                    ((Old, oi), (Nu, ni)) => {
+                        let dist = nu[ni] - old[oi];
+                        if dist < MAX_CLOSE {
+                            old_faves[oi] = Some(ni);
+                        }
+                    }
+                    ((Nu, ni), (Old, oi)) => {
+                        let dist = old[oi] - nu[ni];
+                        if dist < MAX_CLOSE {
+                            nu_faves[ni] = Some(oi);
+                        }
+                    }
                     _ => (),
                 }
             },
@@ -184,38 +197,70 @@ fn match_values_fast(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
                         let dist = nu[ni] - old[oi];
                         let dist2 = old[oi2] - nu[ni];
                         if dist < dist2 {
-                            nu_faves[ni] = Some(oi);
+                            if dist < MAX_CLOSE {
+                                nu_faves[ni] = Some(oi);
+                            }
                         } else {
-                            nu_faves[ni] = Some(oi2);
+                            if dist2 < MAX_CLOSE {
+                                nu_faves[ni] = Some(oi2);
+                            }
                         }
                     },
                     ((Nu, ni), (Old, oi), (Nu, ni2)) => {
                         let dist  = old[oi] - nu[ni];
                         let dist2 = nu[ni2] - old[oi];
                         if dist < dist2 {
-                            old_faves[oi] = Some(ni);
+                            if dist < MAX_CLOSE {
+                                old_faves[oi] = Some(ni);
+                            }
                         } else {
-                            old_faves[oi] = Some(ni2);
+                            if dist2 < MAX_CLOSE {
+                                old_faves[oi] = Some(ni2);
+                            }
                         }
                     },
-                    ((Old, oi), (Nu, ni), (Nu, _)) =>
-                        nu_faves[ni] = Some(oi),
-                    ((Nu, ni), (Old, oi), (Old, _)) =>
-                        old_faves[oi] = Some(ni),
-                    ((Nu, _), (Nu, ni), (Old, oi)) =>
-                        nu_faves[ni] = Some(oi),
-                    ((Old, _), (Old, oi), (Nu, ni)) =>
-                        old_faves[oi] = Some(ni),
+                    ((Old, oi), (Nu, ni), (Nu, _)) => {
+                        let dist = nu[ni] - old[oi];
+                        if dist < MAX_CLOSE {
+                            nu_faves[ni] = Some(oi);
+                        }
+                    }
+                    ((Nu, ni), (Old, oi), (Old, _)) => {
+                        let dist = old[oi] - nu[ni];
+                        if dist < MAX_CLOSE {
+                            old_faves[oi] = Some(ni);
+                        }
+                    }
+                    ((Nu, _), (Nu, ni), (Old, oi)) => {
+                        let dist = old[oi] - nu[ni];
+                        if dist < MAX_CLOSE {
+                            nu_faves[ni] = Some(oi);
+                        }
+                    }
+                    ((Old, _), (Old, oi), (Nu, ni)) => {
+                        let dist = nu[ni] - old[oi];
+                        if dist < MAX_CLOSE {
+                            old_faves[oi] = Some(ni);
+                        }
+                    }
                     ((Old, _), (Old, _), (Old, _)) => (),
                     ((Nu, _), (Nu, _), (Nu, _)) => (),
                 }
             },
             Last(mi0, mi1) => {
                 match (mi0, mi1) {
-                    ((Old, oi), (Nu, ni)) =>
-                        nu_faves[ni] = Some(oi),
-                    ((Nu, ni), (Old, oi)) =>
-                        old_faves[oi] = Some(ni),
+                    ((Old, oi), (Nu, ni)) => {
+                        let dist = nu[ni] - old[oi];
+                        if dist < MAX_CLOSE {
+                            nu_faves[ni] = Some(oi);
+                        }
+                    }
+                    ((Nu, ni), (Old, oi)) => {
+                        let dist = old[oi] - nu[ni];
+                        if dist < MAX_CLOSE {
+                            old_faves[oi] = Some(ni);
+                        }
+                    }
                     _ => (),
                 }
             },
@@ -252,6 +297,7 @@ fn check_iterator(old: &Vec<f32>, nu: &Vec<f32>) {
     }
 }
 
+#[allow(unused)]
 fn match_values_slow(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
     let mut old_faves: Vec<Option<usize>> = vec![None; old.len()];
     let mut nu_faves: Vec<Option<usize>> = vec![None; nu.len()];
