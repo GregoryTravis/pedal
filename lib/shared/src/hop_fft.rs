@@ -17,11 +17,10 @@ const VERBOSE: bool = false;
 // Divide input into frames of size hop, fft each one, padded out to fft_size. Get the loud peaks
 // for each one, and return a vec of vecs of peaks, one for each hop.
 // output: (freq, mix)
-pub fn hop_peaks(current:usize, input: &[f32; 2048], /*out*/ peaks: &mut Vec<f32>) {
+pub fn hop_peaks(current:usize, input: &[f32; 2048], /*mem*/ mags: &mut [f32; FFT_SIZE/2], /*out*/ peaks: &mut Vec<f32>) {
     let mut mf = MicroFFT::new();
     mf.get_input().copy_from_slice(input);
-    let mut mags: [f32; FFT_SIZE/2] = [0.0; FFT_SIZE/2];
-    fft_to_magnitudes(mf.run(), &mut mags);
+    fft_to_magnitudes(mf.run(), mags);
 
     find_peaks(&mags, peaks);
     if VERBOSE { println!("==== peaks {} {:?}", current, peaks); }
@@ -33,7 +32,7 @@ fn ramp_threshold(freq: f32) -> f32 {
 
 // TODO do we need bin?
 // output: (bin, freq, amp)
-fn find_peaks(fft: &[f32], /*out*/ peaks: &mut Vec<f32>) {
+fn find_peaks(fft: &[f32; FFT_SIZE/2], /*out*/ peaks: &mut Vec<f32>) {
     peaks.clear();
 
     let fft_len = fft.len();

@@ -25,7 +25,12 @@ pub struct GuitarSynth {
     current_start: usize,
 
     peaks: Vec<f32>,
+    mags: [f32; FFT_SIZE/2],
 }
+
+// Convention for labeling mem params:
+// /*out*/ -- output is returned through this
+// /*mem*/ -- just passing the mem in for internal use
 
 impl GuitarSynth {
     pub fn new() -> GuitarSynth {
@@ -36,6 +41,7 @@ impl GuitarSynth {
             current_start: 0,
 
             peaks: Vec::new(),
+            mags: [0.0; FFT_SIZE/2],
         }
     }
 }
@@ -68,7 +74,7 @@ impl Patch for GuitarSynth {
             self.buf[FFT_SIZE-hop+i] = input_slice[i];
         }
 
-        hop_peaks(self.current_start, &self.buf, &mut self.peaks);
+        hop_peaks(self.current_start, &self.buf, &mut self.mags, &mut self.peaks);
         self.bank.update(&self.peaks);
 
         for i in 0..hop {
