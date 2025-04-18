@@ -24,6 +24,9 @@ pub struct BandPassBank {
     bps: Vec<(BandPass, Inertial, bool)>,
 
     old_freqs: Vec<f32>,
+    old_faves: Vec<Option<usize>>,
+    nu_faves: Vec<Option<usize>>,
+    results: Vec<MatchResult>,
 }
 
 // This disgustingly-named function returns 1.0, except that it ramps it up to a higher value over
@@ -40,6 +43,9 @@ impl BandPassBank {
             bps: Vec::new(),
 
             old_freqs: Vec::new(),
+            old_faves: Vec::new(),
+            nu_faves: Vec::new(),
+            results: Vec::new(),
         }
     }
 
@@ -65,11 +71,11 @@ impl BandPassBank {
         if VERBOSE { println!("OLD {:?}", self.old_freqs); }
         if VERBOSE { println!("NEW {:?}", new_freqs); }
 
-        let results = match_values(&self.old_freqs, &new_freqs);
+        match_values(&self.old_freqs, &new_freqs, &mut self.old_faves, &mut self.nu_faves, &mut self.results);
 
         if VERBOSE {
-            println!("MR {:?}", results);
-            for mr in &results {
+            println!("MR {:?}", self.results);
+            for mr in &self.results {
                 match mr {
                     MatchResult::AddNew(i) => {
                         println!("Add {}", new_freqs[*i]);
@@ -84,7 +90,7 @@ impl BandPassBank {
             }
         }
 
-        for mr in &results {
+        for mr in &self.results {
             match mr {
                 MatchResult::AddNew(i) => {
                     let amp = ramp_one(new_freqs[*i]);

@@ -3,6 +3,7 @@ extern crate std;
 extern crate libm;
 
 use alloc::vec::Vec;
+use core::iter::*;
 #[allow(unused)]
 use std::println;
 
@@ -134,12 +135,22 @@ fn getem(old: &Vec<f32>, nu: &Vec<f32>, mi: (NO, usize)) -> f32 {
     if mi.0 == Old { old[mi.1] } else { nu[mi.1] }
 }
 
-pub fn match_values(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
+pub fn match_values(
+    old: &Vec<f32>,
+    nu: &Vec<f32>,
+    /*mem*/ old_faves: &mut Vec<Option<usize>>,
+    /*mem*/ nu_faves: &mut Vec<Option<usize>>,
+    /*out*/ results: &mut Vec<MatchResult>) {
     // println!("AAA mvf {:?} {:?}", old, nu);
     check_iterator(old, nu);
 
-    let mut old_faves: Vec<Option<usize>> = vec![None; old.len()];
-    let mut nu_faves: Vec<Option<usize>> = vec![None; nu.len()];
+    old_faves.clear();
+    old_faves.extend(repeat(None).take(old.len()));
+    nu_faves.clear();
+    nu_faves.extend(repeat(None).take(nu.len()));
+    results.clear();
+    assert!(old_faves.len() == old.len());
+    assert!(nu_faves.len() == nu.len());
 
     for mi in MatchIterator::new(old, nu) {
         // println!("AAA iter {:?}", mi);
@@ -245,9 +256,7 @@ pub fn match_values(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
     if VERBOSE { println!("old_faves {:?}", old_faves); }
     if VERBOSE { println!(" nu_faves {:?}", nu_faves); }
 
-    let mut results: Vec<MatchResult> = Vec::new();
-    faves_to_results(old_faves, nu_faves, &mut results);
-    results
+    faves_to_results(old_faves, nu_faves, results);
 }
 
 // TODO disable
@@ -272,8 +281,8 @@ fn check_iterator(old: &Vec<f32>, nu: &Vec<f32>) {
 }
 
 fn faves_to_results(
-    old_faves: Vec<Option<usize>>,
-    nu_faves: Vec<Option<usize>>,
+    old_faves: &Vec<Option<usize>>,
+    nu_faves: &Vec<Option<usize>>,
     results: &mut Vec<MatchResult>) {
 
     // For each pair of values (old and new) that agree, add a match. For any value
