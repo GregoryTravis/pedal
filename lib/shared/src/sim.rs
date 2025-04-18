@@ -55,6 +55,16 @@ pub fn sim_main(input_file: &str, output_file: &str, patch: Box<dyn Patch>) {
                     // Skip right channel
                     samples.next().unwrap().unwrap();
                 }
+
+                /*
+                // The last frame, if incomplete.
+                let end_pad_len = (BLOCK_SIZE * 2) - input_samples_count;
+                if end_pad_len > 0 {
+                    for i in input_samples_count..(BLOCK_SIZE * 2) {
+                        input_buf[i] = 0.0;
+                    }
+                }
+                */
             }
             1 => {
                 let input_samples_count = min(samples.len(), BLOCK_SIZE);
@@ -63,6 +73,16 @@ pub fn sim_main(input_file: &str, output_file: &str, patch: Box<dyn Patch>) {
                 for i in 0..num_frames {
                     input_buf[i] = (samples.next().unwrap().unwrap() as f32) / 32768.0;
                 }
+
+                /*
+                // The last frame, if incomplete.
+                let end_pad_len = BLOCK_SIZE - input_samples_count;
+                if end_pad_len > 0 {
+                    for i in input_samples_count..BLOCK_SIZE {
+                        input_buf[i] = 0.0;
+                    }
+                }
+                */
             }
             _ => assert!(false),
         }

@@ -1,26 +1,37 @@
-#[cfg(feature = "for_host")]
+//#[cfg(feature = "for_host")]
 extern crate std;
 extern crate libm;
 
 use alloc::boxed::Box;
-//use alloc::vec::Vec;
+use alloc::vec::Vec;
 use core::f32::consts::PI;
 #[allow(unused)]
 use std::println;
 
-//use crate::constants::*;
+use crate::constants::*;
+use crate::hop_fft::*;
 use crate::knob::Knobs;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
 #[allow(unused)]
 use crate::spew::*;
+use crate::unit::band_pass_bank::*;
 
 pub struct GuitarSynth {
+    buf: [f32; FFT_SIZE],
+    bank: BandPassBank,
+
+    // TODO remove
+    current_start: usize,
 }
 
 impl GuitarSynth {
     pub fn new() -> GuitarSynth {
         GuitarSynth {
+            buf: [0.0; FFT_SIZE],
+            bank: BandPassBank::new(),
+
+            current_start: 0,
         }
     }
 }
@@ -40,12 +51,26 @@ impl Patch for GuitarSynth {
         input_slice: &[f32],
         output_slice: &mut [f32],
         _knobs: &Box<dyn Knobs>,
-        mut playhead: Playhead,
+        mut _playhead: Playhead,
     ) {
+        let hop = input_slice.len();
 
-        for i in 0..input_slice.len() {
-            output_slice[i] = input_slice[i];
-            playhead.inc();
+        // Shift new samples in
+        // TODO use a method
+        for i in 0..FFT_SIZE-hop {
+            self.buf[i] = self.buf[i+hop];
         }
+        for i in 0..hop {
+            self.buf[FFT_SIZE-hop+i] = input_slice[i];
+        }
+
+        let fas: Vec<f32> = hop_peaks(self.current_start, &self.buf, FFT_SIZE, FFT_SIZE);
+        self.bank.update(&fas);
+
+        for i in 0..hop {
+            output_slice[i] = self.bank.process(input_slice[i]);
+        }
+
+        self.current_start += hop;
     }
 }

@@ -23,5 +23,5 @@ fn main() {
         output.push(diff);
     }
 
-    file_write(output_file, output);
+    file_write(output_file, &output);
 }
