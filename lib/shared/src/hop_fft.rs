@@ -18,7 +18,7 @@ const VERBOSE: bool = false;
 // for each one, and return a vec of vecs of peaks, one for each hop.
 // output: (freq, mix)
 //let fases: Vec<Vec<(f32, f32)>> = hop_peaks(&input, 4096, 2048, 48);
-pub fn hop_peaks(current:usize, input: &[f32; 2048], _fft_size: usize, batch_size: usize) -> Vec<f32> {
+pub fn hop_peaks(current:usize, input: &[f32; 2048], _fft_size: usize, batch_size: usize, /*out*/ peaks: &mut Vec<f32>) {
     /*
     let mut fft_in: &mut [f32] = &mut vec![0.0; fft_size];
     let mut fft_out: &mut [f32] = &mut vec![0.0; fft_size];
@@ -41,9 +41,8 @@ pub fn hop_peaks(current:usize, input: &[f32; 2048], _fft_size: usize, batch_siz
     let mut mags: [f32; FFT_SIZE/2] = [0.0; FFT_SIZE/2];
     fft_to_magnitudes(mf.run(), &mut mags);
 
-    let bps = find_peaks(&mags);
-    if VERBOSE { println!("==== peaks {} {:?}", current, bps); }
-    bps
+    find_peaks(&mags, peaks);
+    if VERBOSE { println!("==== peaks {} {:?}", current, peaks); }
 }
 
 fn ramp_threshold(freq: f32) -> f32 {
@@ -52,8 +51,9 @@ fn ramp_threshold(freq: f32) -> f32 {
 
 // TODO do we need bin?
 // output: (bin, freq, amp)
-fn find_peaks(fft: &[f32]) -> Vec<f32> {
-    let mut peaks: Vec<f32> = Vec::new();
+fn find_peaks(fft: &[f32], /*out*/ peaks: &mut Vec<f32>) {
+    peaks.clear();
+
     let fft_len = fft.len();
 
     let _amp_threshold = 0.005;
@@ -101,8 +101,6 @@ fn find_peaks(fft: &[f32]) -> Vec<f32> {
     }
     */
     peaks.sort_by(|f0, f1| f0.partial_cmp(f1).unwrap());
-
-    peaks
 }
 
 // Map [x0,y0] to [x1,y1], apply that to x.

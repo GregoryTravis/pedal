@@ -23,6 +23,8 @@ pub struct GuitarSynth {
 
     // TODO remove
     current_start: usize,
+
+    peaks: Vec<f32>,
 }
 
 impl GuitarSynth {
@@ -32,6 +34,8 @@ impl GuitarSynth {
             bank: BandPassBank::new(),
 
             current_start: 0,
+
+            peaks: Vec::new(),
         }
     }
 }
@@ -64,8 +68,8 @@ impl Patch for GuitarSynth {
             self.buf[FFT_SIZE-hop+i] = input_slice[i];
         }
 
-        let fas: Vec<f32> = hop_peaks(self.current_start, &self.buf, FFT_SIZE, FFT_SIZE);
-        self.bank.update(&fas);
+        hop_peaks(self.current_start, &self.buf, FFT_SIZE, FFT_SIZE, &mut self.peaks);
+        self.bank.update(&self.peaks);
 
         for i in 0..hop {
             output_slice[i] = self.bank.process(input_slice[i]);
