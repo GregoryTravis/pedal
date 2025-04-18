@@ -18,6 +18,7 @@ pub mod fft_bench;
 #[cfg(feature = "for_host")]
 pub mod file;
 pub mod filter;
+pub mod frequency_matcher;
 pub mod globby;
 #[cfg(not(feature = "for_host"))]
 pub mod globby_board;
