@@ -11,15 +11,20 @@ use std::println;
 use crate::constants::*;
 use crate::hop_fft::*;
 use crate::knob::Knobs;
+use crate::maxes::*;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
 #[allow(unused)]
 use crate::spew::*;
 use crate::unit::band_pass_bank::*;
 
+const DO_MAXES: bool = true;
+
 pub struct GuitarSynth {
     buf: [f32; FFT_SIZE],
     bank: BandPassBank,
+
+    maxes: Option<Maxes>,
 
     // TODO remove
     current_start: usize,
@@ -38,10 +43,19 @@ impl GuitarSynth {
             buf: [0.0; FFT_SIZE],
             bank: BandPassBank::new(),
 
+            maxes: if DO_MAXES { Some(Maxes::new()) } else { None },
+
             current_start: 0,
 
             peaks: Vec::new(),
             mags: [0.0; FFT_SIZE/2],
+        }
+    }
+
+    pub fn dump_maxes(&self) {
+        if DO_MAXES {
+            self.maxes.as_ref().unwrap().dump();
+            self.bank.dump_maxes();
         }
     }
 }
@@ -82,5 +96,10 @@ impl Patch for GuitarSynth {
         }
 
         self.current_start += hop;
+
+        if DO_MAXES {
+            use Item::*;
+            self.maxes.as_mut().unwrap().update(Peaks, self.peaks.len());
+        }
     }
 }

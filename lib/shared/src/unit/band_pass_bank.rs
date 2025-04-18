@@ -9,9 +9,12 @@ use std::println;
 use crate::constants::*;
 use crate::inertial::*;
 use crate::frequency_matcher::*;
+use crate::maxes::*;
 #[allow(unused)]
 use crate::spew::*;
 use crate::unit::band_pass::*;
+
+const DO_MAXES: bool = true;
 
 const BW: f32 = 0.01;
 //const AMP_DM: f32 = 10000000.0;
@@ -22,6 +25,8 @@ const VERBOSE: bool = false;
 pub struct BandPassBank {
     // (bp, amp)
     bps: Vec<(BandPass, Inertial, bool)>,
+
+    maxes: Option<Maxes>,
 
     old_freqs: Vec<f32>,
     old_faves: Vec<Option<usize>>,
@@ -41,6 +46,8 @@ impl BandPassBank {
     pub fn new() -> BandPassBank {
         BandPassBank {
             bps: Vec::new(),
+
+            maxes: if DO_MAXES { Some(Maxes::new()) } else { None },
 
             old_freqs: Vec::new(),
             old_faves: Vec::new(),
@@ -122,6 +129,20 @@ impl BandPassBank {
         //let final_fas: Vec<(f32, f32)> = self.bps.iter().map(|(bp, a, _)| (bp.get_freq(), (*a).get())).collect();
         //println!("FINAL {:?}", final_fas);
         //self.dump("FINAL");
+
+        if DO_MAXES {
+            use Item::*;
+            self.maxes.as_mut().unwrap().update(OldFreqs, self.old_freqs.len());
+            self.maxes.as_mut().unwrap().update(OldFaves, self.old_faves.len());
+            self.maxes.as_mut().unwrap().update(NewFaves, self.nu_faves.len());
+            self.maxes.as_mut().unwrap().update(Results, self.results.len());
+        }
+    }
+
+    pub fn dump_maxes(&self) {
+        if DO_MAXES {
+            self.maxes.as_ref().unwrap().dump();
+        }
     }
 
     pub fn dump(&self, tag: &str) {

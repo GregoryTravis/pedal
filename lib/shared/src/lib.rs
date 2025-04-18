@@ -38,6 +38,7 @@ pub mod hw_host;
 pub mod load_board;
 #[cfg(feature = "for_host")]
 pub mod load_host;
+pub mod maxes;
 #[cfg(not(feature = "for_host"))]
 pub mod mem;
 pub mod microfft_fft;

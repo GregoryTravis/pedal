@@ -82,6 +82,7 @@ fn envelope_follower(input_file: &str, output_file: &str) {
 fn guitar_synth(input_file: &str, output_file: &str) {
     let patch: GuitarSynth = GuitarSynth::new();
     sim_main(input_file, output_file, Box::new(patch));
+    //patch.dump_maxes();
 }
 
 // min 3rd: 1.189
