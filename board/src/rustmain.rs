@@ -150,14 +150,21 @@ pub fn benchmark_fft() {
     do_benchmark_fft();
 }
 
+#[allow(dead_code)]
+pub fn do_fft_output_comparison() {
+    hw_init(true, BLOCK_SIZE);
+    fft_output_comparison();
+}
+
 #[no_mangle]
 pub fn main() {
     spew!("start of main");
 
-    live_main();
+    //live_main();
     //all_tests();
     //oom_test();
-    //benchmark_fft();
+    benchmark_fft();
+    //do_fft_output_comparison();
 
     spew!("end of main");
 }
