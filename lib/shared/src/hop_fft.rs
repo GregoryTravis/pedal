@@ -36,13 +36,8 @@ pub fn hop_peaks(current:usize, input: &[f32; 2048], _fft_size: usize, batch_siz
 
     let mut mf = MicroFFT::new();
     mf.get_input().copy_from_slice(input);
-    let fft_out: &[f32; FFT_SIZE] = mf.run();
     let mut mags: [f32; FFT_SIZE/2] = [0.0; FFT_SIZE/2];
-    for i in 0..FFT_SIZE/2 {
-        let re = fft_out[i*2];
-        let im = fft_out[i*2+1];
-        mags[i] = libm::sqrtf(re*re + im*im);
-    }
+    fft_to_magnitudes(mf.run(), &mut mags);
 
     let bps = find_peaks(&mags);
     println!("==== peaks {} {:?}", current, bps);
