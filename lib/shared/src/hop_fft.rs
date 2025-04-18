@@ -17,23 +17,7 @@ const VERBOSE: bool = false;
 // Divide input into frames of size hop, fft each one, padded out to fft_size. Get the loud peaks
 // for each one, and return a vec of vecs of peaks, one for each hop.
 // output: (freq, mix)
-//let fases: Vec<Vec<(f32, f32)>> = hop_peaks(&input, 4096, 2048, 48);
 pub fn hop_peaks(current:usize, input: &[f32; 2048], /*out*/ peaks: &mut Vec<f32>) {
-    /*
-    let mut fft_in: &mut [f32] = &mut vec![0.0; fft_size];
-    let mut fft_out: &mut [f32] = &mut vec![0.0; fft_size];
-
-    for i in 0..input.len() {
-        fft_in[i] = input[i];
-    }
-
-    if VERBOSE { spew!("====", current); }
-    // TODO don't have to clear the beginning
-    //fft_in[0..fft_size].fill(0.0);
-    // Necessary?
-    //fft_out[0..fft_size].fill(0.0);
-    */
-
     let mut mf = MicroFFT::new();
     mf.get_input().copy_from_slice(input);
     let mut mags: [f32; FFT_SIZE/2] = [0.0; FFT_SIZE/2];
