@@ -25,32 +25,8 @@ pub enum MatchResult {
     Match(usize, usize),
 }
 
-// Two frequencies aren't considered by closest() unless they're closer than this.
+// Two frequencies aren't considered for matching unless they're closer than this.
 const MAX_CLOSE: f32 = 120.0;
-#[allow(unused)]
-fn closest(x: f32, xs: &Vec<f32>) -> Option<usize> {
-    assert!(!xs.is_empty());
-    let mut dists: Vec<(usize, f32)> = xs.iter().enumerate()
-        .map(|(i, xx)| (i, libm::fabsf(x-xx)))
-        .collect();
-    dists.sort_by(|(_, x), (_, xx)| x.partial_cmp(xx).unwrap());
-    // We only remove the too-far ones in case they are all too far.
-    dists.retain(|(_,x)| *x < MAX_CLOSE);
-    if dists.is_empty() { None } else { Some(dists[0].0) }
-}
-
-pub fn match_values(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
-    match_values_fast(old, nu)
-
-    /*
-    let slow_results = match_values_slow(old, nu);
-    let fast_results = match_values_fast(old, nu);
-    println!("slow results {:?}", slow_results);
-    println!("fast results {:?}", fast_results);
-    assert!(slow_results == fast_results);
-    fast_results
-    */
-}
 
 struct MatchIterator<'a> {
     old: &'a Vec<f32>,
@@ -165,7 +141,7 @@ fn getem(old: &Vec<f32>, nu: &Vec<f32>, mi: (NO, usize)) -> f32 {
     if mi.0 == Old { old[mi.1] } else { nu[mi.1] }
 }
 
-fn match_values_fast(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
+fn match_values(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
     // println!("AAA mvf {:?} {:?}", old, nu);
     check_iterator(old, nu);
 
@@ -302,43 +278,6 @@ fn check_iterator(old: &Vec<f32>, nu: &Vec<f32>) {
     }
 }
 
-#[allow(unused)]
-fn match_values_slow(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
-    let mut old_faves: Vec<Option<usize>> = vec![None; old.len()];
-    let mut nu_faves: Vec<Option<usize>> = vec![None; nu.len()];
-
-    let mut results: Vec<MatchResult> = Vec::new();
-
-    // If old is empty, return all AddNew
-    if old.len() == 0 {
-        for i in 0..nu.len() {
-            results.push(MatchResult::AddNew(i));
-        }
-        return results;
-    }
-
-    // If nu is empty, return all DropOld
-    if nu.len() == 0 {
-        for i in 0..old.len() {
-            results.push(MatchResult::DropOld(i));
-        }
-        return results;
-    }
-
-    // For each value, find the one in the other array that is closest to it.
-    for i in 0..old.len() {
-        old_faves[i] = closest(old[i], nu);
-    }
-    for i in 0..nu.len() {
-        nu_faves[i] = closest(nu[i], old);
-    }
-    if VERBOSE { println!("old_faves {:?}", old_faves); }
-    if VERBOSE { println!(" nu_faves {:?}", nu_faves); }
-
-    faves_to_results(old_faves, nu_faves, &mut results);
-    results
-}
-
 fn faves_to_results(
     old_faves: Vec<Option<usize>>,
     nu_faves: Vec<Option<usize>>,
@@ -404,15 +343,6 @@ pub struct BandPassBank {
 
     old_freqs: Vec<f32>,
 }
-
-/*
-#[allow(unused)]
-fn filter_some(freqs: Vec<f32>) -> Vec<f32> {
-    freqs.into_iter().filter(|f| {
-        *f < 1700.0
-    }).collect()
-}
-*/
 
 // This disgustingly-named function returns 1.0, except that it ramps it up to a higher value over
 // the course of a frequency range. So freqs (0..HIGH) go from 1.0 to 1+GAIN.
