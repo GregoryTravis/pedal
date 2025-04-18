@@ -4,6 +4,8 @@
 extern crate alloc;
 
 #[cfg(not(feature = "for_host"))]
+pub mod arm_fft;
+#[cfg(not(feature = "for_host"))]
 pub mod bench;
 pub mod ds;
 pub mod convert;
@@ -39,6 +41,7 @@ pub mod load_board;
 pub mod load_host;
 #[cfg(not(feature = "for_host"))]
 pub mod mem;
+pub mod microfft_fft;
 pub mod r#override;
 pub mod panic;
 pub mod patch;

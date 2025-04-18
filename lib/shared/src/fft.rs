@@ -1,18 +1,7 @@
-extern crate libm;
-
 use crate::constants::*;
 
-#[cfg(not(feature = "for_host"))]
-use crate::fft_board::*;
-#[cfg(feature = "for_host")]
-use crate::fft_host::*;
-
-// NOTE: stomps its input
-pub fn fft(input: &mut [f32; FFT_SIZE], output: &mut [f32; FFT_SIZE]) {
-    fft_boh(input, output);
-}
-
-// NOTE: stomps its input, I think
-pub fn ifft(input: &mut [f32; FFT_SIZE], output: &mut [f32; FFT_SIZE]) {
-    ifft_boh(input, output);
+// This is a goofy usage pattern, but I have two very different ffts to unify.
+pub trait FFT {
+    fn get_input(&mut self) -> &mut [f32; FFT_SIZE];
+    fn run(&mut self) -> &[f32; FFT_SIZE];
 }

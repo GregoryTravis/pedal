@@ -150,6 +150,12 @@ pub fn benchmark_fft() {
     do_benchmark_fft();
 }
 
+#[allow(dead_code)]
+pub fn do_fft_output_comparison() {
+    hw_init(true, BLOCK_SIZE);
+    fft_output_comparison();
+}
+
 #[no_mangle]
 pub fn main() {
     spew!("start of main");
@@ -159,7 +165,7 @@ pub fn main() {
     //oom_test();
     benchmark_fft();
     // crashes -- probably too much allocation
-    //fft_output_comparison(40);
+    //do_fft_output_comparison();
 
     spew!("end of main");
 }
