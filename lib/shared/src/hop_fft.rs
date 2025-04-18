@@ -43,7 +43,7 @@ fn find_peaks(fft: &[f32], /*out*/ peaks: &mut Vec<f32>) {
     for i in 0..fft_len {
         let not_edge = i > 0 && i < fft_len-1;
         if not_edge {
-            // let bin_freq = i as f32 * (SAMPLE_RATE as f32 / fft_len as f32); 
+            // let bin_freq = i as f32 * (SAMPLE_RATE as f32 / fft_len as f32);
 
             let a = fft[i-1];
             let b = fft[i];
