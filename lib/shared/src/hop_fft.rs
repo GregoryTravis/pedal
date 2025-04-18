@@ -7,7 +7,8 @@ use alloc::vec::Vec;
 use std::println;
 
 use crate::constants::*;
-use crate::fft_host::*;
+use crate::fft::*;
+use crate::microfft_fft::*;
 use crate::quadratic_interpolate::*;
 use crate::spew::*;
 
@@ -15,7 +16,8 @@ use crate::spew::*;
 // for each one, and return a vec of vecs of peaks, one for each hop.
 // output: (freq, mix)
 //let fases: Vec<Vec<(f32, f32)>> = hop_peaks(&input, 4096, 2048, 48);
-pub fn hop_peaks(current:usize, input: &[f32; 2048], fft_size: usize, batch_size: usize) -> Vec<f32> {
+pub fn hop_peaks(current:usize, input: &[f32; 2048], _fft_size: usize, batch_size: usize) -> Vec<f32> {
+    /*
     let mut fft_in: &mut [f32] = &mut vec![0.0; fft_size];
     let mut fft_out: &mut [f32] = &mut vec![0.0; fft_size];
 
@@ -28,12 +30,21 @@ pub fn hop_peaks(current:usize, input: &[f32; 2048], fft_size: usize, batch_size
     //fft_in[0..fft_size].fill(0.0);
     // Necessary?
     //fft_out[0..fft_size].fill(0.0);
+    */
 
     assert!(batch_size % 2 == 0);
 
-    fft_slice(&mut fft_in, &mut fft_out);
+    let mut mf = MicroFFT::new();
+    mf.get_input().copy_from_slice(input);
+    let fft_out: &[f32; FFT_SIZE] = mf.run();
+    let mut mags: [f32; FFT_SIZE/2] = [0.0; FFT_SIZE/2];
+    for i in 0..FFT_SIZE/2 {
+        let re = fft_out[i*2];
+        let im = fft_out[i*2+1];
+        mags[i] = libm::sqrtf(re*re + im*im);
+    }
 
-    let bps = find_peaks(fft_out);
+    let bps = find_peaks(&mags);
     println!("==== peaks {} {:?}", current, bps);
     bps
 }
@@ -65,9 +76,9 @@ fn find_peaks(fft: &[f32]) -> Vec<f32> {
 
                 let (relative_x_peak, y_peak) = quadratic_interpolate(a, b, c);
                 let x_peak = (i as f32) + relative_x_peak;
-                let amp_peak = y_peak / (fft_len / 2) as f32;
+                let amp_peak = y_peak / fft_len as f32;
                 assert!(amp_peak >= 0.0);
-                let freq_peak = x_peak * (SAMPLE_RATE as f32 / fft_len as f32);
+                let freq_peak = x_peak * (SAMPLE_RATE as f32 / (fft_len * 2) as f32);
                 //spew!("VVV", i, amp_peak, freq_peak, ramp_threshold(freq_peak));
                 if amp_peak > ramp_threshold(freq_peak) { // amp_threshold {
                     // Throwing away i and amp_peak here
