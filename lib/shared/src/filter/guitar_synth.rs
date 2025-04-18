@@ -68,7 +68,7 @@ impl Patch for GuitarSynth {
             self.buf[FFT_SIZE-hop+i] = input_slice[i];
         }
 
-        hop_peaks(self.current_start, &self.buf, FFT_SIZE, FFT_SIZE, &mut self.peaks);
+        hop_peaks(self.current_start, &self.buf, &mut self.peaks);
         self.bank.update(&self.peaks);
 
         for i in 0..hop {

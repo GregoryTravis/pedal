@@ -18,7 +18,7 @@ const VERBOSE: bool = false;
 // for each one, and return a vec of vecs of peaks, one for each hop.
 // output: (freq, mix)
 //let fases: Vec<Vec<(f32, f32)>> = hop_peaks(&input, 4096, 2048, 48);
-pub fn hop_peaks(current:usize, input: &[f32; 2048], _fft_size: usize, batch_size: usize, /*out*/ peaks: &mut Vec<f32>) {
+pub fn hop_peaks(current:usize, input: &[f32; 2048], /*out*/ peaks: &mut Vec<f32>) {
     /*
     let mut fft_in: &mut [f32] = &mut vec![0.0; fft_size];
     let mut fft_out: &mut [f32] = &mut vec![0.0; fft_size];
@@ -33,8 +33,6 @@ pub fn hop_peaks(current:usize, input: &[f32; 2048], _fft_size: usize, batch_siz
     // Necessary?
     //fft_out[0..fft_size].fill(0.0);
     */
-
-    assert!(batch_size % 2 == 0);
 
     let mut mf = MicroFFT::new();
     mf.get_input().copy_from_slice(input);
