@@ -15,10 +15,6 @@ pub mod daisy_seed_board;
 pub mod fft;
 #[cfg(not(feature = "for_host"))]
 pub mod fft_bench;
-#[cfg(not(feature = "for_host"))]
-pub mod fft_board;
-#[cfg(feature = "for_host")]
-pub mod fft_host;
 #[cfg(feature = "for_host")]
 pub mod file;
 pub mod filter;
