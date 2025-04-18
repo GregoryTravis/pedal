@@ -1,4 +1,4 @@
-(cargo run --bin bps --features for_host -- simin.wav 0.01) 2>&1 | tee out
+(time cargo run --bin bps --features for_host -- simin.wav 0.01) 2>&1 | tee out
 ls -l simin.wav-bp-0.01.wav before-merge.wav
 ./comp
 exit

@@ -55,7 +55,7 @@ fn main() {
             output[current_start+i] = output_batch[i];
         }
 
-        bank.dump("FINAL FINAL");
+        //bank.dump("FINAL FINAL");
     }
 
     let output_filename = format!("{}-bp-{}.wav", input_filename, bw);

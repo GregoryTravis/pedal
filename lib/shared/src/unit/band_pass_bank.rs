@@ -16,6 +16,8 @@ const BW: f32 = 0.01;
 //const AMP_DM: f32 = 10000000.0;
 const AMP_DM: f32 = 16.0 / SAMPLE_RATE as f32;
 
+const VERBOSE: bool = false;
+
 #[derive(Debug, PartialEq)]
 pub enum MatchResult {
     DropOld(usize),
@@ -271,8 +273,8 @@ fn match_values_fast(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
         }
     }
 
-    println!("old_faves {:?}", old_faves);
-    println!(" nu_faves {:?}", nu_faves);
+    if VERBOSE { println!("old_faves {:?}", old_faves); }
+    if VERBOSE { println!(" nu_faves {:?}", nu_faves); }
 
     let mut results: Vec<MatchResult> = Vec::new();
     faves_to_results(old_faves, nu_faves, &mut results);
@@ -330,8 +332,8 @@ fn match_values_slow(old: &Vec<f32>, nu: &Vec<f32>) -> Vec<MatchResult> {
     for i in 0..nu.len() {
         nu_faves[i] = closest(nu[i], old);
     }
-    println!("old_faves {:?}", old_faves);
-    println!(" nu_faves {:?}", nu_faves);
+    if VERBOSE { println!("old_faves {:?}", old_faves); }
+    if VERBOSE { println!(" nu_faves {:?}", nu_faves); }
 
     faves_to_results(old_faves, nu_faves, &mut results);
     results
@@ -443,23 +445,25 @@ impl BandPassBank {
 
         //println!("NEWF {:?}", new_freqs);
 
-        println!("OLD {:?}", old_freqs);
-        println!("NEW {:?}", new_freqs);
+        if VERBOSE { println!("OLD {:?}", old_freqs); }
+        if VERBOSE { println!("NEW {:?}", new_freqs); }
 
         let results = match_values(&old_freqs, &new_freqs);
 
-        println!("MR {:?}", results);
-        for mr in &results {
-            match mr {
-                MatchResult::AddNew(i) => {
-                    println!("Add {}", new_freqs[*i]);
-                },
-                MatchResult::DropOld(i) => {
-                    println!("Drop {}", old_freqs[*i]);
-                },
-                MatchResult::Match(i, j) => {
-                    println!("Match {} {}", old_freqs[*i], new_freqs[*j]);
-                },
+        if VERBOSE {
+            println!("MR {:?}", results);
+            for mr in &results {
+                match mr {
+                    MatchResult::AddNew(i) => {
+                        println!("Add {}", new_freqs[*i]);
+                    },
+                    MatchResult::DropOld(i) => {
+                        println!("Drop {}", old_freqs[*i]);
+                    },
+                    MatchResult::Match(i, j) => {
+                        println!("Match {} {}", old_freqs[*i], new_freqs[*j]);
+                    },
+                }
             }
         }
 

@@ -12,6 +12,8 @@ use crate::microfft_fft::*;
 use crate::quadratic_interpolate::*;
 use crate::spew::*;
 
+const VERBOSE: bool = false;
+
 // Divide input into frames of size hop, fft each one, padded out to fft_size. Get the loud peaks
 // for each one, and return a vec of vecs of peaks, one for each hop.
 // output: (freq, mix)
@@ -25,7 +27,7 @@ pub fn hop_peaks(current:usize, input: &[f32; 2048], _fft_size: usize, batch_siz
         fft_in[i] = input[i];
     }
 
-    spew!("====", current);
+    if VERBOSE { spew!("====", current); }
     // TODO don't have to clear the beginning
     //fft_in[0..fft_size].fill(0.0);
     // Necessary?
@@ -40,7 +42,7 @@ pub fn hop_peaks(current:usize, input: &[f32; 2048], _fft_size: usize, batch_siz
     fft_to_magnitudes(mf.run(), &mut mags);
 
     let bps = find_peaks(&mags);
-    println!("==== peaks {} {:?}", current, bps);
+    if VERBOSE { println!("==== peaks {} {:?}", current, bps); }
     bps
 }
 
@@ -81,7 +83,7 @@ fn find_peaks(fft: &[f32]) -> Vec<f32> {
                     peaks.push(freq_peak * 2.0);
                     peaks.push(freq_peak * 3.0);
                     peaks.push(freq_peak * 5.0);
-                    spew!("*** peak", i, x_peak, y_peak, freq_peak, amp_peak, a, b, c, peakiness);
+                    if VERBOSE { spew!("*** peak", i, x_peak, y_peak, freq_peak, amp_peak, a, b, c, peakiness); }
                 } else {
                     //spew!("... peak", i, x_peak, y_peak, freq_peak, amp_peak, a, b, c, peakiness);
                 }
