@@ -5,6 +5,8 @@ use std::println;
 
 use shared::file::*;
 
+const SHOW_DIFFS: bool = false;
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     assert_eq!(args.len(), 3);
@@ -21,11 +23,9 @@ fn main() {
         let sample0: f32 = samples0[i];
         let sample1: f32 = samples1[i];
         let diff = sample0 - sample1;
-        /*
-        if diff != 0.0 {
+        if SHOW_DIFFS && diff != 0.0 {
             println!("{} {} {} {}", i, diff, sample0, sample1);
         }
-        */
         total_diff_squared += diff * diff;
     }
     let rms = (total_diff_squared / num_samples as f32).sqrt();
