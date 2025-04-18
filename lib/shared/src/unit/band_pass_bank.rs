@@ -401,6 +401,8 @@ fn faves_to_results(
 pub struct BandPassBank {
     // (bp, amp)
     bps: Vec<(BandPass, Inertial, bool)>,
+
+    old_freqs: Vec<f32>,
 }
 
 /*
@@ -424,6 +426,8 @@ impl BandPassBank {
     pub fn new() -> BandPassBank {
         BandPassBank {
             bps: Vec::new(),
+
+            old_freqs: Vec::new(),
         }
     }
 
@@ -441,14 +445,15 @@ impl BandPassBank {
     // (freq, amp)
     pub fn update(&mut self, new_freqs: &Vec<f32>) {
         //self.dump("INITIAL");
-        let old_freqs: Vec<f32> = self.bps.iter().map(|(bp, _, _)| bp.get_freq()).collect();
+        self.old_freqs.clear();
+        self.old_freqs.extend(self.bps.iter().map(|(bp, _, _)| bp.get_freq()));
 
         //println!("NEWF {:?}", new_freqs);
 
-        if VERBOSE { println!("OLD {:?}", old_freqs); }
+        if VERBOSE { println!("OLD {:?}", self.old_freqs); }
         if VERBOSE { println!("NEW {:?}", new_freqs); }
 
-        let results = match_values(&old_freqs, &new_freqs);
+        let results = match_values(&self.old_freqs, &new_freqs);
 
         if VERBOSE {
             println!("MR {:?}", results);
@@ -458,10 +463,10 @@ impl BandPassBank {
                         println!("Add {}", new_freqs[*i]);
                     },
                     MatchResult::DropOld(i) => {
-                        println!("Drop {}", old_freqs[*i]);
+                        println!("Drop {}", self.old_freqs[*i]);
                     },
                     MatchResult::Match(i, j) => {
-                        println!("Match {} {}", old_freqs[*i], new_freqs[*j]);
+                        println!("Match {} {}", self.old_freqs[*i], new_freqs[*j]);
                     },
                 }
             }
