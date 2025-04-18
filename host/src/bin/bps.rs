@@ -26,32 +26,36 @@ fn main() {
     let hop = 48;
 
     for current_start in (0..input.len()).step_by(hop) {
-        if current_start+hop > input.len() {
+        if current_start > input.len() {
             break;
         }
 
-        let input_batch = &input[current_start..current_start+hop];
+        let batch_end = (current_start+hop).min(input.len());
+        let input_batch = &input[current_start..batch_end];
 
-        assert!(input_batch.len() == hop);
+        assert!(input_batch.len() <= hop);
 
         // Shift new samples in
         for i in 0..2048-hop {
             buf[i] = buf[i+hop];
         }
-        for i in 0..hop {
+        for i in 0..input_batch.len() {
             buf[2048-hop+i] = input_batch[i];
+        }
+        for i in input_batch.len()..hop {
+            buf[2048-hop+i] = 0.0;
         }
 
         let fas: Vec<f32> = hop_peaks(current_start, &buf, 2048, 2048);
         bank.update(&fas);
 
-        let mut output_batch: Vec<f32> = vec![0.0; hop];
+        let mut output_batch: Vec<f32> = vec![0.0; input_batch.len()];
 
-        for i in 0..hop {
+        for i in 0..input_batch.len() {
             output_batch[i] = bank.process(input_batch[i]);
         }
 
-        for i in 0..hop {
+        for i in 0..input_batch.len() {
             output[current_start+i] = output_batch[i];
         }
 
