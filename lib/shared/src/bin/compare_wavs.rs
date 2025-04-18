@@ -21,6 +21,11 @@ fn main() {
         let sample0: f32 = samples0[i];
         let sample1: f32 = samples1[i];
         let diff = sample0 - sample1;
+        /*
+        if diff != 0.0 {
+            println!("{} {} {} {}", i, diff, sample0, sample1);
+        }
+        */
         total_diff_squared += diff * diff;
     }
     let rms = (total_diff_squared / num_samples as f32).sqrt();

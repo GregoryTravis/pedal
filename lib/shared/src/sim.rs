@@ -31,7 +31,8 @@ pub fn sim_main(input_file: &str, output_file: &str, patch: Box<dyn Patch>) {
     let path: &Path = output_file.as_ref();
     assert!(!path.is_file());
 
-    let mut output_spec = input_spec;
+    let mut output_spec = input_spec.clone();
+    //output_spec.sample_rate = 48000;
     output_spec.channels = 1;
     let mut writer = hound::WavWriter::create(path, output_spec).unwrap();
     assert_eq!(output_spec, writer.spec());
