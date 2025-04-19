@@ -122,6 +122,11 @@ fn gs_main() {
     rig_install_patch(patch, knobs, toggle);
 
     rig_install_callback();
+
+    loop {
+        load_spew();
+        hw_delay(500);
+    }
 }
 
 #[allow(dead_code)]
@@ -179,7 +184,8 @@ pub fn main() {
     spew!("start of main");
 
     //rubin_main();
-    all_tests();
+    gs_main();
+    //all_tests();
     //oom_test();
     //benchmark_fft();
     //do_fft_output_comparison();
