@@ -4,7 +4,7 @@ extern crate libm;
 
 use alloc::vec::Vec;
 #[allow(unused)]
-use std::println;
+//use std::println;
 
 use crate::constants::*;
 use crate::inertial::*;
@@ -20,7 +20,7 @@ const BW: f32 = 0.01;
 //const AMP_DM: f32 = 10000000.0;
 const AMP_DM: f32 = 16.0 / SAMPLE_RATE as f32;
 
-const VERBOSE: bool = false;
+const _VERBOSE: bool = false;
 
 pub struct BandPassBank {
     // (bp, amp)
@@ -75,11 +75,12 @@ impl BandPassBank {
 
         //println!("NEWF {:?}", new_freqs);
 
-        if VERBOSE { println!("OLD {:?}", self.old_freqs); }
-        if VERBOSE { println!("NEW {:?}", new_freqs); }
+        //if VERBOSE { println!("OLD {:?}", self.old_freqs); }
+        //if VERBOSE { println!("NEW {:?}", new_freqs); }
 
         match_values(&self.old_freqs, &new_freqs, &mut self.old_faves, &mut self.nu_faves, &mut self.results);
 
+        /*
         if VERBOSE {
             println!("MR {:?}", self.results);
             for mr in &self.results {
@@ -96,6 +97,7 @@ impl BandPassBank {
                 }
             }
         }
+        */
 
         for mr in &self.results {
             match mr {
@@ -145,8 +147,10 @@ impl BandPassBank {
         }
     }
 
+    /*
     pub fn dump(&self, tag: &str) {
         let final_fas: Vec<(f32, f32)> = self.bps.iter().map(|(bp, a, _)| (bp.get_freq(), (*a).get())).collect();
         println!("{} {:?}", tag, final_fas);
     }
+    */
 }

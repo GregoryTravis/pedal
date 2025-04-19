@@ -1,10 +1,11 @@
+#[cfg(feature = "for_host")]
 extern crate std;
 extern crate alloc;
 extern crate libm;
 
 use alloc::vec::Vec;
 #[allow(unused)]
-use std::println;
+//use std::println;
 
 use crate::constants::*;
 use crate::fft::*;
@@ -17,13 +18,13 @@ const VERBOSE: bool = false;
 // Divide input into frames of size hop, fft each one, padded out to fft_size. Get the loud peaks
 // for each one, and return a vec of vecs of peaks, one for each hop.
 // output: (freq, mix)
-pub fn hop_peaks(current:usize, input: &[f32; 2048], /*mem*/ mags: &mut [f32; FFT_SIZE/2], /*out*/ peaks: &mut Vec<f32>) {
+pub fn hop_peaks(_current:usize, input: &[f32; 2048], /*mem*/ mags: &mut [f32; FFT_SIZE/2], /*out*/ peaks: &mut Vec<f32>) {
     let mut mf = MicroFFT::new();
     mf.get_input().copy_from_slice(input);
     fft_to_magnitudes(mf.run(), mags);
 
     find_peaks(&mags, peaks);
-    if VERBOSE { println!("==== peaks {} {:?}", current, peaks); }
+    //if VERBOSE { println!("==== peaks {} {:?}", current, peaks); }
 }
 
 fn ramp_threshold(freq: f32) -> f32 {

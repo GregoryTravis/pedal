@@ -2,8 +2,7 @@
 extern crate std;
 extern crate libm;
 
-use std::print;
-use std::println;
+//use std::println;
 //use alloc::boxed::Box;
 use alloc::vec::Vec;
 use core::f32::consts::PI;
@@ -69,7 +68,7 @@ impl TVO {
     pub fn next_sample(&mut self) -> f32 {
         self.update_freq_amp();
         let phase_delta = self.frequency / SAMPLE_RATE as f32;
-        let oph = self.phase;
+        //let oph = self.phase;
         self.phase += phase_delta;
         /*
         while self.phase > 2.0 * PI {
@@ -77,18 +76,17 @@ impl TVO {
         }
         */
         let s = libm::sinf(self.phase * 2.0 * PI) * self.amplitude;
-        println!("ren {:?} {} {} {} {}", (self.frequency, self.amplitude),
-            oph, phase_delta, self.phase, s);
+        //println!("ren {:?} {} {} {} {}", (self.frequency, self.amplitude), oph, phase_delta, self.phase, s);
         s
     }
 
     fn update_freq_amp(&mut self) {
-        println!("update_fa b {:?}", (self.frequency, self.amplitude));
+        //println!("update_fa b {:?}", (self.frequency, self.amplitude));
         let frequency_delta = clip_delta(self.frequency, self.target_frequency, self.max_frequency_delta);
         self.frequency += frequency_delta;
         let amplitude_delta = clip_delta(self.amplitude, self.target_amplitude, self.max_amplitude_delta);
         self.amplitude += amplitude_delta;
-        println!("update_fa a {:?}", (self.frequency, self.amplitude));
+        //println!("update_fa a {:?}", (self.frequency, self.amplitude));
     }
 
     pub fn to_zero(&mut self) {
@@ -177,10 +175,10 @@ fn closest_freq(before: &Vec<TVO>, after: &Vec<(f32, f32)>) -> Option<MatchResul
         for (ai, &fa) in after.iter().enumerate() {
             let bf = tvo.frequency;
             let af = fa.0;
-            let diff = (af - bf).abs();
+            let diff = libm::fabsf(af - bf);
             if !found || diff < best.2 {
                 best = (bi, ai, diff);
-                println!("best {:?}", best);
+                //println!("best {:?}", best);
                 found = true;
             }
         }
@@ -239,10 +237,10 @@ impl TVOB {
     }
 
     // remove t
-    pub fn update(&mut self, t: u32, after: Vec<(f32, f32)>) {
-        println!("update");
-        println!("{:?}", self.oscs);
-        println!("{:?}", after);
+    pub fn update(&mut self, _t: u32, after: Vec<(f32, f32)>) {
+        //println!("update");
+        //println!("{:?}", self.oscs);
+        //println!("{:?}", after);
 
         if self.oscs.is_empty() {
             // First time, just adopt them
@@ -252,7 +250,7 @@ impl TVOB {
             let mr = self.matcher.mtch(&self.oscs, &after);
             match mr {
                 Some(mr) => {
-                    println!("{} {:?}", t, mr);
+                    //println!("{} {:?}", t, mr);
 
                     for fa in mr.matches {
                         let new_fa = after[fa.1];
@@ -269,34 +267,34 @@ impl TVOB {
                         self.oscs.push(new_osc);
                     }
 
-                    println!("updated");
-                    println!("{:?}", self.oscs);
+                    //println!("updated");
+                    //println!("{:?}", self.oscs);
 
                     self.sort_oscs();
                     self.cleanup();
 
-                    println!("done");
-                    println!("{:?}", self.oscs);
+                    //println!("done");
+                    //println!("{:?}", self.oscs);
                 },
                 None => {
-                    println!("No match result");
+                    //println!("No match result");
                 }
             }
         }
     }
 
     fn sort_oscs(&mut self) {
-        println!("sort");
-        println!("{:?}", self.oscs);
+        //println!("sort");
+        //println!("{:?}", self.oscs);
         //self.oscs.sort_by_key(|o| o.frequency);
         // TODO could crash
         self.oscs.sort_by(|a, b| a.frequency.partial_cmp(&b.frequency).unwrap());
-        println!("{:?}", self.oscs);
+        //println!("{:?}", self.oscs);
     }
 
     fn cleanup(&mut self) {
-        println!("cleanup");
-        println!("{:?}", self.oscs);
+        //println!("cleanup");
+        //println!("{:?}", self.oscs);
         //self.oscs = self.oscs.iter().filter(|o| !o.is_done()).collect::<Vec<TVO>>();
         // TODO no clone?
         //let new_oscs = Vec::new();
@@ -304,9 +302,10 @@ impl TVOB {
         //self.oscs = self.oscs.clone().into_iter().filter(|o| !o.is_done()).collect::<Vec<TVO>>();
         //self.oscs = self.oscs.iter().filter(|o| !o.is_done()).collect::<Vec<TVO>>();
         self.oscs.retain(|o| !o.is_done());
-        println!("{:?}", self.oscs);
+        //println!("{:?}", self.oscs);
     }
 
+    /*
     pub fn ratio_report(&self) {
         print!("rats ");
         if self.oscs.len() > 1 {
@@ -316,4 +315,5 @@ impl TVOB {
         }
         println!("");
     }
+    */
 }

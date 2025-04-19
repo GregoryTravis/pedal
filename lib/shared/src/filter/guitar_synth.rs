@@ -1,4 +1,4 @@
-//#[cfg(feature = "for_host")]
+#[cfg(feature = "for_host")]
 extern crate std;
 extern crate libm;
 
@@ -6,8 +6,6 @@ use alloc::boxed::Box;
 use alloc::vec::Vec;
 use core::any::Any;
 use core::f32::consts::PI;
-#[allow(unused)]
-use std::println;
 
 use crate::constants::*;
 use crate::hop_fft::*;

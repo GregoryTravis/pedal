@@ -5,12 +5,12 @@ extern crate libm;
 use alloc::vec::Vec;
 use core::iter::*;
 #[allow(unused)]
-use std::println;
+//use std::println;
 
 #[allow(unused)]
 use crate::spew::*;
 
-const VERBOSE: bool = false;
+const _VERBOSE: bool = false;
 
 #[derive(Debug, PartialEq)]
 pub enum MatchResult {
@@ -253,8 +253,8 @@ pub fn match_values(
         }
     }
 
-    if VERBOSE { println!("old_faves {:?}", old_faves); }
-    if VERBOSE { println!(" nu_faves {:?}", nu_faves); }
+    //if VERBOSE { println!("old_faves {:?}", old_faves); }
+    //if VERBOSE { println!(" nu_faves {:?}", nu_faves); }
 
     faves_to_results(old_faves, nu_faves, results);
 }
