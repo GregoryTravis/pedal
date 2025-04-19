@@ -12,6 +12,8 @@ use shared::fft_bench::*;
 #[allow(unused_imports)]
 use shared::filter::chorus::*;
 #[allow(unused_imports)]
+use shared::filter::guitar_synth::*;
+#[allow(unused_imports)]
 use shared::filter::harmoneer::*;
 #[allow(unused_imports)]
 use shared::filter::high_pass::*;
@@ -65,7 +67,7 @@ fn harmoneer(sdram: &mut SDRAM) -> Box<dyn Patch> {
 }
 
 #[allow(dead_code)]
-fn live_main() {
+fn rubin_main() {
     hw_init(!PROD, BLOCK_SIZE);
     spew!("hi");
     load_init();
@@ -104,6 +106,22 @@ fn live_main() {
         toggle2.spew();
         hw_delay(500);
     }
+}
+
+#[allow(dead_code)]
+fn gs_main() {
+    hw_init(!PROD, BLOCK_SIZE);
+    spew!("hi");
+    load_init();
+
+    let patch = Box::new(GuitarSynth::new());
+
+    let knobs = Box::new(BoardKnobs { });
+    let switches = Box::new(BoardSwitches { });
+    let toggle = Toggle::new(switches, 0);
+    rig_install_patch(patch, knobs, toggle);
+
+    rig_install_callback();
 }
 
 #[allow(dead_code)]
@@ -160,10 +178,10 @@ pub fn do_fft_output_comparison() {
 pub fn main() {
     spew!("start of main");
 
-    //live_main();
-    //all_tests();
+    //rubin_main();
+    all_tests();
     //oom_test();
-    benchmark_fft();
+    //benchmark_fft();
     //do_fft_output_comparison();
 
     spew!("end of main");
