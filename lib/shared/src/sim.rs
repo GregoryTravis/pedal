@@ -21,7 +21,7 @@ fn print_type_of<T>(_: &T) {
     println!("{}", std::any::type_name::<T>())
 }
 
-pub fn sim_main(input_file: &str, output_file: &str, patch: Box<dyn Patch>) {
+pub fn sim_main(input_file: &str, output_file: &str, patch: Box<dyn Patch>) -> Box<dyn Patch> {
     let mut reader = hound::WavReader::open(input_file).unwrap();
     let input_spec = reader.spec();
     assert!(input_spec.channels == 1 || input_spec.channels == 2);
@@ -93,7 +93,9 @@ pub fn sim_main(input_file: &str, output_file: &str, patch: Box<dyn Patch>) {
         }
     }
 
-    rig_deinstall_patch();
+    let rig_maybe = rig_deinstall_patch();
 
     writer.finalize().unwrap();
+
+    rig_maybe.unwrap()
 }

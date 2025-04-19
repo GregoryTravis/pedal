@@ -20,6 +20,7 @@ use shared::filter::seq::*;
 use shared::filter::sweep::*;
 use shared::filter::vibrato::*;
 use shared::filter::waveshaper::*;
+use shared::patch::Patch;
 use shared::sdram::*;
 use shared::signal::base::*;
 use shared::signal::combinators::*;
@@ -81,8 +82,9 @@ fn envelope_follower(input_file: &str, output_file: &str) {
 #[allow(dead_code)]
 fn guitar_synth(input_file: &str, output_file: &str) {
     let patch: GuitarSynth = GuitarSynth::new();
-    sim_main(input_file, output_file, Box::new(patch));
-    //patch.dump_maxes();
+    let patch: Box<dyn Patch> = sim_main(input_file, output_file, Box::new(patch));
+    let patch = *patch.into_any().downcast::<GuitarSynth>().unwrap();
+    patch.dump_maxes();
 }
 
 // min 3rd: 1.189

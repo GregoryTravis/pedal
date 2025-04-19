@@ -4,6 +4,7 @@ extern crate libm;
 
 use alloc::boxed::Box;
 use alloc::vec::Vec;
+use core::any::Any;
 use core::f32::consts::PI;
 #[allow(unused)]
 use std::println;
@@ -101,5 +102,9 @@ impl Patch for GuitarSynth {
             use Item::*;
             self.maxes.as_mut().unwrap().update(Peaks, self.peaks.len());
         }
+    }
+
+    fn into_any(self: Box<Self>) -> Box<dyn Any> {
+        self
     }
 }

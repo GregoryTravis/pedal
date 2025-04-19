@@ -36,8 +36,9 @@ pub fn rig_install_patch(box_patch: Box<dyn Patch>, knobs: Box<dyn Knobs>, toggl
     THE_PATCH.set(rig);
 }
 
-pub fn rig_deinstall_patch() {
-    THE_PATCH.clear();
+pub fn rig_deinstall_patch() -> Option<Box<dyn Patch>> {
+    let rig = THE_PATCH.clear();
+    rig.map(|rig| rig.patch)
 }
 
 // This simulates what the Daisy Seed passes to the audio callback.
