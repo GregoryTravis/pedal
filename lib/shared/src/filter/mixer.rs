@@ -1,6 +1,7 @@
 use alloc::boxed::Box;
 use alloc::vec::Vec;
 
+use core::any::Any;
 use crate::constants::*;
 use crate::knob::Knobs;
 use crate::patch::Patch;
@@ -56,5 +57,9 @@ impl Patch for Mixer {
                 output_slice[i] += channel.0 * sub_buf[i];
             }
         }
+    }
+
+    fn into_any(self: Box<Self>) -> Box<dyn Any> {
+        self
     }
 }

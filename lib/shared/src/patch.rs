@@ -17,7 +17,5 @@ pub trait Patch: Send {
     fn done(&self) -> bool { panic!("Should not reach here"); }
     fn passed(&self) -> bool { panic!("Should not reach here"); }
 
-    fn into_any(self: Box<Self>) -> Box<dyn Any> {
-        unimplemented!();
-    }
+    fn into_any(self: Box<Self>) -> Box<dyn Any>;
 }

@@ -3,6 +3,7 @@ extern crate libm;
 #[cfg(feature = "for_host")]
 extern crate std;
 
+use core::any::Any;
 use alloc::boxed::Box;
 
 use crate::knob::Knobs;
@@ -71,5 +72,9 @@ impl Patch for SpeedTest {
         for _r in 0..NROUNDS {
             ddot(&self, input_slice, output_slice);
         }
+    }
+
+    fn into_any(self: Box<Self>) -> Box<dyn Any> {
+        self
     }
 }

@@ -1,6 +1,7 @@
 #[cfg(feature = "for_host")]
 extern crate std;
 
+use core::any::Any;
 use alloc::boxed::Box;
 #[cfg(feature = "for_host")]
 #[allow(unused_imports)]
@@ -71,5 +72,9 @@ impl Patch for Chorus {
             }
         }
         */
+    }
+
+    fn into_any(self: Box<Self>) -> Box<dyn Any> {
+        self
     }
 }

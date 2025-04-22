@@ -3,6 +3,7 @@ extern crate libm;
 #[cfg(feature = "for_host")]
 extern crate std;
 
+use core::any::Any;
 use alloc::boxed::Box;
 use core::f32::consts::PI;
 
@@ -98,5 +99,9 @@ impl Patch for Vibrato {
             output_slice[i] = convolution_sum;
             playhead.inc();
         }
+    }
+
+    fn into_any(self: Box<Self>) -> Box<dyn Any> {
+        self
     }
 }

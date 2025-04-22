@@ -3,6 +3,7 @@ extern crate libm;
 #[cfg(feature = "for_host")]
 extern crate std;
 
+use core::any::Any;
 use alloc::boxed::Box;
 #[cfg(feature = "for_host")]
 use std::println;
@@ -62,5 +63,9 @@ impl Patch for WaveShaper {
 
             //playhead.inc();
         }
+    }
+
+    fn into_any(self: Box<Self>) -> Box<dyn Any> {
+        self
     }
 }

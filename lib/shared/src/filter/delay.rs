@@ -1,6 +1,7 @@
 extern crate alloc;
 extern crate libm;
 
+use core::any::Any;
 use alloc::boxed::Box;
 
 use circular_buffer::CircularBuffer;
@@ -37,5 +38,9 @@ impl Patch for Delay {
             self.cbuf.push_back(inp);
             output_slice[i] = out;
         }
+    }
+
+    fn into_any(self: Box<Self>) -> Box<dyn Any> {
+        self
     }
 }

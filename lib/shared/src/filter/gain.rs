@@ -1,6 +1,7 @@
 #[cfg(feature = "for_host")]
 extern crate std;
 
+use core::any::Any;
 use alloc::boxed::Box;
 
 use crate::knob::Knobs;
@@ -33,5 +34,9 @@ impl Patch for Gain {
             self.gain = knobs.read(self.knob_id);
             output_slice[i] = self.gain * input_slice[i];
         }
+    }
+
+    fn into_any(self: Box<Self>) -> Box<dyn Any> {
+        self
     }
 }

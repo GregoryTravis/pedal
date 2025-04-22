@@ -3,6 +3,7 @@ extern crate libm;
 #[cfg(feature = "for_host")]
 extern crate std;
 
+use core::any::Any;
 use alloc::boxed::Box;
 
 use crate::knob::Knobs;
@@ -67,5 +68,9 @@ impl Patch for Fuzz {
 
             //playhead.inc();
         }
+    }
+
+    fn into_any(self: Box<Self>) -> Box<dyn Any> {
+        self
     }
 }
