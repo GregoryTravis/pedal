@@ -1,6 +1,7 @@
 extern crate libm;
 
 use crate::constants::*;
+#[allow(unused)]
 use crate::spew::*;
 
 // This is a goofy usage pattern, but I have two very different ffts to unify.
@@ -17,8 +18,8 @@ pub fn fft_to_magnitudes(fft_in: &[f32; FFT_SIZE], mag_out: &mut [f32; FFT_SIZE/
     for i in 0..FFT_SIZE/2 {
         let re = fft_in[i*2];
         let im = fft_in[i*2+1];
-        //mag_out[i] = libm::sqrtf(re*re + im*im);
-        mag_out[i] = 1.0 / quake_rsqrt(re*re + im*im);
+        mag_out[i] = libm::sqrtf(re*re + im*im);
+        //mag_out[i] = 1.0 / quake_rsqrt(re*re + im*im);
         //mag_out[i] = re*re + im*im;
     }
 }
