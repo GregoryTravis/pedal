@@ -41,7 +41,7 @@ impl Harmoneer {
             read_head: (SIZE / 2) as f32,
             write_head: SIZE,
             last_alpha: 0.0,
-            buf: sdram.alloc(SIZE),
+            buf: sdram.alloc_slice(SIZE),
         }
     }
 

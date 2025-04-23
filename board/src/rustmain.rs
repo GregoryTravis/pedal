@@ -79,9 +79,9 @@ fn rubin_main() {
     spew!("got", ptr_int, fooie.len(), fooie[0]);
     */
     let mut sdram = SDRAM::new();
-    let a0 = sdram.alloc(10);
+    let a0 = sdram.alloc_slice(10);
     spew!("a0", hex(a0.as_ptr() as u64));
-    let a1 = sdram.alloc(10);
+    let a1 = sdram.alloc_slice(10);
     spew!("a1", hex(a1.as_ptr() as u64));
 
     //let patch = harmoneer(&mut sdram);
@@ -152,8 +152,8 @@ pub fn oom_test() {
 
 fn sdram_test() {
     let mut sdram = SDRAM::new();
-    let a0 = sdram.alloc(10);
-    let a1 = sdram.alloc(10);
+    let a0 = sdram.alloc_slice(10);
+    let a1 = sdram.alloc_slice(10);
     assert!(a0.as_ptr() == 0xc0000000 as *const f32);
     assert!(a1.as_ptr() == 0xc0000028 as *const f32);
     spew!("sdram", a0.as_ptr() as u64, a1.as_ptr() as u64);
