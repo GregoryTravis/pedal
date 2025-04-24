@@ -7,10 +7,12 @@ use crate::bench::benchmark;
 use crate::constants::*;
 use crate::fft::*;
 use crate::microfft_fft::*;
+use crate::microfft_sdram_fft::*;
+use crate::sdram::*;
 use crate::spew::*;
 
 #[allow(dead_code)]
-pub fn do_benchmark_fft() {
+pub fn do_benchmark_fft(sdram: &mut SDRAM) {
     let mut orig_input: [f32; FFT_SIZE] = [0.0; FFT_SIZE];
     for i in 0..orig_input.len() {
         orig_input[i] = libm::sinf(2.0 * PI * i as f32 * (440.0 / SAMPLE_RATE as f32));
@@ -41,6 +43,19 @@ pub fn do_benchmark_fft() {
             microfft_fft.run();
         });
         spew!("microfft", microfft_bench.execution_count, microfft_bench.avg_time, microfft_bench.execution_count as f32 / dur);
+    }
+
+    // microfft overwrites the input and the others probably do too, so doing it repeatedly is
+    // meaningless, but I don't care about the values, except possibly to make sure that 0s aren't
+    // special-cased.
+    {
+        let mut microfft_sdram_fft = MicroFFTSDRAM::new(sdram);
+        microfft_sdram_fft.get_input().clone_from_slice(&orig_input);
+
+        let microfft_sdram_bench = benchmark(dur, || {
+            microfft_sdram_fft.run();
+        });
+        spew!("microfft_sdram", microfft_sdram_bench.execution_count, microfft_sdram_bench.avg_time, microfft_sdram_bench.execution_count as f32 / dur);
     }
 }
 

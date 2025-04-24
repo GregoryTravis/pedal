@@ -3,13 +3,13 @@ use crate::fft::*;
 use crate::microfft_fft::*;
 use crate::sdram::*;
 
-pub struct MicroFFTSDRAM<'a> {
-    input: &'a mut [f32; FFT_SIZE],
-    output: &'a mut [f32; FFT_SIZE],
+pub struct MicroFFTSDRAM {
+    input: &'static mut [f32; FFT_SIZE],
+    output: &'static mut [f32; FFT_SIZE],
 }
 
-impl <'a> MicroFFTSDRAM<'a> {
-    pub fn new(sdram: &mut SDRAM) -> MicroFFTSDRAM<'a> {
+impl MicroFFTSDRAM {
+    pub fn new(sdram: &mut SDRAM) -> MicroFFTSDRAM {
         MicroFFTSDRAM {
             input: sdram.alloc(),
             output: sdram.alloc(),
@@ -17,7 +17,7 @@ impl <'a> MicroFFTSDRAM<'a> {
     }
 }
 
-impl <'a> FFT for MicroFFTSDRAM<'a> {
+impl FFT for MicroFFTSDRAM {
     fn get_input(&mut self) -> &mut [f32; FFT_SIZE] {
         self.input
     }

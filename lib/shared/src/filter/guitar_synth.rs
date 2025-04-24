@@ -11,8 +11,10 @@ use crate::constants::*;
 use crate::hop_fft::*;
 use crate::knob::Knobs;
 use crate::maxes::*;
+use crate::microfft_sdram_fft::*;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
+use crate::sdram::*;
 #[allow(unused)]
 use crate::spew::*;
 use crate::unit::band_pass_bank::*;
@@ -24,6 +26,8 @@ pub struct GuitarSynth {
     bank: BandPassBank,
 
     maxes: Option<Maxes>,
+
+    fft: MicroFFTSDRAM,
 
     // TODO remove
     current_start: usize,
@@ -37,10 +41,12 @@ pub struct GuitarSynth {
 // /*mem*/ -- just passing the mem in for internal use
 
 impl GuitarSynth {
-    pub fn new() -> GuitarSynth {
+    pub fn new(sdram: &mut SDRAM) -> GuitarSynth {
         GuitarSynth {
             buf: [0.0; FFT_SIZE],
             bank: BandPassBank::new(),
+
+            fft: MicroFFTSDRAM::new(sdram),
 
             maxes: if DO_MAXES { Some(Maxes::new()) } else { None },
 
@@ -87,7 +93,7 @@ impl Patch for GuitarSynth {
             self.buf[FFT_SIZE-hop+i] = input_slice[i];
         }
 
-        hop_peaks(self.current_start, &self.buf, &mut self.mags, &mut self.peaks);
+        hop_peaks(&mut self.fft, self.current_start, &self.buf, &mut self.mags, &mut self.peaks);
         self.bank.update(&self.peaks);
 
         for i in 0..hop {

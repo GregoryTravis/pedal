@@ -9,7 +9,7 @@ use alloc::vec::Vec;
 
 use crate::constants::*;
 use crate::fft::*;
-use crate::microfft_fft::*;
+use crate::microfft_sdram_fft::*;
 use crate::quadratic_interpolate::*;
 use crate::spew::*;
 
@@ -18,10 +18,9 @@ const VERBOSE: bool = false;
 // Divide input into frames of size hop, fft each one, padded out to fft_size. Get the loud peaks
 // for each one, and return a vec of vecs of peaks, one for each hop.
 // output: (freq, mix)
-pub fn hop_peaks(_current:usize, input: &[f32; 2048], /*mem*/ mags: &mut [f32; FFT_SIZE/2], /*out*/ peaks: &mut Vec<f32>) {
-    let mut mf = MicroFFT::new();
-    mf.get_input().copy_from_slice(input);
-    fft_to_magnitudes(mf.run(), mags);
+pub fn hop_peaks(fft: &mut MicroFFTSDRAM, _current:usize, input: &[f32; 2048], /*mem*/ mags: &mut [f32; FFT_SIZE/2], /*out*/ peaks: &mut Vec<f32>) {
+    fft.get_input().copy_from_slice(input);
+    fft_to_magnitudes(fft.run(), mags);
 
     find_peaks(&mags, peaks);
     //if VERBOSE { println!("==== peaks {} {:?}", current, peaks); }
@@ -41,6 +40,7 @@ fn find_peaks(fft: &[f32; FFT_SIZE/2], /*out*/ peaks: &mut Vec<f32>) {
     let _amp_threshold = 0.005;
 
     for i in 0..fft_len {
+        //if peaks.len() >= 4 { break; }
         let not_edge = i > 0 && i < fft_len-1;
         if not_edge {
             // let bin_freq = i as f32 * (SAMPLE_RATE as f32 / fft_len as f32);

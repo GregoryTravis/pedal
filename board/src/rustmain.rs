@@ -114,7 +114,9 @@ fn gs_main() {
     spew!("hi");
     load_init();
 
-    let patch = Box::new(GuitarSynth::new());
+    let mut sdram = SDRAM::new();
+
+    let patch = Box::new(GuitarSynth::new(&mut sdram));
 
     let knobs = Box::new(BoardKnobs { });
     let switches = Box::new(BoardSwitches { });
@@ -170,7 +172,8 @@ fn all_tests() {
 #[allow(dead_code)]
 pub fn benchmark_fft() {
     hw_init(true, BLOCK_SIZE);
-    do_benchmark_fft();
+    let mut sdram = SDRAM::new();
+    do_benchmark_fft(&mut sdram);
 }
 
 #[allow(dead_code)]
@@ -184,10 +187,10 @@ pub fn main() {
     spew!("start of main");
 
     //rubin_main();
-    gs_main();
+    //gs_main();
     //all_tests();
     //oom_test();
-    //benchmark_fft();
+    benchmark_fft();
     //do_fft_output_comparison();
 
     spew!("end of main");
