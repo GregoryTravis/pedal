@@ -79,7 +79,7 @@ impl Patch for GuitarSynth {
         &mut self,
         input_slice: &[f32],
         output_slice: &mut [f32],
-        _knobs: &Box<dyn Knobs>,
+        knobs: &Box<dyn Knobs>,
         mut _playhead: Playhead,
     ) {
         let hop = input_slice.len();
@@ -93,7 +93,10 @@ impl Patch for GuitarSynth {
             self.buf[FFT_SIZE-hop+i] = input_slice[i];
         }
 
-        hop_peaks(&mut self.fft, self.current_start, &self.buf, &mut self.mags, &mut self.peaks);
+        let wid: f32 = knobs.read(0);
+        let ness: f32 = knobs.read(1);
+
+        hop_peaks(wid, ness, &mut self.fft, self.current_start, &self.buf, &mut self.mags, &mut self.peaks);
         self.bank.update(&self.peaks);
 
         for i in 0..hop {
