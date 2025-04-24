@@ -40,7 +40,8 @@ fn find_peaks(fft: &[f32; FFT_SIZE/2], /*out*/ peaks: &mut Vec<f32>) {
     let _amp_threshold = 0.005;
 
     for i in 0..fft_len {
-        if peaks.len() >= 4 { break; }
+        if peaks.len() >= 40 { break; }
+
         let not_edge = i > 0 && i < fft_len-1;
         if not_edge {
             // let bin_freq = i as f32 * (SAMPLE_RATE as f32 / fft_len as f32);
@@ -62,9 +63,9 @@ fn find_peaks(fft: &[f32; FFT_SIZE/2], /*out*/ peaks: &mut Vec<f32>) {
                 if amp_peak > ramp_threshold(freq_peak) { // amp_threshold {
                     // Throwing away i and amp_peak here
                     peaks.push(freq_peak);
-                    peaks.push(freq_peak * 2.0);
-                    peaks.push(freq_peak * 3.0);
-                    peaks.push(freq_peak * 5.0);
+                    //peaks.push(freq_peak * 2.0);
+                    //peaks.push(freq_peak * 3.0);
+                    //peaks.push(freq_peak * 5.0);
                     if VERBOSE { spew!("*** peak", i, x_peak, y_peak, freq_peak, amp_peak, a, b, c, peakiness); }
                 } else {
                     //spew!("... peak", i, x_peak, y_peak, freq_peak, amp_peak, a, b, c, peakiness);

@@ -98,6 +98,7 @@ impl Patch for GuitarSynth {
 
         for i in 0..hop {
             output_slice[i] = self.bank.process(input_slice[i]);
+            //output_slice[i] = 0.0;
         }
 
         self.current_start += hop;
