@@ -45,14 +45,14 @@ fn ramp_one(freq: f32) -> f32 {
 impl BandPassBank {
     pub fn new() -> BandPassBank {
         BandPassBank {
-            bps: Vec::new(),
+            bps: Vec::new(), // Vec::with_capacity(250),
 
             maxes: if DO_MAXES { Some(Maxes::new()) } else { None },
 
-            old_freqs: Vec::new(),
-            old_faves: Vec::new(),
-            nu_faves: Vec::new(),
-            results: Vec::new(),
+            old_freqs: Vec::new(), // Vec::with_capacity(250),
+            old_faves: Vec::new(), // Vec::with_capacity(250),
+            nu_faves: Vec::new(), // Vec::with_capacity(150),
+            results: Vec::new(), // Vec::with_capacity(250),
         }
     }
 
@@ -134,6 +134,7 @@ impl BandPassBank {
 
         if DO_MAXES {
             use Item::*;
+            self.maxes.as_mut().unwrap().update(BPs, self.bps.len());
             self.maxes.as_mut().unwrap().update(OldFreqs, self.old_freqs.len());
             self.maxes.as_mut().unwrap().update(OldFaves, self.old_faves.len());
             self.maxes.as_mut().unwrap().update(NewFaves, self.nu_faves.len());

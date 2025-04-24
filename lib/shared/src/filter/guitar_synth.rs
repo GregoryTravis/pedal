@@ -52,7 +52,7 @@ impl GuitarSynth {
 
             current_start: 0,
 
-            peaks: Vec::new(),
+            peaks: Vec::new(), // Vec::with_capacity(200),
             mags: [0.0; FFT_SIZE/2],
         }
     }

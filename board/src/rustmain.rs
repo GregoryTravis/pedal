@@ -187,10 +187,10 @@ pub fn main() {
     spew!("start of main");
 
     //rubin_main();
-    //gs_main();
+    gs_main();
     //all_tests();
     //oom_test();
-    benchmark_fft();
+    //benchmark_fft();
     //do_fft_output_comparison();
 
     spew!("end of main");

@@ -5,7 +5,7 @@ use crate::spew::*;
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Item {
     Peaks,
-    Bps,
+    BPs,
     OldFreqs,
     OldFaves,
     NewFaves,

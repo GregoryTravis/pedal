@@ -40,7 +40,7 @@ fn find_peaks(fft: &[f32; FFT_SIZE/2], /*out*/ peaks: &mut Vec<f32>) {
     let _amp_threshold = 0.005;
 
     for i in 0..fft_len {
-        //if peaks.len() >= 4 { break; }
+        if peaks.len() >= 4 { break; }
         let not_edge = i > 0 && i < fft_len-1;
         if not_edge {
             // let bin_freq = i as f32 * (SAMPLE_RATE as f32 / fft_len as f32);
