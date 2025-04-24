@@ -25,12 +25,14 @@ pub fn hop_peaks(wid: f32, ness: f32, fft: &mut MicroFFTSDRAM, current:usize, in
 
     let here: usize = 147851; // 96314;
     let hop_base = here - (here % 48);
+    /*
     if hop_base == current {
         for (_i, x) in mags.iter().enumerate() {
             //spew!("mag", i, x);
             spew!(x);
         }
     }
+    */
 
     find_peaks(hop_base == current, wid, ness, &mags, peaks);
     //if VERBOSE { println!("==== peaks {} {:?}", current, peaks); }
@@ -88,7 +90,7 @@ fn find_peaks(dump: bool, wid: f32, ness: f32, fft: &[f32; FFT_SIZE/2], /*out*/ 
                 }
             }
             if found_higher { 1.0 } else {
-                let count = window_end - window_start - 1;
+                let count = window_end - window_start; // no -1 because it's inclusive
                 assert!(count > 0);
                 let mut totes = 0.0;
                 for j in window_start..window_end+1 {
@@ -97,6 +99,9 @@ fn find_peaks(dump: bool, wid: f32, ness: f32, fft: &[f32; FFT_SIZE/2], /*out*/ 
                     }
                 }
                 let avg = totes / count as f32;
+                if dump {
+                    //spew!("avg", i, totes, count, window_start, window_end, avg, avg/ppeak);
+                }
                 avg / ppeak
             }
         };
@@ -131,7 +136,7 @@ fn find_peaks(dump: bool, wid: f32, ness: f32, fft: &[f32; FFT_SIZE/2], /*out*/ 
         if dump {
             let (show_f, show_a): (f32, f32) = fa.unwrap_or((0.0, 0.0));
             let mark = if fa.is_some() { "*" } else { " " };
-            spew!("peak", mark, i, sharpness, window_start, window_end, show_f, show_a);
+            spew!("peak", mark, i, ppeak, sharpness, window_start, window_end, show_f, show_a);
         }
 
         //peaks.push(fa);
