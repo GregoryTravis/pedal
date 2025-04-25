@@ -80,7 +80,27 @@ fn find_peaks(dump: bool, wid: f32, ness: f32, fft: &[f32; FFT_SIZE/2], /*out*/ 
         // the peak, that is the sharpness.
         // Max sharpness is 0 (lobe is all 0); min sharpness is 1 (lobe == peak).
         // Also punt on ppeak=0 so we don't /0.
+        //let ppeak: f32 = fft[i];
+
+
+        let (peak_freq, peak_mag, peak_amp) = {
+            let (relative_peak_i, peak_mag) = quadratic_interpolate(fft[i-1], fft[i], fft[i+1]);
+            let peak_i = i as f32 + relative_peak_i;
+            // The *2 is because the mag array is half the length of the fft size.
+            let peak_freq = peak_i * (SAMPLE_RATE as f32 / (fft_len * 2) as f32);
+            let peak_amp = peak_mag / fft_len as f32;
+            // commented out because if it's a trough then this could be negative (?)
+            // assert!(peak_amp >= 0.0);
+            (peak_freq, peak_mag, peak_amp)
+        };
+
+        // If we use the interpolated peak magnitude it should be a more faithful peak, but then we
+        // get double hits, on either side of the actual peak. Using the actual bin value is
+        // simpler. TODO do the right thing here.
+        // let ppeak: f32 = peak_mag;
         let ppeak: f32 = fft[i];
+
+
         let sharpness: f32 = if ppeak == 0.0 { 1.0 } else {
             let mut found_higher = false;
             for j in window_start..window_end+1 {
@@ -115,19 +135,12 @@ fn find_peaks(dump: bool, wid: f32, ness: f32, fft: &[f32; FFT_SIZE/2], /*out*/ 
             // Interpolate to find the real max freq, using the values on either side. This is why
             // we don't consider the first or last bins.
 
-            let (relative_peak_i, scaled_peak_amp) = quadratic_interpolate(fft[i-1], ppeak, fft[i+1]);
-            let peak_i = i as f32 + relative_peak_i;
-            // The *2 is because the mag array is half the length of the fft size.
-            let peak_freq = peak_i * (SAMPLE_RATE as f32 / (fft_len * 2) as f32);
-            let peak_amp = scaled_peak_amp / fft_len as f32;
-            assert!(peak_amp >= 0.0);
-            // TODO Not using amp yet, first use peakiness to scale it in; maybe just peak_amp *
-            // peakiness?
-            let _ = peak_amp;
-
             // Sharpness is now (1..0), 1 means flat, 0 means as sharp as possible.
             // Convert this to (0..1) with 0 meaning flat, 1 meaning maximally sharp.
             let sharpness = 1.0 - sharpness;
+
+            // TODO Not using amp yet, first use peakiness to scale it in; maybe just peak_amp *
+            // peakiness?
 
             Some((peak_freq, sharpness))
         } else {
@@ -136,7 +149,7 @@ fn find_peaks(dump: bool, wid: f32, ness: f32, fft: &[f32; FFT_SIZE/2], /*out*/ 
         if dump {
             let (show_f, show_a): (f32, f32) = fa.unwrap_or((0.0, 0.0));
             let mark = if fa.is_some() { "*" } else { " " };
-            spew!("peak", mark, i, ppeak, sharpness, window_start, window_end, show_f, show_a);
+            spew!("peak", mark, i, ppeak, fft[i], peak_mag, peak_freq, peak_amp, sharpness, window_start, window_end, show_f, show_a);
         }
 
         //peaks.push(fa);
