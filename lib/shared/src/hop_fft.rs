@@ -152,8 +152,18 @@ fn find_peaks(dump: bool, wid: f32, ness: f32, fft: &[f32; FFT_SIZE/2], /*out*/ 
             spew!("peak", mark, i, ppeak, fft[i], peak_mag, peak_freq, peak_amp, sharpness, window_start, window_end, show_f, show_a);
         }
 
-        //peaks.push(fa);
-
+        let max_num_peaks: usize = 40; // 10 * # of overtones
+        match fa {
+            Some((f, _)) => {
+                if peaks.len() < max_num_peaks {
+                    peaks.push(f);
+                    peaks.push(f * 2.0);
+                    peaks.push(f * 3.0);
+                    peaks.push(f * 5.0);
+                }
+            }
+            None => (),
+        }
 
 
         /*
@@ -202,6 +212,8 @@ fn find_peaks(dump: bool, wid: f32, ness: f32, fft: &[f32; FFT_SIZE/2], /*out*/ 
     }
     */
     peaks.sort_by(|f0, f1| f0.partial_cmp(f1).unwrap());
+
+    //spew!("npeaks", peaks.len());
 }
 
 // Map [x0,y0] to [x1,y1], apply that to x.
