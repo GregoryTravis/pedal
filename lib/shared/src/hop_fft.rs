@@ -11,6 +11,7 @@ use crate::constants::*;
 use crate::fft::*;
 use crate::microfft_fft::*;
 use crate::quadratic_interpolate::*;
+#[allow(unused)]
 use crate::spew::*;
 
 #[allow(unused)]
@@ -83,6 +84,7 @@ fn find_peaks(dump: bool, wid: f32, ness: f32, fft: &[f32; FFT_SIZE/2], /*out*/ 
         //let ppeak: f32 = fft[i];
 
 
+#[allow(unused)]
         let (peak_freq, peak_mag, peak_amp) = {
             let (relative_peak_i, peak_mag) = quadratic_interpolate(fft[i-1], fft[i], fft[i+1]);
             let peak_i = i as f32 + relative_peak_i;
