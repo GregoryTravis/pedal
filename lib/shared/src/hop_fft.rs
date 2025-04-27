@@ -9,7 +9,7 @@ use alloc::vec::Vec;
 
 use crate::constants::*;
 use crate::fft::*;
-use crate::microfft_sdram_fft::*;
+use crate::microfft_fft::*;
 use crate::quadratic_interpolate::*;
 use crate::spew::*;
 
@@ -19,7 +19,7 @@ const VERBOSE: bool = false;
 // Divide input into frames of size hop, fft each one, padded out to fft_size. Get the loud peaks
 // for each one, and return a vec of vecs of peaks, one for each hop.
 // output: (freq, mix)
-pub fn hop_peaks(wid: f32, ness: f32, fft: &mut MicroFFTSDRAM, current:usize, input: &[f32; 2048], /*mem*/ mags: &mut [f32; FFT_SIZE/2], /*out*/ peaks: &mut Vec<f32>) {
+pub fn hop_peaks(wid: f32, ness: f32, fft: &mut MicroFFT, current:usize, input: &[f32; 2048], /*mem*/ mags: &mut [f32; FFT_SIZE/2], /*out*/ peaks: &mut Vec<f32>) {
     fft.get_input().copy_from_slice(input);
     fft_to_magnitudes(fft.run(), mags);
 
@@ -147,21 +147,21 @@ fn find_peaks(dump: bool, wid: f32, ness: f32, fft: &[f32; FFT_SIZE/2], /*out*/ 
             None
         };
         if dump {
-            let (show_f, show_a): (f32, f32) = fa.unwrap_or((0.0, 0.0));
-            let mark = if fa.is_some() { "*" } else { " " };
-            spew!("peak", mark, i, ppeak, fft[i], peak_mag, peak_freq, peak_amp, sharpness, window_start, window_end, show_f, show_a);
+            // let (show_f, show_a): (f32, f32) = fa.unwrap_or((0.0, 0.0));
+            // let mark = if fa.is_some() { "*" } else { " " };
+            // spew!("peak", mark, i, ppeak, fft[i], peak_mag, peak_freq, peak_amp, sharpness, window_start, window_end, show_f, show_a);
         }
 
-        let max_funds = 10;
-        let num_overtones = 4;
+        let max_funds = 2;
+        let num_overtones = 1;
         let max_num_peaks: usize = max_funds * num_overtones; // 10 * # of overtones
         match fa {
             Some((f, _)) => {
                 if peaks.len() < max_num_peaks {
                     peaks.push(f);
-                    peaks.push(f * 2.0);
-                    peaks.push(f * 3.0);
-                    peaks.push(f * 5.0);
+                    //peaks.push(f * 2.0);
+                    //peaks.push(f * 3.0);
+                    //peaks.push(f * 5.0);
                 }
             }
             None => (),

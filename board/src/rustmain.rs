@@ -114,9 +114,7 @@ fn gs_main() {
     spew!("hi");
     load_init();
 
-    let mut sdram = SDRAM::new();
-
-    let patch = Box::new(GuitarSynth::new(&mut sdram));
+    let patch = Box::new(GuitarSynth::new());
 
     let knobs = Box::new(BoardKnobs { });
     let switches = Box::new(BoardSwitches { });
