@@ -9,7 +9,6 @@ use cortex_m::interrupt::{self, Mutex};
 
 use crate::spew::*;
 
-const HEAP_SIZE: usize = 32768;
 const LOGGING: bool = false;
 
 // We assume that the underlying allocator has 0 overhead, which means that we will
@@ -44,14 +43,14 @@ impl Stats {
 
 struct MyAlloc {
     stats: Mutex<RefCell<Stats>>,
-    allocator: emballoc::Allocator<HEAP_SIZE>,
+    allocator: libc_alloc::LibcAlloc,
 }
 
 impl MyAlloc {
     const fn new() -> MyAlloc {
         MyAlloc {
             stats: Mutex::new(RefCell::new(Stats::new())),
-            allocator: emballoc::Allocator::new()
+            allocator: libc_alloc::LibcAlloc,
         }
     }
 }
@@ -82,10 +81,6 @@ unsafe impl GlobalAlloc for MyAlloc {
             (*stats).currently_allocated += size;
             (*stats).total_allocated += size;
             (*stats).num_allocations += 1;
-
-            if (*stats).currently_allocated > HEAP_SIZE {
-                handle_alloc_error(layout);
-            }
         });
 
         if LOGGING {
