@@ -312,7 +312,7 @@ fn faves_to_results(
 
     // Check everything is accounted for exactly once.
     // TODO comment out / test only
-    let check = true;
+    let check = false;
     if check {
         let mut old_used: Vec<bool> = vec![false; old_faves.len()];
         let mut nu_used: Vec<bool> = vec![false; nu_faves.len()];

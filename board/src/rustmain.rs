@@ -180,12 +180,48 @@ pub fn do_fft_output_comparison() {
     fft_output_comparison();
 }
 
+// TODO remove / not compiled in
+pub mod study_mem {
+    use alloc::boxed::Box;
+    use shared::spew::*;
+    pub fn study_mem() {
+        crate::rustmain::hw_init(!crate::rustmain::PROD, crate::rustmain::BLOCK_SIZE);
+        let mut count = 0;
+        loop {
+            let b = Box::new(12_u32);
+            let p: *mut u32 = Box::<u32>::into_raw(b);
+            spew!("alloc", count, hex(p as u64));
+            //core::mem::forget(p);
+            count += 1;
+        }
+    }
+
+    /*
+    //extern crate libc; // 0.2.65
+    use cortex_m::interrupt::free;
+    use core::ffi::c_void;
+    use core::mem;
+
+    pub fn study_mem() {
+        crate::rustmain::hw_init(!crate::rustmain::PROD, crate::rustmain::BLOCK_SIZE);
+        unsafe {
+            let my_num: *mut i32 = libc::malloc(mem::size_of::<i32>() as libc::size_t) as *mut i32;
+            if my_num.is_null() {
+                panic!("failed to allocate memory");
+            }
+            libc::free(my_num as *mut libc::c_void);
+        }
+    }
+    */
+}
+
 #[no_mangle]
 pub fn main() {
     spew!("start of main");
 
     //rubin_main();
     gs_main();
+    //study_mem::study_mem();
     //all_tests();
     //oom_test();
     //benchmark_fft();
