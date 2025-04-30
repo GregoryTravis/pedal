@@ -154,7 +154,7 @@ fn find_peaks(dump: bool, wid: f32, ness: f32, fft: &[f32; FFT_SIZE/2], /*out*/ 
             // spew!("peak", mark, i, ppeak, fft[i], peak_mag, peak_freq, peak_amp, sharpness, window_start, window_end, show_f, show_a);
         }
 
-        let max_funds = 2;
+        let max_funds = 8;
         let num_overtones = 1;
         let max_num_peaks: usize = max_funds * num_overtones; // 10 * # of overtones
         match fa {
