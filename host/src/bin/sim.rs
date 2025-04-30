@@ -81,8 +81,7 @@ fn envelope_follower(input_file: &str, output_file: &str) {
 
 #[allow(dead_code)]
 fn guitar_synth(input_file: &str, output_file: &str) {
-    let mut sdram = SDRAM::new();
-    let patch: GuitarSynth = GuitarSynth::new(&mut sdram);
+    let patch: GuitarSynth = GuitarSynth::new();
     let patch: Box<dyn Patch> = sim_main(input_file, output_file, Box::new(patch));
     let patch = *patch.into_any().downcast::<GuitarSynth>().unwrap();
     patch.dump_maxes();
