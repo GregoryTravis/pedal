@@ -1,12 +1,13 @@
-rm -f simin.wav-bp-0.01.wav
-(time cargo run --bin sim --features for_host -- simin.wav simin.wav-bp-0.01.wav) 2>&1 | tee out
-exit
-
+golden=phrase-peaky-10x4.wav
 rm -f simin.wav-bp-0.01.wav
 #(time cargo run --bin bps --features for_host -- simin.wav 0.01) 2>&1 | tee out
 (time cargo run --bin sim --features for_host -- simin.wav simin.wav-bp-0.01.wav \
-  && ls -l simin.wav-bp-0.01.wav yym-golden.wav \
-  && ./comp) 2>&1 | tee out
+  && ls -l simin.wav-bp-0.01.wav $golden \
+  && ./comp $golden) 2>&1 | tee out
+exit
+
+rm -f simin.wav-bp-0.01.wav
+(time cargo run --bin sim --features for_host -- simin.wav simin.wav-bp-0.01.wav) 2>&1 | tee out
 exit
 
 #cargo run --bin bpm --features for_host -- simin.wav 0.01 2>&1 | tee out
