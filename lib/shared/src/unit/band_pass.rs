@@ -5,6 +5,7 @@ extern crate libm;
 use core::f32::consts::PI;
 
 use crate::constants::*;
+use crate::filter::sine_table::*;
 #[allow(unused)]
 use crate::spew::*;
 
@@ -61,8 +62,9 @@ impl BandPass {
 
     pub fn set_freq(&mut self, freq: f32) {
         let w0 = 2.0 * PI * (freq / SAMPLE_RATE as f32);
-        let alpha = libm::sinf(w0) * fast_sinh(
-                (libm::logf(2.0)/2.0) * self.bw * (w0 / libm::sinf(w0)) );
+        let sin_w0 = table_sin(w0);
+        let alpha = sin_w0 * fast_sinh(
+                (libm::logf(2.0)/2.0) * self.bw * (w0 / sin_w0) );
         self.freq = freq;
 
         // Constant skirt gain
