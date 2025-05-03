@@ -1,6 +1,3 @@
-cargo instruments --bin sim --release --features for_host -t time simin.wav simin.wav-bp-0.01.wav
-exit
-
 rm -f simin.wav-bp-0.01.wav
 (time cargo run --bin sim --features for_host -- simin.wav simin.wav-bp-0.01.wav) 2>&1 | tee out
 exit
