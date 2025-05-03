@@ -8,8 +8,6 @@ use crate::constants::*;
 #[allow(unused)]
 use crate::spew::*;
 
-const GAIN: f32 = 1.0; // I don't know why this is needed
-
 // Thanks of course to https://webaudio.github.io/Audio-EQ-Cookbook/Audio-EQ-Cookbook.txt
 
 pub struct BandPass {
@@ -98,6 +96,6 @@ impl BandPass {
         self.x_n_1 = x_n;
         self.y_n_2 = self.y_n_1;
         self.y_n_1 = y_n;
-        y_n * GAIN
+        y_n
     }
 }
