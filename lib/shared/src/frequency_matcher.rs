@@ -256,7 +256,7 @@ pub fn match_values(
     //if VERBOSE { println!("old_faves {:?}", old_faves); }
     //if VERBOSE { println!(" nu_faves {:?}", nu_faves); }
 
-    faves_to_results(old_faves, nu_faves, results);
+    faves_to_results(old, nu, old_faves, nu_faves, results);
 }
 
 // TODO disable
@@ -280,11 +280,82 @@ fn check_iterator(old: &Vec<f32>, nu: &Vec<f32>) {
     }
 }
 
+#[inline(always)]
+fn is_match(
+    old_faves: &Vec<Option<usize>>,
+    nu_faves: &Vec<Option<usize>>,
+    oi: usize,
+    ni: usize) -> bool {
+    match (old_faves[oi], nu_faves[ni]) {
+        (Some(oni), Some(noi)) => oni == ni && noi == oi,
+        _ => false,
+    }
+}
+
 fn faves_to_results(
+    old: &Vec<f32>,
+    nu: &Vec<f32>,
     old_faves: &Vec<Option<usize>>,
     nu_faves: &Vec<Option<usize>>,
     results: &mut Vec<MatchResult>) {
 
+    /*
+     * We add a match when the cursor is on the old; for matched nus, we skip.
+     * Otherwise, drop unmatched os and add unmatched nus.
+     * Applying these results should generate the updated items in frequency order.
+     */
+    for mi in MatchIterator::new(old, nu) {
+        match mi {
+            Middle((Nu, ni0), (Old, oi), (Nu, ni1)) => {
+                if is_match(old_faves, nu_faves, oi, ni0) {
+                    results.push(MatchResult::Match(oi, ni0));
+                } else if is_match(old_faves, nu_faves, oi, ni1) {
+                    results.push(MatchResult::Match(oi, ni1));
+                } else {
+                    results.push(MatchResult::DropOld(oi));
+                }
+            },
+            Middle((Old, oi0), (Nu, ni), (Old, oi1)) => {
+                if is_match(old_faves, nu_faves, oi0, ni) ||
+                   is_match(old_faves, nu_faves, oi1, ni) {
+                   // Do nothing, its mate has handled or will handle it
+                } else {
+                    results.push(MatchResult::AddNew(ni));
+                }
+            },
+            First((Nu, ni), (Old, oi)) => {
+                if is_match(old_faves, nu_faves, oi, ni) {
+                   // Do nothing, its mate will handle it
+                } else {
+                    results.push(MatchResult::AddNew(ni));
+                }
+            },
+            First((Old, oi), (Nu, ni)) => {
+                if is_match(old_faves, nu_faves, oi, ni) {
+                    results.push(MatchResult::Match(oi, ni));
+                } else {
+                    results.push(MatchResult::DropOld(oi));
+                }
+            },
+            Last((Nu, ni), (Old, oi)) => {
+                if is_match(old_faves, nu_faves, oi, ni) {
+                    results.push(MatchResult::Match(oi, ni));
+                } else {
+                    results.push(MatchResult::DropOld(oi));
+                }
+            },
+            Last((Old, oi), (Nu, ni)) => {
+                if is_match(old_faves, nu_faves, oi, ni) {
+                   // Do nothing, its mate has handled it
+                } else {
+                    results.push(MatchResult::AddNew(ni));
+                }
+            },
+            _ => assert!(false),
+        }
+    }
+
+    /*
     // For each pair of values (old and new) that agree, add a match. For any value
     // that doesn't agree with its fave nu, add a drop.
     for i in 0..old_faves.len() {
@@ -309,6 +380,7 @@ fn faves_to_results(
             results.push(MatchResult::AddNew(i));
         }
     }
+    */
 
     // Check everything is accounted for exactly once.
     // TODO comment out / test only

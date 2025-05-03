@@ -2,6 +2,7 @@
 extern crate std;
 extern crate libm;
 
+#[derive(Debug)]
 pub struct Inertial {
     current: f32,
     target: f32,

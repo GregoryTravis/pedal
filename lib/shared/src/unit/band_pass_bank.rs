@@ -4,7 +4,7 @@ extern crate libm;
 
 use alloc::vec::Vec;
 #[allow(unused)]
-//use std::println;
+use std::println;
 
 use crate::constants::*;
 use crate::inertial::*;
@@ -73,6 +73,8 @@ impl BandPassBank {
         self.old_freqs.clear();
         self.old_freqs.extend(self.bps.iter().map(|(bp, _, _)| bp.get_freq()));
 
+        println!("BEFORE {:?}", self.bps);
+
         //println!("NEWF {:?}", new_freqs);
 
         //if VERBOSE { println!("OLD {:?}", self.old_freqs); }
@@ -131,6 +133,8 @@ impl BandPassBank {
         //let final_fas: Vec<(f32, f32)> = self.bps.iter().map(|(bp, a, _)| (bp.get_freq(), (*a).get())).collect();
         //println!("FINAL {:?}", final_fas);
         //self.dump("FINAL");
+
+        println!("AFTER {:?}", self.bps);
 
         if DO_MAXES {
             use Item::*;
