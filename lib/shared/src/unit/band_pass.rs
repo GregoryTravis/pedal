@@ -18,12 +18,11 @@ pub struct BandPass {
     bw: f32,
 
     // Filter params
-    b0: f32,
-    b1: f32,
-    b2: f32,
-    a0: f32,
-    a1: f32,
-    a2: f32,
+    b0_over_a0: f32,
+    b1_over_a0: f32,
+    b2_over_a0: f32,
+    a1_over_a0: f32,
+    a2_over_a0: f32,
 
     // History
     x_n_1: f32,
@@ -44,12 +43,11 @@ impl BandPass {
             freq: 0.0,
             bw: bw,
 
-            b0: 0.0,
-            b1: 0.0,
-            b2: 0.0,
-            a0: 0.0,
-            a1: 0.0,
-            a2: 0.0,
+            b0_over_a0: 0.0,
+            b1_over_a0: 0.0,
+            b2_over_a0: 0.0,
+            a1_over_a0: 0.0,
+            a2_over_a0: 0.0,
 
             x_n_1: 0.0,
             x_n_2: 0.0,
@@ -78,17 +76,23 @@ impl BandPass {
         // a2:  1.0 - alpha,
 
         // Constant peak 0 db gain
-        self.b0 =  alpha;
-        self.b1 =  0.0;
-        self.b2 = -alpha;
-        self.a0 =  1.0 + alpha;
-        self.a1 = -2.0*libm::cosf(w0);
-        self.a2 =  1.0 - alpha;
+        let b0 =  alpha;
+        let b1 =  0.0;
+        let b2 = -alpha;
+        let a0 =  1.0 + alpha;
+        let a1 = -2.0*libm::cosf(w0);
+        let a2 =  1.0 - alpha;
+
+        self.b0_over_a0 = b0 / a0;
+        self.b1_over_a0 = b1 / a0;
+        self.b2_over_a0 = b2 / a0;
+        self.a1_over_a0 = a1 / a0;
+        self.a2_over_a0 = a2 / a0;
     }
 
     pub fn process(&mut self, x_n: f32) -> f32 {
-        let y_n = ((self.b0/self.a0)*x_n) + ((self.b1/self.a0)*self.x_n_1) + ((self.b2/self.a0)*self.x_n_2)
-                  - ((self.a1/self.a0)*self.y_n_1) - ((self.a2/self.a0)*self.y_n_2);
+        let y_n = (self.b0_over_a0*x_n) + (self.b1_over_a0*self.x_n_1) + (self.b2_over_a0*self.x_n_2)
+                  - (self.a1_over_a0*self.y_n_1) - (self.a2_over_a0*self.y_n_2);
         // Shift history
         self.x_n_2 = self.x_n_1;
         self.x_n_1 = x_n;
