@@ -30,10 +30,12 @@ impl Inertial {
 
     pub fn update(&mut self) {
         if self.target > self.current {
-            let delta: f32 = libm::fminf(self.target - self.current, self.max_delta_per_update);
+            let dist = self.target - self.current;
+            let delta: f32 = if dist < self.max_delta_per_update { dist } else { self.max_delta_per_update };
             self.current += delta;
         } else {
-            let delta: f32 = libm::fminf(self.current - self.target, self.max_delta_per_update);
+            let dist = self.current - self.target;
+            let delta: f32 = if dist < self.max_delta_per_update { dist } else { self.max_delta_per_update };
             self.current -= delta;
         }
     }
