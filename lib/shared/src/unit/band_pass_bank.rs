@@ -25,6 +25,7 @@ const _VERBOSE: bool = false;
 pub struct BandPassBank {
     // (bp, amp)
     bps: Vec<(BandPass, Inertial, bool)>,
+    new_bps: Vec<(BandPass, Inertial, bool)>,
 
     maxes: Option<Maxes>,
 
@@ -46,6 +47,7 @@ impl BandPassBank {
     pub fn new() -> BandPassBank {
         BandPassBank {
             bps: Vec::new(), // Vec::with_capacity(250),
+            new_bps: Vec::new(), // Vec::with_capacity(250),
 
             maxes: if DO_MAXES { Some(Maxes::new()) } else { None },
 
@@ -101,34 +103,42 @@ impl BandPassBank {
         }
         */
 
+        self.new_bps.clear();
+
         for mr in &self.results {
             match mr {
                 MatchResult::AddNew(i) => {
                     let amp = ramp_one(new_freqs[*i]);
-                    self.bps.push((BandPass::new(new_freqs[*i], BW), Inertial::new_from(0.0, amp, AMP_DM), false));
+                    self.new_bps.push((BandPass::new(new_freqs[*i], BW), Inertial::new_from(0.0, amp, AMP_DM), false));
                 },
                 MatchResult::DropOld(i) => {
                     // Doing this in case we make it inertial and it doesn't drop out
                     // right away.
-                    self.bps[*i].1.set(0.0);
-                    self.bps[*i].2 = true;
+                    let mut bp: (BandPass, Inertial, bool) = self.bps[*i].clone();
+                    bp.1.set(0.0);
+                    bp.2 = true;
+                    self.new_bps.push(bp);
                 },
                 MatchResult::Match(i, j) => {
                     let amp = ramp_one(new_freqs[*j]);
+                    let mut bp: (BandPass, Inertial, bool) = self.bps[*i].clone();
                     //println!("GGG set f {} {} {} {}", *i, self.bps[*i].0.get_freq(), *j, fas[*j].0);
-                    self.bps[*i].0.set_freq(new_freqs[*j]);
-                    self.bps[*i].1.set(amp);
-                    self.bps[*i].2 = false;
+                    bp.0.set_freq(new_freqs[*j]);
+                    bp.1.set(amp);
+                    bp.2 = false;
+                    self.new_bps.push(bp);
                 },
             }
         }
+        self.bps.clear();
+        self.bps.append(&mut self.new_bps);
 
         // Remove the ones that have been dropped and then gone to 0.
         self.bps.retain(|(_, amp, dropping)| !*dropping || (*amp).get() > 0.0);
 
         // Sort the added ones in.
         // TODO remove this by generating them in order.
-        self.bps.sort_by(|(bp0, _, _), (bp1, _, _)| (bp0.get_freq()).partial_cmp(&bp1.get_freq()).unwrap());
+        //self.bps.sort_by(|(bp0, _, _), (bp1, _, _)| (bp0.get_freq()).partial_cmp(&bp1.get_freq()).unwrap());
 
         //let final_fas: Vec<(f32, f32)> = self.bps.iter().map(|(bp, a, _)| (bp.get_freq(), (*a).get())).collect();
         //println!("FINAL {:?}", final_fas);

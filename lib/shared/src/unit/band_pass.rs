@@ -11,7 +11,7 @@ use crate::spew::*;
 
 // Thanks of course to https://webaudio.github.io/Audio-EQ-Cookbook/Audio-EQ-Cookbook.txt
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct BandPass {
     // Center frequency
     freq: f32,
