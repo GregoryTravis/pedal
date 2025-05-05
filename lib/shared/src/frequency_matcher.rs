@@ -249,7 +249,7 @@ pub fn match_values(
                     _ => (),
                 }
             },
-            _ => assert!(false),
+            Start | Done => assert!(false),
         }
     }
 
@@ -275,7 +275,7 @@ fn check_iterator(old: &Vec<f32>, nu: &Vec<f32>) {
             Last(mi0, mi1) => {
                 assert!(getem(old, nu, mi0) <= getem(old, nu, mi1));
             },
-            _ => assert!(false),
+            Start | Done => assert!(false),
         }
     }
 }
@@ -315,6 +315,23 @@ fn faves_to_results(
                     results.push(MatchResult::DropOld(oi));
                 }
             },
+            Middle((Nu, ni), (Old, oi), (Old, _)) => {
+                if is_match(old_faves, nu_faves, oi, ni) {
+                    results.push(MatchResult::Match(oi, ni));
+                } else {
+                    results.push(MatchResult::DropOld(oi));
+                }
+            },
+            Middle((Old, _), (Old, oi), (Nu, ni)) => {
+                if is_match(old_faves, nu_faves, oi, ni) {
+                    results.push(MatchResult::Match(oi, ni));
+                } else {
+                    results.push(MatchResult::DropOld(oi));
+                }
+            },
+            Middle((Old, _), (Old, oi), (Old, _)) => {
+                results.push(MatchResult::DropOld(oi));
+            },
             Middle((Old, oi0), (Nu, ni), (Old, oi1)) => {
                 if is_match(old_faves, nu_faves, oi0, ni) ||
                    is_match(old_faves, nu_faves, oi1, ni) {
@@ -323,12 +340,32 @@ fn faves_to_results(
                     results.push(MatchResult::AddNew(ni));
                 }
             },
+            Middle((Old, oi), (Nu, ni), (Nu, _)) => {
+                if is_match(old_faves, nu_faves, oi, ni) {
+                   // Do nothing, its mate has handled or will handle it
+                } else {
+                    results.push(MatchResult::AddNew(ni));
+                }
+            },
+            Middle((Nu, _), (Nu, ni), (Old, oi)) => {
+                if is_match(old_faves, nu_faves, oi, ni) {
+                   // Do nothing, its mate has handled or will handle it
+                } else {
+                    results.push(MatchResult::AddNew(ni));
+                }
+            },
+            Middle((Nu, _), (Nu, ni), (Nu, _)) => {
+                results.push(MatchResult::AddNew(ni));
+            },
             First((Nu, ni), (Old, oi)) => {
                 if is_match(old_faves, nu_faves, oi, ni) {
                    // Do nothing, its mate will handle it
                 } else {
                     results.push(MatchResult::AddNew(ni));
                 }
+            },
+            First((Nu, ni), (Nu, _)) => {
+                results.push(MatchResult::AddNew(ni));
             },
             First((Old, oi), (Nu, ni)) => {
                 if is_match(old_faves, nu_faves, oi, ni) {
@@ -337,12 +374,18 @@ fn faves_to_results(
                     results.push(MatchResult::DropOld(oi));
                 }
             },
+            First((Old, oi), (Old, _)) => {
+                results.push(MatchResult::DropOld(oi));
+            },
             Last((Nu, ni), (Old, oi)) => {
                 if is_match(old_faves, nu_faves, oi, ni) {
                     results.push(MatchResult::Match(oi, ni));
                 } else {
                     results.push(MatchResult::DropOld(oi));
                 }
+            },
+            Last((Old, _), (Old, oi)) => {
+                results.push(MatchResult::DropOld(oi));
             },
             Last((Old, oi), (Nu, ni)) => {
                 if is_match(old_faves, nu_faves, oi, ni) {
@@ -351,7 +394,10 @@ fn faves_to_results(
                     results.push(MatchResult::AddNew(ni));
                 }
             },
-            _ => assert!(false),
+            Last((Nu, _), (Nu, ni)) => {
+                results.push(MatchResult::AddNew(ni));
+            },
+            Start | Done => assert!(false),
         }
     }
 
