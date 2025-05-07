@@ -6,7 +6,9 @@ use crate::ds::circbuf::CircBuf;
 use crate::spew::*;
 
 const DOT_SIZE: usize = 10;
+#[allow(unused)]
 const CIRC_NEW_ADD: usize = 3;
+#[allow(unused)]
 const CIRC_SUM_SIZE: usize = 7;
 
 #[allow(non_upper_case_globals)]
@@ -43,6 +45,7 @@ pub fn rust_f32_dot() -> f32 {
     }
 }
 
+/*
 #[no_mangle]
 #[inline(never)]
 pub fn rust_f32_circsum() -> f32 {
@@ -62,3 +65,4 @@ pub fn rust_f32_circsum() -> f32 {
         return accum;
     }
 }
+*/

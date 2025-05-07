@@ -1,1 +1,1 @@
-#![cfg_attr(not(for_host), no_std)]
+#![cfg_attr(not(feature = "for_host"), no_std)]
