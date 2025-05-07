@@ -61,7 +61,7 @@ fn find_peaks(dump: bool, wid: f32, ness: f32, fft: &[f32; FFT_SIZE/2], /*out*/ 
 
     // wid in bins
     // ness is 0..1
-    for i in 0..fft_len {
+    for i in 0..50 /*fft_len*/ {
         // We don't consider the first or last just cuz then we can't do peak interpolation and
         // also they're never frequencies we want.
         if i == 0 || i == fft_len-1 {
