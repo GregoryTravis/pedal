@@ -20,7 +20,8 @@ const VERBOSE: bool = false;
 // Divide input into frames of size hop, fft each one, padded out to fft_size. Get the loud peaks
 // for each one, and return a vec of vecs of peaks, one for each hop.
 // output: (freq, mix)
-pub fn hop_peaks(wid: f32, ness: f32, fft: &mut MicroFFT, current:usize, input: &[f32; 2048], /*mem*/ mags: &mut [f32; FFT_SIZE/2], /*out*/ peaks: &mut Vec<f32>) {
+// TODO remove _wid, ness
+pub fn hop_peaks(_wid: f32, ness: f32, fft: &mut MicroFFT, current:usize, input: &[f32; 2048], /*mem*/ mags: &mut [f32; FFT_SIZE/2], /*out*/ peaks: &mut Vec<f32>) {
     fft.get_input().copy_from_slice(input);
     fft_to_magnitudes(fft.run(), mags);
 
@@ -35,7 +36,7 @@ pub fn hop_peaks(wid: f32, ness: f32, fft: &mut MicroFFT, current:usize, input: 
     }
     */
 
-    find_peaks(hop_base == current, wid, ness, &mags, peaks);
+    find_peaks(hop_base == current, _wid, ness, &mags, peaks);
     //if VERBOSE { println!("==== peaks {} {:?}", current, peaks); }
 }
 
@@ -44,9 +45,11 @@ fn ramp_threshold(freq: f32) -> f32 {
     0.005 * linmap(60.0, 1500.0, 1.0, 2.0, freq)
 }
 
+const PEAK_NUM_NEIGHBORS: usize = 2;
+
 // TODO do we need bin?
 // output: (bin, freq, amp)
-fn find_peaks(dump: bool, wid: f32, ness: f32, fft: &[f32; FFT_SIZE/2], /*out*/ peaks: &mut Vec<f32>) {
+fn find_peaks(dump: bool, _wid: f32, ness: f32, fft: &[f32; FFT_SIZE/2], /*out*/ peaks: &mut Vec<f32>) {
     peaks.clear();
 
     // TODO this is mags, not fft.
@@ -54,7 +57,7 @@ fn find_peaks(dump: bool, wid: f32, ness: f32, fft: &[f32; FFT_SIZE/2], /*out*/ 
 
 
     // TODO is this the right way?
-    let wid = wid.max(2.0);
+    //let wid = wid.max(2.0);
     let ness = ness.min(0.95);
     // TODO use this
     let _ = ness;
@@ -62,20 +65,22 @@ fn find_peaks(dump: bool, wid: f32, ness: f32, fft: &[f32; FFT_SIZE/2], /*out*/ 
     // wid in bins
     // ness is 0..1
     // If lower than 2, grunting.
-    for i in 2..50 /*fft_len*/ {
+    let low_bin: usize = 2;
+    let high_bin: usize = 50;
+
+    // Make sure there's a full set of neighbors on the sides.
+    assert!(low_bin >= PEAK_NUM_NEIGHBORS);
+    assert!(high_bin <= (FFT_SIZE/2) - PEAK_NUM_NEIGHBORS);
+
+    for i in low_bin..high_bin /*fft_len*/ {
         // We don't consider the first or last just cuz then we can't do peak interpolation and
         // also they're never frequencies we want.
         if i == 0 || i == fft_len-1 {
             continue;
         }
 
-        let window_start: isize = libm::ceilf(i as f32 - wid) as isize;
-        let window_end: isize = libm::floorf(i as f32 + wid) as isize;
-        let window_start: usize = if window_start < 0 { 0 } else { window_start as usize };
-        let window_end: usize = if window_end >= fft_len as isize { fft_len-1 } else { window_end as usize };
-        assert!(window_start <= i);
-        assert!(window_end >= i);
-        assert!(window_end - window_start >= 3);
+        let window_start: usize = i - PEAK_NUM_NEIGHBORS;
+        let window_end: usize = i + PEAK_NUM_NEIGHBORS;
 
         // Consider all samples in the window except the (prospective) peak. They all have to be
         // less than the peak. We take the average of all of them, and then the ratio of that to
@@ -105,6 +110,8 @@ fn find_peaks(dump: bool, wid: f32, ness: f32, fft: &[f32; FFT_SIZE/2], /*out*/ 
 
 
         let sharpness: f32 = if ppeak == 0.0 { 1.0 } else {
+            // Look for a neighbor higher than the target; if any, then sharpness=1 (not sharp at
+            // all).
             let mut found_higher = false;
             for j in window_start..window_end+1 {
                 if i != j && fft[j] > ppeak {
