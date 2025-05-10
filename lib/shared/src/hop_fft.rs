@@ -155,15 +155,15 @@ fn find_peaks(dump: bool, wid: f32, ness: f32, fft: &[f32; FFT_SIZE/2], /*out*/ 
         }
 
         let max_funds = 10;
-        let num_overtones = 4;
+        let num_overtones = 1;
         let max_num_peaks: usize = max_funds * num_overtones; // 10 * # of overtones
         match fa {
             Some((f, _)) => {
                 if peaks.len() < max_num_peaks {
                     peaks.push(f);
-                    peaks.push(f * 2.0);
-                    peaks.push(f * 3.0);
-                    peaks.push(f * 5.0);
+                    // peaks.push(f * 2.0);
+                    // peaks.push(f * 3.0);
+                    // peaks.push(f * 5.0);
                 }
             }
             None => (),

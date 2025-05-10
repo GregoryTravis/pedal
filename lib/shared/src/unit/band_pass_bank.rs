@@ -12,7 +12,7 @@ use crate::frequency_matcher::*;
 use crate::maxes::*;
 #[allow(unused)]
 use crate::spew::*;
-use crate::unit::band_pass::*;
+use crate::unit::band_pass_stack::*;
 
 const DO_MAXES: bool = true;
 
@@ -24,7 +24,7 @@ const _VERBOSE: bool = false;
 
 pub struct BandPassBank {
     // (bp, amp)
-    bps: Vec<(BandPass, Inertial, bool)>,
+    bps: Vec<(BandPassStack, Inertial, bool)>,
 
     maxes: Option<Maxes>,
 
@@ -103,7 +103,7 @@ impl BandPassBank {
             match mr {
                 MatchResult::AddNew(i) => {
                     let amp = ramp_one(new_freqs[*i]);
-                    self.bps.push((BandPass::new(new_freqs[*i], BW), Inertial::new_from(0.0, amp, AMP_DM), false));
+                    self.bps.push((BandPassStack::new(new_freqs[*i], BW), Inertial::new_from(0.0, amp, AMP_DM), false));
                 },
                 MatchResult::DropOld(i) => {
                     // Doing this in case we make it inertial and it doesn't drop out
