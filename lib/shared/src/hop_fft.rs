@@ -174,13 +174,12 @@ fn find_peaks(dump: bool, _wid: f32, ness: f32, fft: &[f32; FFT_SIZE/2], /*out*/
         }
     }
 
-    /* Not in order because of added overtones
     // TODO disable this
     for i in 1..peaks.len() {
-        assert!(peaks[i-1] < peaks[i]);
+        assert!(peaks[i-1].0 < peaks[i].0);
+        assert!(peaks[i-1].1 < peaks[i].1);
     }
-    */
-    peaks.sort_by(|f0, f1| f0.partial_cmp(f1).unwrap());
+    //peaks.sort_by(|f0, f1| f0.partial_cmp(f1).unwrap());
 
     //spew!("npeaks", peaks.len());
 }

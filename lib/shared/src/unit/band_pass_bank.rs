@@ -57,6 +57,13 @@ impl BandPassBank {
     pub fn update(&mut self, new_freqs: &Vec<(f32, usize)>) {
         assert!(new_freqs.len() <= self.bps.len());
 
+        // We assume the frequencies are in order, as they are generated from bins which are
+        // searched in order. In theory, the polynomial interpolation could produce peaks out of
+        // order, or more likely, two interpolations of one peak that are somehow out of order, but
+        // since other logic requires at least 2 non-peaks between any two peaks, this is likely
+        // impossible. If we did get them out of order, however, the matching logic below will
+        // continue to function, but might write a 0 to a bp before writing another value to it.
+
         // TODO disable
         if new_freqs.len() > 1 {
             for i in 0..new_freqs.len()-1 {
