@@ -172,45 +172,6 @@ fn find_peaks(dump: bool, _wid: f32, ness: f32, fft: &[f32; FFT_SIZE/2], /*out*/
             }
             None => (),
         }
-
-
-        /*
-        if peaks.len() >= 40 { break; }
-
-        let not_edge = i > 0 && i < fft_len-1;
-        if not_edge {
-            // let bin_freq = i as f32 * (SAMPLE_RATE as f32 / fft_len as f32);
-
-            let a = fft[i-1];
-            let b = fft[i];
-            let c = fft[i+1];
-            // TODO what if they are equal
-            let is_peak = not_edge && a < b && b > c;
-            if is_peak {
-                let peakiness = (b - ((a+c)/2.0)) / b;
-
-                let (relative_x_peak, y_peak) = quadratic_interpolate(a, b, c);
-                let x_peak = (i as f32) + relative_x_peak;
-                let amp_peak = y_peak / fft_len as f32;
-                assert!(amp_peak >= 0.0);
-                let freq_peak = x_peak * (SAMPLE_RATE as f32 / (fft_len * 2) as f32);
-                //spew!("VVV", i, amp_peak, freq_peak, ramp_threshold(freq_peak));
-                if amp_peak > ramp_threshold(freq_peak) { // amp_threshold {
-                    // Throwing away i and amp_peak here
-                    peaks.push(freq_peak);
-                    //peaks.push(freq_peak * 2.0);
-                    //peaks.push(freq_peak * 3.0);
-                    //peaks.push(freq_peak * 5.0);
-                    if VERBOSE { spew!("*** peak", i, x_peak, y_peak, freq_peak, amp_peak, a, b, c, peakiness); }
-                } else {
-                    //spew!("... peak", i, x_peak, y_peak, freq_peak, amp_peak, a, b, c, peakiness);
-                }
-            } else {
-                //let freq = i as f32 * (SAMPLE_RATE as f32 / fft_len as f32);
-                //spew!("--- peak", i, i as f32, fft[i], freq, fft[i] / (fft_len / 2) as f32);
-            }
-        }
-            */
     }
 
     /* Not in order because of added overtones
