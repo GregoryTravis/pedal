@@ -9,12 +9,9 @@ use alloc::vec::Vec;
 use crate::constants::*;
 use crate::inertial::*;
 use crate::frequency_matcher::*;
-use crate::maxes::*;
 #[allow(unused)]
 use crate::spew::*;
 use crate::unit::band_pass_stack::*;
-
-const DO_MAXES: bool = true;
 
 const BW: f32 = 0.01;
 //const AMP_DM: f32 = 10000000.0;
@@ -22,16 +19,11 @@ const AMP_DM: f32 = 16.0 / SAMPLE_RATE as f32;
 
 const _VERBOSE: bool = false;
 
+const NUM_BPS: usize = 17;
+
 pub struct BandPassBank {
     // (bp, amp)
     bps: Vec<(BandPassStack, Inertial, bool)>,
-
-    maxes: Option<Maxes>,
-
-    old_freqs: Vec<f32>,
-    old_faves: Vec<Option<usize>>,
-    nu_faves: Vec<Option<usize>>,
-    results: Vec<MatchResult>,
 }
 
 // This disgustingly-named function returns 1.0, except that it ramps it up to a higher value over
@@ -43,23 +35,14 @@ fn ramp_one(freq: f32) -> f32 {
 }
 
 impl BandPassBank {
-    pub fn new() -> BandPassBank {
+    pub fn new(num: usize) -> BandPassBank {
         BandPassBank {
-            bps: Vec::new(), // Vec::with_capacity(250),
-
-            maxes: if DO_MAXES { Some(Maxes::new()) } else { None },
-
-            old_freqs: Vec::new(), // Vec::with_capacity(250),
-            old_faves: Vec::new(), // Vec::with_capacity(250),
-            nu_faves: Vec::new(), // Vec::with_capacity(150),
-            results: Vec::new(), // Vec::with_capacity(250),
+            bps: vec![(BandPassStack::new(440.0, BW), Inertial::new(0.0, AMP_DM), false); NUM_BPS],
         }
     }
 
     pub fn process(&mut self, input: f32) -> f32 {
         let mut output: f32 = 0.0;
-        //let final_fas: Vec<(f32, f32)> = self.bps.iter().map(|(bp, a)| (bp.get_freq(), *a)).collect();
-        //println!("PROCESS {:?}", final_fas);
         for (ref mut bp, ref mut amp, _) in &mut self.bps {
             amp.update();
             output += amp.get() * bp.process(input);
@@ -68,83 +51,45 @@ impl BandPassBank {
     }
 
     // (freq, amp)
-    pub fn update(&mut self, new_freqs: &Vec<f32>) {
-        //self.dump("INITIAL");
-        self.old_freqs.clear();
-        self.old_freqs.extend(self.bps.iter().map(|(bp, _, _)| bp.get_freq()));
+    pub fn update(&mut self, new_freqs: &Vec<(f32, usize)>) {
+        assert!(new_freqs.len() == self.bps.len());
 
-        //println!("NEWF {:?}", new_freqs);
+        // TODO disable
+        for i in 0..new_freqs.len()-1 {
+            assert!(new_freqs[i].0 < new_freqs[i+1].0);
+        }
 
-        //if VERBOSE { println!("OLD {:?}", self.old_freqs); }
-        //if VERBOSE { println!("NEW {:?}", new_freqs); }
+        // TODO disable
+        let visited: Vec<bool> = [false; NUM_BPS];
 
-        match_values(&self.old_freqs, &new_freqs, &mut self.old_faves, &mut self.nu_faves, &mut self.results);
+        {
+            let i: usize = 0;
+            for (freq, clump) in new_freqs {
+                // Fade out unmentioned freqs.
+                for ii in i..clump {
+                    // TODO disable
+                    assert!(!visited[ii]);
+                    visited[ii] = true;
 
-        /*
-        if VERBOSE {
-            println!("MR {:?}", self.results);
-            for mr in &self.results {
-                match mr {
-                    MatchResult::AddNew(i) => {
-                        println!("Add {}", new_freqs[*i]);
-                    },
-                    MatchResult::DropOld(i) => {
-                        println!("Drop {}", self.old_freqs[*i]);
-                    },
-                    MatchResult::Match(i, j) => {
-                        println!("Match {} {}", self.old_freqs[*i], new_freqs[*j]);
-                    },
+                    self.bps[ii].1.set(0.0);
+                    self.bps[ii].2 = true;
                 }
-            }
-        }
-        */
+                // TODO disable
+                assert!(!visited[clump]);
+                visited[clump] = true;
 
-        for mr in &self.results {
-            match mr {
-                MatchResult::AddNew(i) => {
-                    let amp = ramp_one(new_freqs[*i]);
-                    self.bps.push((BandPassStack::new(new_freqs[*i], BW), Inertial::new_from(0.0, amp, AMP_DM), false));
-                },
-                MatchResult::DropOld(i) => {
-                    // Doing this in case we make it inertial and it doesn't drop out
-                    // right away.
-                    self.bps[*i].1.set(0.0);
-                    self.bps[*i].2 = true;
-                },
-                MatchResult::Match(i, j) => {
-                    let amp = ramp_one(new_freqs[*j]);
-                    //println!("GGG set f {} {} {} {}", *i, self.bps[*i].0.get_freq(), *j, fas[*j].0);
-                    self.bps[*i].0.set_freq(new_freqs[*j]);
-                    self.bps[*i].1.set(amp);
-                    self.bps[*i].2 = false;
-                },
+                let amp = ramp_one(freq);
+                self.bps[clump].0 = freq;
+                self.bps[clump].1.set(amp);
+                self.bps[clump].2 = false;
+
+                i = clump+1;
             }
         }
 
-        // Remove the ones that have been dropped and then gone to 0.
-        self.bps.retain(|(_, amp, dropping)| !*dropping || (*amp).get() > 0.0);
-
-        // Sort the added ones in.
-        // TODO remove this by generating them in order.
-        self.bps.sort_by(|(bp0, _, _), (bp1, _, _)| (bp0.get_freq()).partial_cmp(&bp1.get_freq()).unwrap());
-
-        //let final_fas: Vec<(f32, f32)> = self.bps.iter().map(|(bp, a, _)| (bp.get_freq(), (*a).get())).collect();
-        //println!("FINAL {:?}", final_fas);
-        //self.dump("FINAL");
-
-        if DO_MAXES {
-            use Item::*;
-            self.maxes.as_mut().unwrap().update(BPs, self.bps.len());
-            self.maxes.as_mut().unwrap().update(OldFreqs, self.old_freqs.len());
-            self.maxes.as_mut().unwrap().update(OldFaves, self.old_faves.len());
-            self.maxes.as_mut().unwrap().update(NewFaves, self.nu_faves.len());
-            self.maxes.as_mut().unwrap().update(Results, self.results.len());
-        }
-    }
-
-    pub fn dump_maxes(&self) {
-        if DO_MAXES {
-            self.maxes.as_ref().unwrap().dump();
+        // TODO disable
+        for b in visited {
+            assert!(b);
         }
     }
 

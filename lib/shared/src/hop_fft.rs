@@ -66,13 +66,16 @@ fn find_peaks(dump: bool, _wid: f32, ness: f32, fft: &[f32; FFT_SIZE/2], /*out*/
     // ness is 0..1
     // If lower than 2, grunting.
     let low_bin: usize = 2;
-    let high_bin: usize = 50;
+    let clump_size: usize = 3;
+    let num_clumps: usize = 17;
+    let high_bin: low_bin + (clump_size * num_clups) - 1;
+    spew("CLUMP", low_bin, high_bin);
 
     // Make sure there's a full set of neighbors on the sides.
     assert!(low_bin >= PEAK_NUM_NEIGHBORS);
     assert!(high_bin <= (FFT_SIZE/2) - PEAK_NUM_NEIGHBORS);
 
-    for i in low_bin..high_bin /*fft_len*/ {
+    for i in low_bin..high_bin {
         // We don't consider the first or last just cuz then we can't do peak interpolation and
         // also they're never frequencies we want.
         if i == 0 || i == fft_len-1 {

@@ -1,0 +1,157 @@
+#[cfg(feature = "for_host")]
+extern crate std;
+extern crate libm;
+
+use alloc::vec::Vec;
+#[allow(unused)]
+//use std::println;
+
+use crate::constants::*;
+use crate::inertial::*;
+use crate::frequency_matcher::*;
+use crate::maxes::*;
+#[allow(unused)]
+use crate::spew::*;
+use crate::unit::band_pass_stack::*;
+
+const DO_MAXES: bool = true;
+
+const BW: f32 = 0.01;
+//const AMP_DM: f32 = 10000000.0;
+const AMP_DM: f32 = 16.0 / SAMPLE_RATE as f32;
+
+const _VERBOSE: bool = false;
+
+pub struct FrequncyMatchingBandPassBank {
+    // (bp, amp)
+    bps: Vec<(BandPassStack, Inertial, bool)>,
+
+    maxes: Option<Maxes>,
+
+    old_freqs: Vec<f32>,
+    old_faves: Vec<Option<usize>>,
+    nu_faves: Vec<Option<usize>>,
+    results: Vec<MatchResult>,
+}
+
+// This disgustingly-named function returns 1.0, except that it ramps it up to a higher value over
+// the course of a frequency range. So freqs (0..HIGH) go from 1.0 to 1+GAIN.
+const RAMP_ONE_HIGH: f32 = 1200.0;
+const RAMP_ONE_GAIN: f32 = 0.0;
+fn ramp_one(freq: f32) -> f32 {
+    1.0 + (RAMP_ONE_GAIN * (freq / RAMP_ONE_HIGH))
+}
+
+impl FrequncyMatchingBandPassBank {
+    pub fn new() -> FrequncyMatchingBandPassBank {
+        FrequncyMatchingBandPassBank {
+            bps: Vec::new(), // Vec::with_capacity(250),
+
+            maxes: if DO_MAXES { Some(Maxes::new()) } else { None },
+
+            old_freqs: Vec::new(), // Vec::with_capacity(250),
+            old_faves: Vec::new(), // Vec::with_capacity(250),
+            nu_faves: Vec::new(), // Vec::with_capacity(150),
+            results: Vec::new(), // Vec::with_capacity(250),
+        }
+    }
+
+    pub fn process(&mut self, input: f32) -> f32 {
+        let mut output: f32 = 0.0;
+        //let final_fas: Vec<(f32, f32)> = self.bps.iter().map(|(bp, a)| (bp.get_freq(), *a)).collect();
+        //println!("PROCESS {:?}", final_fas);
+        for (ref mut bp, ref mut amp, _) in &mut self.bps {
+            amp.update();
+            output += amp.get() * bp.process(input);
+        }
+        output
+    }
+
+    // (freq, amp)
+    pub fn update(&mut self, new_freqs: &Vec<f32>) {
+        //self.dump("INITIAL");
+        self.old_freqs.clear();
+        self.old_freqs.extend(self.bps.iter().map(|(bp, _, _)| bp.get_freq()));
+
+        //println!("NEWF {:?}", new_freqs);
+
+        //if VERBOSE { println!("OLD {:?}", self.old_freqs); }
+        //if VERBOSE { println!("NEW {:?}", new_freqs); }
+
+        match_values(&self.old_freqs, &new_freqs, &mut self.old_faves, &mut self.nu_faves, &mut self.results);
+
+        /*
+        if VERBOSE {
+            println!("MR {:?}", self.results);
+            for mr in &self.results {
+                match mr {
+                    MatchResult::AddNew(i) => {
+                        println!("Add {}", new_freqs[*i]);
+                    },
+                    MatchResult::DropOld(i) => {
+                        println!("Drop {}", self.old_freqs[*i]);
+                    },
+                    MatchResult::Match(i, j) => {
+                        println!("Match {} {}", self.old_freqs[*i], new_freqs[*j]);
+                    },
+                }
+            }
+        }
+        */
+
+        for mr in &self.results {
+            match mr {
+                MatchResult::AddNew(i) => {
+                    let amp = ramp_one(new_freqs[*i]);
+                    self.bps.push((BandPassStack::new(new_freqs[*i], BW), Inertial::new_from(0.0, amp, AMP_DM), false));
+                },
+                MatchResult::DropOld(i) => {
+                    // Doing this in case we make it inertial and it doesn't drop out
+                    // right away.
+                    self.bps[*i].1.set(0.0);
+                    self.bps[*i].2 = true;
+                },
+                MatchResult::Match(i, j) => {
+                    let amp = ramp_one(new_freqs[*j]);
+                    //println!("GGG set f {} {} {} {}", *i, self.bps[*i].0.get_freq(), *j, fas[*j].0);
+                    self.bps[*i].0.set_freq(new_freqs[*j]);
+                    self.bps[*i].1.set(amp);
+                    self.bps[*i].2 = false;
+                },
+            }
+        }
+
+        // Remove the ones that have been dropped and then gone to 0.
+        self.bps.retain(|(_, amp, dropping)| !*dropping || (*amp).get() > 0.0);
+
+        // Sort the added ones in.
+        // TODO remove this by generating them in order.
+        self.bps.sort_by(|(bp0, _, _), (bp1, _, _)| (bp0.get_freq()).partial_cmp(&bp1.get_freq()).unwrap());
+
+        //let final_fas: Vec<(f32, f32)> = self.bps.iter().map(|(bp, a, _)| (bp.get_freq(), (*a).get())).collect();
+        //println!("FINAL {:?}", final_fas);
+        //self.dump("FINAL");
+
+        if DO_MAXES {
+            use Item::*;
+            self.maxes.as_mut().unwrap().update(BPs, self.bps.len());
+            self.maxes.as_mut().unwrap().update(OldFreqs, self.old_freqs.len());
+            self.maxes.as_mut().unwrap().update(OldFaves, self.old_faves.len());
+            self.maxes.as_mut().unwrap().update(NewFaves, self.nu_faves.len());
+            self.maxes.as_mut().unwrap().update(Results, self.results.len());
+        }
+    }
+
+    pub fn dump_maxes(&self) {
+        if DO_MAXES {
+            self.maxes.as_ref().unwrap().dump();
+        }
+    }
+
+    /*
+    pub fn dump(&self, tag: &str) {
+        let final_fas: Vec<(f32, f32)> = self.bps.iter().map(|(bp, a, _)| (bp.get_freq(), (*a).get())).collect();
+        println!("{} {:?}", tag, final_fas);
+    }
+    */
+}
