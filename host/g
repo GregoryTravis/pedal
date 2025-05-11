@@ -1,4 +1,5 @@
-golden=golden-stacked.wav
+#golden=golden-stacked.wav
+golden=fixed-bank.wav
 rm -f simin.wav-bp-0.01.wav
 #(time cargo run --bin bps --features for_host -- simin.wav 0.01) 2>&1 | tee out
 (time cargo run --bin sim --features for_host -- simin.wav simin.wav-bp-0.01.wav \

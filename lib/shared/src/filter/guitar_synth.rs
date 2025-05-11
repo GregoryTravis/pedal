@@ -31,7 +31,7 @@ pub struct GuitarSynth {
     // TODO remove
     current_start: usize,
 
-    peaks: Vec<f32>,
+    peaks: Vec<(f32, usize)>,
     mags: [f32; FFT_SIZE/2],
 }
 
@@ -53,13 +53,6 @@ impl GuitarSynth {
 
             peaks: Vec::new(), // Vec::with_capacity(200),
             mags: [0.0; FFT_SIZE/2],
-        }
-    }
-
-    pub fn dump_maxes(&self) {
-        if DO_MAXES {
-            self.maxes.as_ref().unwrap().dump();
-            self.bank.dump_maxes();
         }
     }
 }

@@ -21,7 +21,7 @@ const VERBOSE: bool = false;
 // for each one, and return a vec of vecs of peaks, one for each hop.
 // output: (freq, mix)
 // TODO remove _wid, ness
-pub fn hop_peaks(_wid: f32, ness: f32, fft: &mut MicroFFT, current:usize, input: &[f32; 2048], /*mem*/ mags: &mut [f32; FFT_SIZE/2], /*out*/ peaks: &mut Vec<f32>) {
+pub fn hop_peaks(_wid: f32, ness: f32, fft: &mut MicroFFT, current:usize, input: &[f32; 2048], /*mem*/ mags: &mut [f32; FFT_SIZE/2], /*out*/ peaks: &mut Vec<(f32, usize)>) {
     fft.get_input().copy_from_slice(input);
     fft_to_magnitudes(fft.run(), mags);
 
@@ -49,7 +49,7 @@ const PEAK_NUM_NEIGHBORS: usize = 2;
 
 // TODO do we need bin?
 // output: (bin, freq, amp)
-fn find_peaks(dump: bool, _wid: f32, ness: f32, fft: &[f32; FFT_SIZE/2], /*out*/ peaks: &mut Vec<f32>) {
+fn find_peaks(dump: bool, _wid: f32, ness: f32, fft: &[f32; FFT_SIZE/2], /*out*/ peaks: &mut Vec<(f32, usize)>) {
     peaks.clear();
 
     // TODO this is mags, not fft.
@@ -68,8 +68,8 @@ fn find_peaks(dump: bool, _wid: f32, ness: f32, fft: &[f32; FFT_SIZE/2], /*out*/
     let low_bin: usize = 2;
     let clump_size: usize = 3;
     let num_clumps: usize = 17;
-    let high_bin: low_bin + (clump_size * num_clups) - 1;
-    spew("CLUMP", low_bin, high_bin);
+    let high_bin: usize = low_bin + (clump_size * num_clumps) - 1;
+    //spew!("CLUMP", low_bin, high_bin);
 
     // Make sure there's a full set of neighbors on the sides.
     assert!(low_bin >= PEAK_NUM_NEIGHBORS);
@@ -165,17 +165,10 @@ fn find_peaks(dump: bool, _wid: f32, ness: f32, fft: &[f32; FFT_SIZE/2], /*out*/
             // spew!("peak", mark, i, ppeak, fft[i], peak_mag, peak_freq, peak_amp, sharpness, window_start, window_end, show_f, show_a);
         }
 
-        let max_funds = 10;
-        let num_overtones = 1;
-        let max_num_peaks: usize = max_funds * num_overtones; // 10 * # of overtones
         match fa {
             Some((f, _)) => {
-                if peaks.len() < max_num_peaks {
-                    peaks.push(f);
-                    // peaks.push(f * 2.0);
-                    // peaks.push(f * 3.0);
-                    // peaks.push(f * 5.0);
-                }
+                let clump = (i - low_bin) / clump_size;
+                peaks.push((f, clump));
             }
             None => (),
         }

@@ -8,7 +8,6 @@ use alloc::vec::Vec;
 
 use crate::constants::*;
 use crate::inertial::*;
-use crate::frequency_matcher::*;
 #[allow(unused)]
 use crate::spew::*;
 use crate::unit::band_pass_stack::*;
@@ -35,10 +34,14 @@ fn ramp_one(freq: f32) -> f32 {
 }
 
 impl BandPassBank {
-    pub fn new(num: usize) -> BandPassBank {
-        BandPassBank {
-            bps: vec![(BandPassStack::new(440.0, BW), Inertial::new(0.0, AMP_DM), false); NUM_BPS],
+    pub fn new() -> BandPassBank {
+        let mut bpb = BandPassBank {
+            bps: Vec::new(),
+        };
+        for _ in 0..NUM_BPS {
+            bpb.bps.push((BandPassStack::new(440.0, BW), Inertial::new(0.0, AMP_DM), false));
         }
+        bpb
     }
 
     pub fn process(&mut self, input: f32) -> f32 {
@@ -52,21 +55,23 @@ impl BandPassBank {
 
     // (freq, amp)
     pub fn update(&mut self, new_freqs: &Vec<(f32, usize)>) {
-        assert!(new_freqs.len() == self.bps.len());
+        assert!(new_freqs.len() <= self.bps.len());
 
         // TODO disable
-        for i in 0..new_freqs.len()-1 {
-            assert!(new_freqs[i].0 < new_freqs[i+1].0);
+        if new_freqs.len() > 1 {
+            for i in 0..new_freqs.len()-1 {
+                assert!(new_freqs[i].0 < new_freqs[i+1].0);
+            }
         }
 
-        // TODO disable
-        let visited: Vec<bool> = [false; NUM_BPS];
-
         {
-            let i: usize = 0;
-            for (freq, clump) in new_freqs {
+            // TODO disable
+
+            let mut visited: Vec<bool> = vec![false; NUM_BPS];
+            let mut i: usize = 0;
+            for (freq, ref clump) in new_freqs {
                 // Fade out unmentioned freqs.
-                for ii in i..clump {
+                for ii in i..*clump {
                     // TODO disable
                     assert!(!visited[ii]);
                     visited[ii] = true;
@@ -75,21 +80,30 @@ impl BandPassBank {
                     self.bps[ii].2 = true;
                 }
                 // TODO disable
-                assert!(!visited[clump]);
-                visited[clump] = true;
+                assert!(!visited[*clump]);
+                visited[*clump] = true;
 
-                let amp = ramp_one(freq);
-                self.bps[clump].0 = freq;
-                self.bps[clump].1.set(amp);
-                self.bps[clump].2 = false;
+                let amp = ramp_one(*freq);
+                self.bps[*clump].0.set_freq(*freq);
+                self.bps[*clump].1.set(amp);
+                self.bps[*clump].2 = false;
 
-                i = clump+1;
+                i = *clump+1;
             }
-        }
 
-        // TODO disable
-        for b in visited {
-            assert!(b);
+            for ii in i..NUM_BPS {
+                // TODO disable
+                assert!(!visited[ii]);
+                visited[ii] = true;
+
+                self.bps[ii].1.set(0.0);
+                self.bps[ii].2 = true;
+            }
+
+            // TODO disable
+            for b in visited {
+                assert!(b);
+            }
         }
     }
 
