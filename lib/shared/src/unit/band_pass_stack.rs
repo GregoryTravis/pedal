@@ -175,4 +175,3 @@ impl BandPassStack {
         y_n + y_1_n + y_2_n + y_3_n
     }
 }
-

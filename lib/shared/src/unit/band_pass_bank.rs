@@ -10,7 +10,7 @@ use crate::constants::*;
 use crate::inertial::*;
 #[allow(unused)]
 use crate::spew::*;
-use crate::unit::band_pass_stack::*;
+use crate::unit::band_pass_stack_slow::*;
 
 const BW: f32 = 0.01;
 //const AMP_DM: f32 = 10000000.0;
@@ -22,7 +22,7 @@ const NUM_BPS: usize = 17;
 
 pub struct BandPassBank {
     // (bp, amp)
-    bps: Vec<(BandPassStack, Inertial, bool)>,
+    bps: Vec<(BandPassStackSlow, Inertial, bool)>,
 }
 
 // This disgustingly-named function returns 1.0, except that it ramps it up to a higher value over
@@ -39,7 +39,7 @@ impl BandPassBank {
             bps: Vec::new(),
         };
         for _ in 0..NUM_BPS {
-            bpb.bps.push((BandPassStack::new(440.0, BW), Inertial::new(0.0, AMP_DM), false));
+            bpb.bps.push((BandPassStackSlow::new(440.0, BW), Inertial::new(0.0, AMP_DM), false));
         }
         bpb
     }
