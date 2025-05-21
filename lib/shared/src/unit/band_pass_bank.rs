@@ -27,6 +27,7 @@ pub struct BandPassBank {
 
 // This disgustingly-named function returns 1.0, except that it ramps it up to a higher value over
 // the course of a frequency range. So freqs (0..HIGH) go from 1.0 to 1+GAIN.
+// TODO remove if gain is 0.
 const RAMP_ONE_HIGH: f32 = 1200.0;
 const RAMP_ONE_GAIN: f32 = 0.0;
 fn ramp_one(freq: f32) -> f32 {
