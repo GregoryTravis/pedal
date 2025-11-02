@@ -72,27 +72,16 @@ fn rubin_main() {
     spew!("hi");
     load_init();
 
-    /*
-    let mut sdram: SDRAM = SDRAM::new();
-    let fooie: &[f32] = sdram.alloc(16);
-    let ptr_int = fooie.as_ptr() as u32;
-    spew!("got", ptr_int, fooie.len(), fooie[0]);
-    */
-    let mut sdram = SDRAM::new();
-    let a0 = sdram.alloc_slice(10);
-    spew!("a0", hex(a0.as_ptr() as u64));
-    let a1 = sdram.alloc_slice(10);
-    spew!("a1", hex(a1.as_ptr() as u64));
-
-    //let patch = harmoneer(&mut sdram);
-    let patch = shared::rubin::rubin(&mut sdram);
-
     let knobs = Box::new(BoardKnobs { });
     let switches = Box::new(BoardSwitches { });
     let toggle = Toggle::new(switches, 0);
-    rig_install_patch(patch, knobs, toggle);
 
     rig_install_callback();
+
+    let mut sdram = SDRAM::new();
+    let patch = shared::rubin::rubin(&mut sdram);
+
+    rig_install_patch(patch, knobs, toggle);
 
     // TODO don't duplicate this.
     let knobs2 = Box::new(BoardKnobs { });
@@ -126,6 +115,53 @@ fn gs_main() {
     loop {
         load_spew();
         hw_delay(500);
+    }
+}
+
+#[allow(dead_code)]
+fn rubin2_main_loop(switcher_knob: usize, is_switcher_low: bool) {
+    let knobs = Box::new(BoardKnobs { });
+    loop {
+        let current_is_switcher_low = knobs.read(switcher_knob) < 0.5;
+        if current_is_switcher_low != is_switcher_low {
+            break;
+        }
+        load_spew();
+        hw_delay(500);
+    }
+}
+
+#[allow(dead_code)]
+// orig rubin (harmoneer+) with gs, switched by knob 5
+fn rubin2_main() {
+    hw_init(!PROD, BLOCK_SIZE);
+    spew!("hi");
+    load_init();
+
+    rig_install_callback();
+
+    let switcher_knob = 5;
+
+    loop {
+        let knobs = Box::new(BoardKnobs { });
+        let knobs2 = Box::new(BoardKnobs { });
+        let switches = Box::new(BoardSwitches { });
+        let toggle = Toggle::new(switches, 0);
+
+        let is_switcher_low = knobs2.read(switcher_knob) < 0.5;
+        spew!("setting patch", if is_switcher_low { "rubin" } else { "gs" });
+        if is_switcher_low {
+            let mut sdram = SDRAM::new();
+            let patch = shared::rubin::rubin(&mut sdram);
+            rig_install_patch(patch, knobs, toggle);
+            rubin2_main_loop(switcher_knob, is_switcher_low);
+            rig_deinstall_patch();
+        } else {
+            let patch = Box::new(GuitarSynth::new());
+            rig_install_patch(patch, knobs, toggle);
+            rubin2_main_loop(switcher_knob, is_switcher_low);
+            rig_deinstall_patch();
+        }
     }
 }
 
@@ -220,7 +256,8 @@ pub fn main() {
     spew!("start of main");
 
     //rubin_main();
-    gs_main();
+    rubin2_main();
+    //gs_main();
     //study_mem::study_mem();
     //all_tests();
     //oom_test();
