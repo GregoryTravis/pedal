@@ -33,6 +33,8 @@ pub struct GuitarSynth {
 
     peaks: Vec<(f32, usize)>,
     mags: [f32; FFT_SIZE/2],
+
+    gain: f32,
 }
 
 // Convention for labeling mem params:
@@ -40,7 +42,7 @@ pub struct GuitarSynth {
 // /*mem*/ -- just passing the mem in for internal use
 
 impl GuitarSynth {
-    pub fn new() -> GuitarSynth {
+    pub fn new(gain: f32) -> GuitarSynth {
         GuitarSynth {
             buf: [0.0; FFT_SIZE],
             bank: BandPassBank::new(),
@@ -53,6 +55,7 @@ impl GuitarSynth {
 
             peaks: Vec::new(), // Vec::with_capacity(200),
             mags: [0.0; FFT_SIZE/2],
+            gain: gain,
         }
     }
 }
@@ -92,7 +95,7 @@ impl Patch for GuitarSynth {
         self.bank.update(&self.peaks);
 
         for i in 0..hop {
-            output_slice[i] = self.bank.process(input_slice[i]);
+            output_slice[i] = self.bank.process(input_slice[i]) * self.gain;
             //output_slice[i] = 0.0;
         }
 

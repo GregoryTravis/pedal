@@ -103,7 +103,7 @@ fn gs_main() {
     spew!("hi");
     load_init();
 
-    let patch = Box::new(GuitarSynth::new());
+    let patch = Box::new(GuitarSynth::new(1.0));
 
     let knobs = Box::new(BoardKnobs { });
     let switches = Box::new(BoardSwitches { });
@@ -157,7 +157,7 @@ fn rubin2_main() {
             rubin2_main_loop(switcher_knob, is_switcher_low);
             rig_deinstall_patch();
         } else {
-            let patch = Box::new(GuitarSynth::new());
+            let patch = Box::new(GuitarSynth::new(3.0));
             rig_install_patch(patch, knobs, toggle);
             rubin2_main_loop(switcher_knob, is_switcher_low);
             rig_deinstall_patch();
