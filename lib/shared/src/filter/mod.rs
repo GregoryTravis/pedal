@@ -3,6 +3,7 @@ pub mod delay;
 pub mod envelope_follower;
 pub mod fuzz;
 pub mod gain;
+pub mod knob_gain;
 pub mod guitar_synth;
 pub mod harmoneer;
 pub mod high_pass;

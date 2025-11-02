@@ -157,7 +157,7 @@ fn rubin2_main() {
             rubin2_main_loop(switcher_knob, is_switcher_low);
             rig_deinstall_patch();
         } else {
-            let patch = Box::new(GuitarSynth::new(3.0));
+            let patch = Box::new(GuitarSynth::new(5.0));
             rig_install_patch(patch, knobs, toggle);
             rubin2_main_loop(switcher_knob, is_switcher_low);
             rig_deinstall_patch();

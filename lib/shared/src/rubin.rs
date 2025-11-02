@@ -28,7 +28,7 @@ fn harmoneer(sdram: &mut SDRAM) -> Mixer {
 }
 
 pub fn rubin(sdram: &mut SDRAM) -> Box<dyn Patch> {
-    let gain = Box::new(Gain::new(5));
+    let gain = Box::new(Gain::new(0.3));
     let harmo = Box::new(harmoneer(sdram));
     let hp = Box::new(HighPassFilter::new());
     let lp = Box::new(LowPassFilter::new());
