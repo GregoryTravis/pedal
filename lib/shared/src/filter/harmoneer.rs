@@ -12,6 +12,8 @@ use crate::spew::*;
 
 // Must be even.
 const SIZE: usize = 4096;
+const TIME_TO_REDUCE: usize = SIZE * 8;
+const REDUCE_BY: usize = SIZE * 4;
 const RAMPLEN: usize = 384;
 const RAMPLEN_EXTRA: f32 = 10.0; // todo try smaller
 const RAMPLEN_CUTOFF: f32 = (RAMPLEN as f32) + RAMPLEN_EXTRA;
@@ -204,6 +206,11 @@ impl Patch for Harmoneer {
             }
             w += 1;
             self.ts += 1;
+
+            if r > TIME_TO_REDUCE as f32 && w > TIME_TO_REDUCE {
+                r -= REDUCE_BY as f32;
+                w -= REDUCE_BY;
+            }
 
             // ====
 

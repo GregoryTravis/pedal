@@ -1,5 +1,5 @@
 rm -f bigsineout.wav out
-cargo run --bin sim --features for_host -- bigsine.wav bigsineout.wav 2>&1 > out
+(cargo run --bin sim --features for_host -- bigsine.wav bigsineout.wav) 2>&1 > out
 vim out
 exit
 
