@@ -80,7 +80,7 @@ fn envelope_follower(input_file: &str, output_file: &str) {
 
 #[allow(dead_code)]
 fn guitar_synth(input_file: &str, output_file: &str) {
-    let patch: GuitarSynth = GuitarSynth::new();
+    let patch: GuitarSynth = GuitarSynth::new(1.0);
     sim_main(input_file, output_file, Box::new(patch));
 }
 
@@ -114,12 +114,14 @@ pub fn main() {
     let input_file = &args[1];
     let output_file = &args[2];
 
-    /*
     let mut sdram = SDRAM::new();
-    //harmoneer(&mut sdram, input_file, output_file);
+    let harmo = Harmoneer::new(0.5, &mut sdram);
+    sim_main(input_file, output_file, Box::new(harmo));
+
+    /*
     let rubin = shared::rubin::rubin(&mut sdram);
     sim_main(input_file, output_file, rubin);
     */
 
-    guitar_synth(input_file, output_file);
+    //guitar_synth(input_file, output_file);
 }

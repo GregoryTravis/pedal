@@ -1,3 +1,8 @@
+rm -f bigsineout.wav out
+cargo run --bin sim --features for_host -- bigsine.wav bigsineout.wav 2>&1 > out
+vim out
+exit
+
 #golden=golden-stacked.wav
 golden=fixed-bank-6-dense.wav
 rm -f simin.wav-bp-0.01.wav
