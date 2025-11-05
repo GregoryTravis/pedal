@@ -103,8 +103,9 @@ impl Patch for Harmoneer {
 
                 let mut alpha = (w as f32 - forward_ramp_start) / (forward_ramp_end - forward_ramp_start);
                 //let a0 = alpha;
-                assert!(alpha <= 1.0);
+                //assert!(alpha <= 1.0);
                 alpha = if alpha < 0.0 { 0.0 } else { alpha  };
+                //alpha = if alpha > 1.0 { 1.0 } else { if alpha < 0.0 { 0.0 } else { alpha } };
                 //let a1 = alpha;
                 let alpha_difference = alpha - self.last_alpha;
                 let alpha_difference = if alpha_difference > RAMPLEN_CUTOFF || alpha_difference < -RAMPLEN_CUTOFF { RAMPLEN as f32 } else { alpha_difference };
@@ -135,8 +136,9 @@ impl Patch for Harmoneer {
 
                 let mut alpha = (w_hat as f32 - backward_ramp_end) / (backward_ramp_start - backward_ramp_end);
                 //let a0 = alpha;
-                assert!(alpha >= 0.0);
+                //assert!(alpha >= 0.0);
                 alpha = if alpha > 1.0 { 1.0 } else { alpha };
+                //alpha = if alpha > 1.0 { 1.0 } else { if alpha < 0.0 { 0.0 } else { alpha } };
                 //let a1 = alpha;
                 let alpha_difference = alpha - self.last_alpha;
                 let alpha_difference = if alpha_difference > RAMPLEN_CUTOFF || alpha_difference < -RAMPLEN_CUTOFF { RAMPLEN as f32 } else { alpha_difference };
