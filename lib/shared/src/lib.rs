@@ -44,6 +44,7 @@ pub mod minmax;
 pub mod mem;
 pub mod microfft_fft;
 pub mod microfft_sdram_fft;
+pub mod much_harm;
 pub mod r#override;
 pub mod panic;
 pub mod patch;

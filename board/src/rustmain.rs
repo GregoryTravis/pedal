@@ -79,7 +79,7 @@ fn rubin_main() {
     rig_install_callback();
 
     let mut sdram = SDRAM::new();
-    let patch = shared::rubin::rubin(&mut sdram);
+    let patch = shared::much_harm::much_harm(&mut sdram);
 
     rig_install_patch(patch, knobs, toggle);
 
