@@ -17,13 +17,14 @@ pub struct Mixer {
 impl Mixer {
     // Scales the channel faders to sum to 1.0.
     pub fn new(mut channels: Vec<MixerChannel>) -> Mixer {
+        let num_channels = channels.len();
         let total_gain: f32 = channels.iter().map(|c| c.0).sum();
         assert!(total_gain != 0.0);
         //let adjusted_channels: Vec<MixerChannel> = Vec::with_capacity(channels.len());
         for i in 0..channels.len() {
             let ch: &mut MixerChannel = &mut channels[i];
             ch.0 /= total_gain;
-            ch.0 *= 3.0;
+            ch.0 *= num_channels as f32;
         }
 
         Mixer {

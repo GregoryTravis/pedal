@@ -19,6 +19,8 @@ const RAMPLEN_EXTRA: f32 = 10.0; // todo try smaller
 const RAMPLEN_CUTOFF: f32 = (RAMPLEN as f32) + RAMPLEN_EXTRA;
 const JUMP_MARGIN: f32 = 2.0;
 
+// NOTE: ratio=1.0 does not work!
+
 pub struct Harmoneer {
     ts: usize,
     ratio: f32,

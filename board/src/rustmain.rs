@@ -67,7 +67,7 @@ fn harmoneer(sdram: &mut SDRAM) -> Box<dyn Patch> {
 }
 
 #[allow(dead_code)]
-fn rubin_main() {
+fn much_harm_main() {
     hw_init(!PROD, BLOCK_SIZE);
     spew!("hi");
     load_init();
@@ -80,6 +80,37 @@ fn rubin_main() {
 
     let mut sdram = SDRAM::new();
     let patch = shared::much_harm::much_harm(&mut sdram);
+
+    rig_install_patch(patch, knobs, toggle);
+
+    // TODO don't duplicate this.
+    let knobs2 = Box::new(BoardKnobs { });
+    let switches2 = Box::new(BoardSwitches { });
+    let mut toggle2 = Toggle::new(switches2, 0);
+    loop {
+        rig_log();
+        load_spew();
+        knobs2.spew();
+        toggle2.process();
+        toggle2.spew();
+        hw_delay(500);
+    }
+}
+
+#[allow(dead_code)]
+fn rubin_main() {
+    hw_init(!PROD, BLOCK_SIZE);
+    spew!("hi");
+    load_init();
+
+    let knobs = Box::new(BoardKnobs { });
+    let switches = Box::new(BoardSwitches { });
+    let toggle = Toggle::new(switches, 0);
+
+    rig_install_callback();
+
+    let mut sdram = SDRAM::new();
+    let patch = shared::rubin::rubin(&mut sdram);
 
     rig_install_patch(patch, knobs, toggle);
 
@@ -256,7 +287,8 @@ pub fn main() {
     spew!("start of main");
 
     //rubin_main();
-    rubin2_main();
+    //rubin2_main();
+    much_harm_main();
     //gs_main();
     //study_mem::study_mem();
     //all_tests();
