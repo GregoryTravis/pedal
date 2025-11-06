@@ -119,11 +119,13 @@ fn rubin_main() {
     let switches2 = Box::new(BoardSwitches { });
     let mut toggle2 = Toggle::new(switches2, 0);
     loop {
-        rig_log();
         load_spew();
+        /*
+        rig_log();
         knobs2.spew();
         toggle2.process();
         toggle2.spew();
+        */
         hw_delay(500);
     }
 }
