@@ -66,7 +66,7 @@ pub fn get_test_cases() -> Vec<Box<TestCase>> {
         }),
         Box::new(TestCase {
             name: "chorus",
-            patch: Box::new(Chorus::new()),
+            patch: Box::new(Chorus::new(0)),
             canned_input: TEST_INPUT,
             expected_output: CHORUS_OUTPUT,
         }),

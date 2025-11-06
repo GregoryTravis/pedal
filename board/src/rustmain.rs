@@ -286,9 +286,9 @@ pub mod study_mem {
 pub fn main() {
     spew!("start of main");
 
-    //rubin_main();
+    rubin_main();
     //rubin2_main();
-    much_harm_main();
+    //much_harm_main();
     //gs_main();
     //study_mem::study_mem();
     //all_tests();

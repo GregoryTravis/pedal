@@ -22,13 +22,13 @@ pub struct Chorus {
 }
 
 impl Chorus {
-    pub fn new() -> Chorus {
+    pub fn new(knob_id: usize) -> Chorus {
         let n: f32 = 3.0;
         let d: f32 = 0.3;
         Chorus {
-            vibrato_a: LinearVibrato::new(20, n-d, 1),
-            vibrato_b: LinearVibrato::new(22, n, 1),
-            vibrato_c: LinearVibrato::new(18, n+d, 1),
+            vibrato_a: LinearVibrato::new(20, n-d, knob_id),
+            vibrato_b: LinearVibrato::new(22, n, knob_id),
+            vibrato_c: LinearVibrato::new(18, n+d, knob_id),
             buffer: [0.0; BATCH_SIZE],
         }
     }
