@@ -10,10 +10,18 @@ use crate::filter::seq::*;
 use crate::patch::Patch;
 use crate::sdram::*;
 
-const TONES: [(usize, f32, (f32, f32)); 7] =
-  [(0, 0.25, (0.0, 2.0)), (0, 0.5, (0.0, 1.0)),
-   (1, 2.0, (0.0, 1.0)), (1, 4.0, (0.0, 1.0)),
-   (2, 0.75, (0.0, 1.0)), (2, 1.5, (0.0, 1.0)), (2, 3.0, (0.0, 1.0))];
+// For guitar
+// knob_num, ratio, (low, high)
+const TONES: [(usize, f32, (f32, f32)); 3] =
+  [(0, 0.5, (0.0, 1.0)),
+   (1, 2.0, (0.0, 1.0)),
+   (2, 1.5, (0.0, 1.0))];
+
+// For yo-yo ma and Rubin
+// const TONES: [(usize, f32, (f32, f32)); 7] =
+//   [(0, 0.25, (0.0, 2.0)), (0, 0.5, (0.0, 1.0)),
+//    (1, 2.0, (0.0, 1.0)), (1, 4.0, (0.0, 1.0)),
+//    (2, 0.75, (0.0, 1.0)), (2, 1.5, (0.0, 1.0)), (2, 3.0, (0.0, 1.0))];
 
 pub fn much_harm(sdram: &mut SDRAM) -> Box<dyn Patch> {
     let mut harms: Vec<MixerChannel> = vec![];
