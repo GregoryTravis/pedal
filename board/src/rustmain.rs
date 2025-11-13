@@ -115,9 +115,9 @@ fn rubin_main() {
     rig_install_patch(patch, knobs, toggle);
 
     // TODO don't duplicate this.
-    let knobs2 = Box::new(BoardKnobs { });
-    let switches2 = Box::new(BoardSwitches { });
-    let mut toggle2 = Toggle::new(switches2, 0);
+    // let knobs2 = Box::new(BoardKnobs { });
+    // let switches2 = Box::new(BoardSwitches { });
+    // let mut toggle2 = Toggle::new(switches2, 0);
     loop {
         load_spew();
         /*
