@@ -1,5 +1,6 @@
 use alloc::boxed::Box;
 //use alloc::vec::Vec;
+use core::any::Any;
 use core::cmp::min;
 
 #[cfg(not(feature = "for_host"))]
@@ -25,17 +26,17 @@ use crate::test_cases::*;
 // pushes its own data through, checks the output against the expected data, and
 // sets a result flag if the data is identical or not. The output slice is not written to.
 
-pub struct Override<'a> {
+pub struct Override {
     patch: Box<dyn Patch>,
-    canned_input: &'a [f32],
-    expected_output: &'a [f32],
+    canned_input: &'static [f32],
+    expected_output: &'static [f32],
     sofar: usize,
     done: bool,
     mismatches: usize,
 }
 
-impl <'a> Override<'a> {
-    pub fn new(patch: Box<dyn Patch>, canned_input: &'a [f32], expected_output: &'a [f32]) -> Override<'a> {
+impl Override {
+    pub fn new(patch: Box<dyn Patch>, canned_input: &'static [f32], expected_output: &'static [f32]) -> Override {
         assert!(canned_input.len() == expected_output.len());
         Override {
             patch: patch,
@@ -56,7 +57,7 @@ impl <'a> Override<'a> {
     }
 }
 
-impl <'a> Patch for Override<'a> {
+impl Patch for Override {
     fn rust_process_audio(
         &mut self,
         input_slice: &[f32],
@@ -95,6 +96,10 @@ impl <'a> Patch for Override<'a> {
 
     fn passed(&self) -> bool {
         self.mismatches == 0
+    }
+
+    fn into_any(self: Box<Self>) -> Box<dyn Any> {
+        self
     }
 }
 

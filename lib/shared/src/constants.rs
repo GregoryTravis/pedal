@@ -5,7 +5,8 @@ pub const BLOCK_SIZE: usize = 48;
 pub const KSHEP: bool = true;
 pub const PROD: bool = false;
 
+// I think the 128 makes room for the rest of the SDRAM struct.
 pub const SDRAM_SIZE_BYTES: usize = (64 * 1024 * 1024) - 128;
 pub const SDRAM_SIZE_F32: usize = SDRAM_SIZE_BYTES / core::mem::size_of::<f32>();
 
-pub const FFT_SIZE: usize = 512;
+pub const FFT_SIZE: usize = 2048;

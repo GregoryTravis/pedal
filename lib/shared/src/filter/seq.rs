@@ -3,6 +3,7 @@ extern crate libm;
 #[cfg(feature = "for_host")]
 extern crate std;
 
+use core::any::Any;
 use alloc::boxed::Box;
 use alloc::vec::Vec;
 
@@ -41,5 +42,9 @@ impl Patch for Seq {
         let first_playhead = playhead.clone();
         self.patch0.rust_process_audio(input_slice, sub_buf, knobs, first_playhead);
         self.patch1.rust_process_audio(sub_buf, output_slice, knobs, playhead);
+    }
+
+    fn into_any(self: Box<Self>) -> Box<dyn Any> {
+        self
     }
 }

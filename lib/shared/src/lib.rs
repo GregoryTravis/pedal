@@ -1,8 +1,11 @@
-#![cfg_attr(not(for_host), no_std)]
+#![cfg_attr(not(feature = "for_host"), no_std)]
 
 #[macro_use]
 extern crate alloc;
 
+#[cfg(not(feature = "for_host"))]
+pub mod arm_fft;
+#[cfg(not(feature = "for_host"))]
 pub mod bench;
 pub mod benchmark_test;
 pub mod ds;
@@ -14,13 +17,10 @@ pub mod edsl;
 pub mod fft;
 #[cfg(not(feature = "for_host"))]
 pub mod fft_bench;
-#[cfg(not(feature = "for_host"))]
-pub mod fft_board;
-#[cfg(feature = "for_host")]
-pub mod fft_host;
 #[cfg(feature = "for_host")]
 pub mod file;
 pub mod filter;
+pub mod frequency_matcher;
 pub mod globby;
 #[cfg(not(feature = "for_host"))]
 pub mod globby_board;
@@ -28,22 +28,30 @@ pub mod globby_board;
 pub mod globby_host;
 #[cfg(feature = "for_host")]
 pub mod graphing;
+pub mod inertial;
 pub mod knob;
 pub mod knob_dummy;
 #[cfg(not(feature = "for_host"))]
 pub mod knob_board;
+pub mod hop_fft;
 #[cfg(feature = "for_host")]
 pub mod hw_host;
 #[cfg(not(feature = "for_host"))]
 pub mod load_board;
 #[cfg(feature = "for_host")]
 pub mod load_host;
+pub mod maxes;
+pub mod minmax;
 #[cfg(not(feature = "for_host"))]
 pub mod mem;
+pub mod microfft_fft;
+pub mod microfft_sdram_fft;
+pub mod much_harm;
 pub mod r#override;
 pub mod panic;
 pub mod patch;
 pub mod playhead;
+pub mod quadratic_interpolate;
 pub mod rig;
 pub mod rig_util;
 #[cfg(not(feature = "for_host"))]
@@ -79,3 +87,5 @@ pub mod time;
 pub mod time_board;
 #[cfg(feature = "for_host")]
 pub mod time_host;
+pub mod tvob;
+pub mod unit;

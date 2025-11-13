@@ -1,0 +1,4 @@
+f=$1
+pushd ../lib/shared
+cargo run --bin compare_wavs --features for_host ../../host/simin.wav-bp-0.01.wav ../../host/$f
+popd

@@ -28,7 +28,11 @@ impl SDRAM {
 
     pub fn len(&self) -> usize { self.total_floats }
 
-    pub fn alloc(&mut self, num_floats: usize) -> &'static mut [f32] {
+    pub fn alloc<const N: usize>(&mut self) -> &'static mut [f32; N] {
+        self.alloc_slice(N).try_into().unwrap()
+    }
+
+    pub fn alloc_slice(&mut self, num_floats: usize) -> &'static mut [f32] {
         let new_sofar = self.sofar + num_floats;
         if new_sofar > self.total_floats {
             panic!("Out of SDRAM! (already allocated {}, new allocation {}", self.sofar, num_floats);

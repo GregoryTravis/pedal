@@ -10,6 +10,19 @@ void sanity_check() {
   assert(sizeof(float) == 4);
 }
 
+#if 0
+void allocate_all_ram_and_crash() {
+  void **heap_end = (void**)0x000000002000e290;
+  int count = 0;
+  while (true) {
+    void *p = malloc(8);
+    void *he = *heap_end;
+    hw.PrintLine("malloc %d %p %p\n", count, p, he);
+    count++;
+  }
+}
+#endif
+
 extern "C" void cpp_hw_init(bool b, size_t block_size) {
   sanity_check();
 
@@ -19,6 +32,8 @@ extern "C" void cpp_hw_init(bool b, size_t block_size) {
   }
   hw.SetAudioBlockSize(block_size);
   assert(hw.audio_handle.GetChannels() == 2);
+
+  //allocate_all_ram_and_crash();
 }
 
 GPIO audioBypassTrigger;

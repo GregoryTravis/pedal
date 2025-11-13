@@ -2,6 +2,7 @@ extern crate alloc;
 extern crate libm;
 
 use alloc::boxed::Box;
+use core::any::Any;
 
 #[allow(unused_imports)]
 use crate::edsl::runtime::{
@@ -69,6 +70,10 @@ impl Patch for EdslNodey {
 
             playhead.inc();
         }
+    }
+
+    fn into_any(self: Box<Self>) -> Box<dyn Any> {
+        self
     }
 }
 

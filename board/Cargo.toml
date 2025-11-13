@@ -15,7 +15,7 @@ lto = "fat"
 [features]
 # Any crates that require std cannot be built for the board, and must be listed
 # here; they must also be configured as optional dependencies.
-#for_host = ["host"]
+for_host = []
 
 [dependencies]
 alloc-cortex-m = { version = "0.4.4"}

@@ -1,15 +1,50 @@
 cargo run --release --bin benchmark_test --features for_host 2>&1 | tee out
 exit
 
-cargo run --bin test --features for_host 2>&1 | tee out
+rm -f bigsineout.wav out
+(cargo run --bin sim --features for_host -- bigsine.wav bigsineout.wav) 2>&1 > out
+vim out
+exit
+
+#golden=golden-stacked.wav
+golden=fixed-bank-6-dense.wav
+rm -f simin.wav-bp-0.01.wav
+#(time cargo run --bin bps --features for_host -- simin.wav 0.01) 2>&1 | tee out
+(time cargo run --bin sim --features for_host -- simin.wav simin.wav-bp-0.01.wav \
+  && ls -l simin.wav-bp-0.01.wav $golden \
+  && ./comp $golden) 2>&1 | tee out
+exit
+
+rm -f simin.wav-bp-0.01.wav
+(time cargo run --bin sim --features for_host -- simin.wav simin.wav-bp-0.01.wav) 2>&1 | tee out
+exit
+
+#cargo run --bin bpm --features for_host -- simin.wav 0.01 2>&1 | tee out
+#exit
+
+cargo run --bin hop --features for_host -- simin.wav 0.8 2>&1 | tee out
+exit
+
+./anal
+>>>>>>> main
 exit
 
 rm -rf simout.wav
-cargo run --bin sim --features for_host -- simin.wav simout.wav 2>&1 | tee out
-#../lib/shared/target/debug/compare_wavs golden.simout.wav simout.wav
-#../lib/shared/target/debug/compare_wavs simin.wav simout.wav
-#../lib/shared/target/debug/diff_wavs golden.simout.wav simout.wav gold.out-out.wav
-#../lib/shared/target/debug/diff_wavs simin.wav simout.wav in-out.wav
+rm -rf out
+./anal
+cargo run --bin sim --features for_host -- simin.wav-input.wav /dev/null 2>&1 | tee -a out
+jbe simin.wav-input.wav simin.wav-filtered.wav simin.wav-input-fft.wav simin.wav-filtered-fft.wav
+exit
+
+rm -rf simout.wav
+cargo run --bin sim --features for_host -- simin.wav simout.wav 2>&1 | tee -a out
+exit
+
+rm -f stack-fft.wav
+cargo run --bin fft --features for_host -- stack.wav stack-fft.wav 2>&1 | tee out
+exit
+
+cargo run --bin test --features for_host 2>&1 | tee out
 exit
 
 cargo test --lib --features for_host 2>&1 | tee out

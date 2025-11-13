@@ -10,10 +10,10 @@ impl <T> Globby<T> {
         });
     }
 
-    pub fn clear(&self) {
+    pub fn clear(&self) -> Option<T> {
         self.use_and_return(|mor| {
-            *mor = None;
-        });
+            (*mor).take()
+        })
     }
 
     pub fn use_it<F>(&self, f: F)

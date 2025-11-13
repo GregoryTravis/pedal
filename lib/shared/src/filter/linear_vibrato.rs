@@ -3,6 +3,7 @@ extern crate libm;
 #[cfg(feature = "for_host")]
 extern crate std;
 
+use core::any::Any;
 use alloc::boxed::Box;
 use core::f32::consts::PI;
 
@@ -76,5 +77,9 @@ impl Patch for LinearVibrato {
             output_slice[i] = interped;
             playhead.inc();
         }
+    }
+
+    fn into_any(self: Box<Self>) -> Box<dyn Any> {
+        self
     }
 }

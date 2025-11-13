@@ -3,6 +3,7 @@ extern crate libm;
 #[cfg(feature = "for_host")]
 extern crate std;
 
+use core::any::Any;
 // Uses a knob to fade between two patches.
 
 use alloc::boxed::Box;
@@ -55,5 +56,9 @@ impl Patch for Interp {
             let p1 = output_slice[i];
             output_slice[i] = ((1.0 - interp) * p0) + (interp * p1);
         }
+    }
+
+    fn into_any(self: Box<Self>) -> Box<dyn Any> {
+        self
     }
 }

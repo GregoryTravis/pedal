@@ -1,5 +1,6 @@
 extern crate libm;
 
+use core::any::Any;
 use alloc::boxed::Box;
 
 use crate::knob::Knobs;
@@ -32,5 +33,9 @@ impl Patch for SineGenerator {
             output_slice[i] = playhead.sinf(self.hz) / 32.0;
             playhead.inc();
         }
+    }
+
+    fn into_any(self: Box<Self>) -> Box<dyn Any> {
+        self
     }
 }

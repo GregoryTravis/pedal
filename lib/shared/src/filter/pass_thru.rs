@@ -1,5 +1,6 @@
 use alloc::boxed::Box;
 
+use core::any::Any;
 use crate::knob::Knobs;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
@@ -23,5 +24,9 @@ impl Patch for PassThruFilter {
         for i in 0..input_slice.len() {
             output_slice[i] = input_slice[i];
         }
+    }
+
+    fn into_any(self: Box<Self>) -> Box<dyn Any> {
+        self
     }
 }

@@ -1,20 +1,25 @@
 extern crate alloc;
 extern crate libm;
 
+use core::any::Any;
 use alloc::boxed::Box;
 
 use crate::knob::Knobs;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
 use crate::sdram::*;
-//use crate::spew::*;
+use crate::spew::*;
 
 // Must be even.
 const SIZE: usize = 4096;
+const TIME_TO_REDUCE: usize = SIZE * 8;
+const REDUCE_BY: usize = SIZE * 4;
 const RAMPLEN: usize = 384;
 const RAMPLEN_EXTRA: f32 = 10.0; // todo try smaller
 const RAMPLEN_CUTOFF: f32 = (RAMPLEN as f32) + RAMPLEN_EXTRA;
 const JUMP_MARGIN: f32 = 2.0;
+
+// NOTE: ratio=1.0 does not work!
 
 pub struct Harmoneer {
     ts: usize,
@@ -23,6 +28,7 @@ pub struct Harmoneer {
     write_head: usize,
     last_alpha: f32,
     buf: &'static mut [f32],
+    sampnum: u64,
 }
 
 impl Harmoneer {
@@ -40,7 +46,8 @@ impl Harmoneer {
             read_head: (SIZE / 2) as f32,
             write_head: SIZE,
             last_alpha: 0.0,
-            buf: sdram.alloc(SIZE),
+            buf: sdram.alloc_slice(SIZE),
+            sampnum: 0,
         }
     }
 
@@ -93,6 +100,9 @@ impl Patch for Harmoneer {
 
             let mut should_flip = false;
 
+            let dodump = false;
+            let dumpstart: u64 = 8388603;
+
             let out = if p >= 1.0 {
                 let n_f: f32 = ((w as f32) - r) / (p - 1.0);
                 let t_f: f32 = (w as f32) + n_f;
@@ -102,8 +112,9 @@ impl Patch for Harmoneer {
 
                 let mut alpha = (w as f32 - forward_ramp_start) / (forward_ramp_end - forward_ramp_start);
                 //let a0 = alpha;
-                assert!(alpha <= 1.0);
+                //assert!(alpha <= 1.0);
                 alpha = if alpha < 0.0 { 0.0 } else { alpha  };
+                //alpha = if alpha > 1.0 { 1.0 } else { if alpha < 0.0 { 0.0 } else { alpha } };
                 //let a1 = alpha;
                 let alpha_difference = alpha - self.last_alpha;
                 let alpha_difference = if alpha_difference > RAMPLEN_CUTOFF || alpha_difference < -RAMPLEN_CUTOFF { RAMPLEN as f32 } else { alpha_difference };
@@ -134,8 +145,9 @@ impl Patch for Harmoneer {
 
                 let mut alpha = (w_hat as f32 - backward_ramp_end) / (backward_ramp_start - backward_ramp_end);
                 //let a0 = alpha;
-                assert!(alpha >= 0.0);
+                //assert!(alpha >= 0.0);
                 alpha = if alpha > 1.0 { 1.0 } else { alpha };
+                //alpha = if alpha > 1.0 { 1.0 } else { if alpha < 0.0 { 0.0 } else { alpha } };
                 //let a1 = alpha;
                 let alpha_difference = alpha - self.last_alpha;
                 let alpha_difference = if alpha_difference > RAMPLEN_CUTOFF || alpha_difference < -RAMPLEN_CUTOFF { RAMPLEN as f32 } else { alpha_difference };
@@ -156,12 +168,19 @@ impl Patch for Harmoneer {
                     spew!("ts", self.ts, "r", r, "w", w, "w_hat", w_hat, "t_r", t_r, "ramp", backward_ramp_start, backward_ramp_end, "alpha", a0, a1, alpha, "main out", self.buf_f(r), "alt out", self.buf_f(alt_r), "out", out);
                 }
                 */
+                if dodump && self.sampnum >= dumpstart {
+                    let ri = (libm::floorf(r) as usize) % SIZE;
+                    spew!(self.sampnum, i, should_flip, r, w, p, w_hat, n_r, t_r, backward_ramp_start, backward_ramp_end, alpha, alt_r, ri);
+                }
                 out
             };
 
 
             //if w >= dbg_lo && w <= dbg_hi { spew!("r", r, "w", w, "t", t_f, t_r); }
 
+            if dodump && self.sampnum >= dumpstart {
+                spew!("aa0", r);
+            }
             if should_flip {
                 if p >= 1.0 {
                     r -= (SIZE/2) as f32;
@@ -169,10 +188,31 @@ impl Patch for Harmoneer {
                     r += (SIZE/2) as f32;
                 }
             }
+            if dodump && self.sampnum >= dumpstart {
+                spew!("aa1", p, r, r+p, r + 0.5, 8390654.0, 8390654.0 + p, 8390654.0 + 0.5, r == 8390654.0, p == 0.5);
+            }
+            if dodump && self.sampnum == 8388605 {
+                spew!("oh start");
+                let mut h: f32 = 8390450.0;
+                for i in 0..2000 {
+                    h += 0.5;
+                    spew!("hh", i, h);
+                }
+            }
 
+            let q = r + p;
             r += p;
+            if dodump && self.sampnum >= dumpstart {
+                spew!("aa2", p, r, q, r == 8390654.0);
+                spew!("um", 8390654.0, 8390654.0 + 0.5);
+            }
             w += 1;
             self.ts += 1;
+
+            if r > TIME_TO_REDUCE as f32 && w > TIME_TO_REDUCE {
+                r -= REDUCE_BY as f32;
+                w -= REDUCE_BY;
+            }
 
             // ====
 
@@ -181,6 +221,11 @@ impl Patch for Harmoneer {
 
             output_slice[i] = out;
             playhead.inc();
+            self.sampnum += 1;
         }
+    }
+
+    fn into_any(self: Box<Self>) -> Box<dyn Any> {
+        self
     }
 }

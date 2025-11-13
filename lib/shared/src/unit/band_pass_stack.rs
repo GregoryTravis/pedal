@@ -1,0 +1,177 @@
+#[cfg(feature = "for_host")]
+extern crate std;
+extern crate libm;
+
+use core::f32::consts::PI;
+
+use crate::constants::*;
+use crate::filter::sine_table::*;
+#[allow(unused)]
+use crate::spew::*;
+
+// Thanks of course to https://webaudio.github.io/Audio-EQ-Cookbook/Audio-EQ-Cookbook.txt
+
+const OVERTONE_1: f32 = 2.0;
+const OVERTONE_2: f32 = 3.0;
+const OVERTONE_3: f32 = 5.0;
+
+pub struct BandPassStack {
+    // Center frequency
+    freq: f32,
+
+    bw: f32,
+
+    // Filter params
+    b0_over_a0: f32,
+    b1_over_a0: f32,
+    b2_over_a0: f32,
+    a1_over_a0: f32,
+    a2_over_a0: f32,
+    b0_over_a0_1: f32,
+    b1_over_a0_1: f32,
+    b2_over_a0_1: f32,
+    a1_over_a0_1: f32,
+    a2_over_a0_1: f32,
+    b0_over_a0_2: f32,
+    b1_over_a0_2: f32,
+    b2_over_a0_2: f32,
+    a1_over_a0_2: f32,
+    a2_over_a0_2: f32,
+    b0_over_a0_3: f32,
+    b1_over_a0_3: f32,
+    b2_over_a0_3: f32,
+    a1_over_a0_3: f32,
+    a2_over_a0_3: f32,
+
+    // History
+    x_n_1: f32,
+    x_n_2: f32,
+    y_n_1: f32,
+    y_n_2: f32,
+    y_1_n_1: f32,
+    y_1_n_2: f32,
+    y_2_n_1: f32,
+    y_2_n_2: f32,
+    y_3_n_1: f32,
+    y_3_n_2: f32,
+}
+
+// First time I used AI to solve an equation.
+fn fast_sinh(x: f32) -> f32 {
+  (0.20335755098 * x * x * x) + x
+}
+
+impl BandPassStack {
+    // Center frequency; bandwidth in octaves between -3 frequencies
+    pub fn new(freq: f32, bw: f32) -> BandPassStack {
+        let mut bp = BandPassStack {
+            freq: 0.0,
+            bw: bw,
+
+            b0_over_a0: 0.0,
+            b1_over_a0: 0.0,
+            b2_over_a0: 0.0,
+            a1_over_a0: 0.0,
+            a2_over_a0: 0.0,
+            b0_over_a0_1: 0.0,
+            b1_over_a0_1: 0.0,
+            b2_over_a0_1: 0.0,
+            a1_over_a0_1: 0.0,
+            a2_over_a0_1: 0.0,
+            b0_over_a0_2: 0.0,
+            b1_over_a0_2: 0.0,
+            b2_over_a0_2: 0.0,
+            a1_over_a0_2: 0.0,
+            a2_over_a0_2: 0.0,
+            b0_over_a0_3: 0.0,
+            b1_over_a0_3: 0.0,
+            b2_over_a0_3: 0.0,
+            a1_over_a0_3: 0.0,
+            a2_over_a0_3: 0.0,
+
+            x_n_1: 0.0,
+            x_n_2: 0.0,
+            y_n_1: 0.0,
+            y_n_2: 0.0,
+            y_1_n_1: 0.0,
+            y_1_n_2: 0.0,
+            y_2_n_1: 0.0,
+            y_2_n_2: 0.0,
+            y_3_n_1: 0.0,
+            y_3_n_2: 0.0,
+        };
+
+        bp.set_freq(freq);
+        bp
+    }
+
+    // TODO remove this? What is it for?
+    pub fn get_freq(&self) -> f32 { self.freq }
+
+    pub fn set_freq(&mut self, freq: f32) {
+        (self.b0_over_a0, self.b1_over_a0, self.b2_over_a0, self.a1_over_a0, self.a2_over_a0) =
+            self.calc_params(freq);
+        (self.b0_over_a0_1, self.b1_over_a0_1, self.b2_over_a0_1, self.a1_over_a0_1, self.a2_over_a0_1) =
+            self.calc_params(freq * OVERTONE_1);
+        (self.b0_over_a0_2, self.b1_over_a0_2, self.b2_over_a0_2, self.a1_over_a0_2, self.a2_over_a0_2) =
+            self.calc_params(freq * OVERTONE_2);
+        (self.b0_over_a0_3, self.b1_over_a0_3, self.b2_over_a0_3, self.a1_over_a0_3, self.a2_over_a0_3) =
+            self.calc_params(freq * OVERTONE_3);
+
+        self.freq = freq;
+    }
+
+    #[inline(always)]
+    pub fn calc_params(&self, freq: f32) -> (f32, f32, f32, f32, f32) {
+        let w0 = 2.0 * PI * (freq / SAMPLE_RATE as f32);
+        let sin_w0 = table_sin(w0);
+        let alpha = sin_w0 * fast_sinh(
+                (libm::logf(2.0)/2.0) * self.bw * (w0 / sin_w0) );
+
+        // Constant skirt gain
+        // b0:  libm::sinf(w0)/2.0,
+        // b1:  0.0,
+        // b2: -(libm::sinf(w0)/2.0),
+        // a0:  1.0 + alpha,
+        // a1: -2.0 * libm::cosf(w0),
+        // a2:  1.0 - alpha,
+
+        // Constant peak 0 db gain
+        let b0 =  alpha;
+        let b1 =  0.0;
+        let b2 = -alpha;
+        let a0 =  1.0 + alpha;
+        let a1 = -2.0*libm::cosf(w0);
+        let a2 =  1.0 - alpha;
+
+        (b0 / a0, b1 / a0, b2 / a0, a1 / a0, a2 / a0)
+    }
+
+    pub fn process(&mut self, x_n: f32) -> f32 {
+        // TODO combine x sums
+        // TODO combine y sums?
+        let y_n = (self.b0_over_a0*x_n) + (self.b1_over_a0*self.x_n_1) + (self.b2_over_a0*self.x_n_2)
+                  - (self.a1_over_a0*self.y_n_1) - (self.a2_over_a0*self.y_n_2);
+        let y_1_n = (self.b0_over_a0_1*x_n) + (self.b1_over_a0_1*self.x_n_1) + (self.b2_over_a0_1*self.x_n_2)
+                  - (self.a1_over_a0_1*self.y_1_n_1) - (self.a2_over_a0_1*self.y_1_n_2);
+        let y_2_n = (self.b0_over_a0_2*x_n) + (self.b1_over_a0_2*self.x_n_1) + (self.b2_over_a0_2*self.x_n_2)
+                  - (self.a1_over_a0_2*self.y_2_n_1) - (self.a2_over_a0_2*self.y_2_n_2);
+        let y_3_n = (self.b0_over_a0_3*x_n) + (self.b1_over_a0_3*self.x_n_1) + (self.b2_over_a0_3*self.x_n_2)
+                  - (self.a1_over_a0_3*self.y_3_n_1) - (self.a2_over_a0_3*self.y_3_n_2);
+
+        // Shift history
+        self.x_n_2 = self.x_n_1;
+        self.x_n_1 = x_n;
+
+        self.y_n_2 = self.y_n_1;
+        self.y_n_1 = y_n;
+        self.y_1_n_2 = self.y_1_n_1;
+        self.y_1_n_1 = y_1_n;
+        self.y_2_n_2 = self.y_2_n_1;
+        self.y_2_n_1 = y_2_n;
+        self.y_3_n_2 = self.y_3_n_1;
+        self.y_3_n_1 = y_3_n;
+
+        y_n + y_1_n + y_2_n + y_3_n
+    }
+}

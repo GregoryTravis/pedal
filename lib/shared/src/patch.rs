@@ -1,5 +1,6 @@
 use alloc::boxed::Box;
 use core::marker::Send;
+use core::any::Any;
 
 use crate::knob::Knobs;
 use crate::playhead::*;
@@ -15,4 +16,6 @@ pub trait Patch: Send {
 
     fn done(&self) -> bool { panic!("Should not reach here"); }
     fn passed(&self) -> bool { panic!("Should not reach here"); }
+
+    fn into_any(self: Box<Self>) -> Box<dyn Any>;
 }

@@ -1,6 +1,7 @@
 extern crate alloc;
 extern crate libm;
 
+use core::any::Any;
 use alloc::boxed::Box;
 
 use crate::knob::Knobs;
@@ -55,5 +56,9 @@ impl Patch for ResoFilter {
             output_slice[i] = out;
             playhead.inc();
         }
+    }
+
+    fn into_any(self: Box<Self>) -> Box<dyn Any> {
+        self
     }
 }

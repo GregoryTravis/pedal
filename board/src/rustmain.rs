@@ -14,6 +14,8 @@ use shared::fft_bench::*;
 #[allow(unused_imports)]
 use shared::filter::chorus::*;
 #[allow(unused_imports)]
+use shared::filter::guitar_synth::*;
+#[allow(unused_imports)]
 use shared::filter::harmoneer::*;
 #[allow(unused_imports)]
 use shared::filter::high_pass::*;
@@ -67,32 +69,21 @@ fn harmoneer(sdram: &mut SDRAM) -> Box<dyn Patch> {
 }
 
 #[allow(dead_code)]
-fn live_main() {
+fn much_harm_main() {
     hw_init(!PROD, BLOCK_SIZE);
     spew!("hi");
     load_init();
 
-    /*
-    let mut sdram: SDRAM = SDRAM::new();
-    let fooie: &[f32] = sdram.alloc(16);
-    let ptr_int = fooie.as_ptr() as u32;
-    spew!("got", ptr_int, fooie.len(), fooie[0]);
-    */
-    let mut sdram = SDRAM::new();
-    let a0 = sdram.alloc(10);
-    spew!("a0", hex(a0.as_ptr() as u64));
-    let a1 = sdram.alloc(10);
-    spew!("a1", hex(a1.as_ptr() as u64));
-
-    //let patch = harmoneer(&mut sdram);
-    let patch = shared::rubin::rubin(&mut sdram);
-
     let knobs = Box::new(BoardKnobs { });
     let switches = Box::new(BoardSwitches { });
     let toggle = Toggle::new(switches, 0);
-    rig_install_patch(patch, knobs, toggle);
 
     rig_install_callback();
+
+    let mut sdram = SDRAM::new();
+    let patch = shared::much_harm::much_harm(&mut sdram);
+
+    rig_install_patch(patch, knobs, toggle);
 
     // TODO don't duplicate this.
     let knobs2 = Box::new(BoardKnobs { });
@@ -105,6 +96,107 @@ fn live_main() {
         toggle2.process();
         toggle2.spew();
         hw_delay(500);
+    }
+}
+
+#[allow(dead_code)]
+fn rubin_main() {
+    hw_init(!PROD, BLOCK_SIZE);
+    spew!("hi");
+    load_init();
+
+    let knobs = Box::new(BoardKnobs { });
+    let switches = Box::new(BoardSwitches { });
+    let toggle = Toggle::new(switches, 0);
+
+    rig_install_callback();
+
+    let mut sdram = SDRAM::new();
+    let patch = shared::rubin::rubin(&mut sdram);
+
+    rig_install_patch(patch, knobs, toggle);
+
+    // TODO don't duplicate this.
+    let knobs2 = Box::new(BoardKnobs { });
+    let switches2 = Box::new(BoardSwitches { });
+    let mut toggle2 = Toggle::new(switches2, 0);
+    loop {
+        load_spew();
+        /*
+        rig_log();
+        knobs2.spew();
+        toggle2.process();
+        toggle2.spew();
+        */
+        hw_delay(500);
+    }
+}
+
+#[allow(dead_code)]
+fn gs_main() {
+    hw_init(!PROD, BLOCK_SIZE);
+    spew!("hi");
+    load_init();
+
+    let patch = Box::new(GuitarSynth::new(1.0));
+
+    let knobs = Box::new(BoardKnobs { });
+    let switches = Box::new(BoardSwitches { });
+    let toggle = Toggle::new(switches, 0);
+    rig_install_patch(patch, knobs, toggle);
+
+    rig_install_callback();
+
+    loop {
+        load_spew();
+        hw_delay(500);
+    }
+}
+
+#[allow(dead_code)]
+fn rubin2_main_loop(switcher_knob: usize, is_switcher_low: bool) {
+    let knobs = Box::new(BoardKnobs { });
+    loop {
+        let current_is_switcher_low = knobs.read(switcher_knob) < 0.5;
+        if current_is_switcher_low != is_switcher_low {
+            break;
+        }
+        load_spew();
+        hw_delay(500);
+    }
+}
+
+#[allow(dead_code)]
+// orig rubin (harmoneer+) with gs, switched by knob 5
+fn rubin2_main() {
+    hw_init(!PROD, BLOCK_SIZE);
+    spew!("hi");
+    load_init();
+
+    rig_install_callback();
+
+    let switcher_knob = 5;
+
+    loop {
+        let knobs = Box::new(BoardKnobs { });
+        let knobs2 = Box::new(BoardKnobs { });
+        let switches = Box::new(BoardSwitches { });
+        let toggle = Toggle::new(switches, 0);
+
+        let is_switcher_low = knobs2.read(switcher_knob) < 0.5;
+        spew!("setting patch", if is_switcher_low { "rubin" } else { "gs" });
+        if is_switcher_low {
+            let mut sdram = SDRAM::new();
+            let patch = shared::rubin::rubin(&mut sdram);
+            rig_install_patch(patch, knobs, toggle);
+            rubin2_main_loop(switcher_knob, is_switcher_low);
+            rig_deinstall_patch();
+        } else {
+            let patch = Box::new(GuitarSynth::new(5.0));
+            rig_install_patch(patch, knobs, toggle);
+            rubin2_main_loop(switcher_knob, is_switcher_low);
+            rig_deinstall_patch();
+        }
     }
 }
 
@@ -131,8 +223,8 @@ pub fn oom_test() {
 
 fn sdram_test() {
     let mut sdram = SDRAM::new();
-    let a0 = sdram.alloc(10);
-    let a1 = sdram.alloc(10);
+    let a0 = sdram.alloc_slice(10);
+    let a1 = sdram.alloc_slice(10);
     assert!(a0.as_ptr() == 0xc0000000 as *const f32);
     assert!(a1.as_ptr() == 0xc0000028 as *const f32);
     spew!("sdram", a0.as_ptr() as u64, a1.as_ptr() as u64);
@@ -149,7 +241,49 @@ fn all_tests() {
 #[allow(dead_code)]
 pub fn benchmark_fft() {
     hw_init(true, BLOCK_SIZE);
-    do_benchmark_fft();
+    let mut sdram = SDRAM::new();
+    do_benchmark_fft(&mut sdram);
+}
+
+#[allow(dead_code)]
+pub fn do_fft_output_comparison() {
+    hw_init(true, BLOCK_SIZE);
+    fft_output_comparison();
+}
+
+// TODO remove / not compiled in
+pub mod study_mem {
+    use alloc::boxed::Box;
+    use shared::spew::*;
+    pub fn study_mem() {
+        crate::rustmain::hw_init(!crate::rustmain::PROD, crate::rustmain::BLOCK_SIZE);
+        let mut count = 0;
+        loop {
+            let b = Box::new(12_u32);
+            let p: *mut u32 = Box::<u32>::into_raw(b);
+            spew!("alloc", count, hex(p as u64));
+            //core::mem::forget(p);
+            count += 1;
+        }
+    }
+
+    /*
+    //extern crate libc; // 0.2.65
+    use cortex_m::interrupt::free;
+    use core::ffi::c_void;
+    use core::mem;
+
+    pub fn study_mem() {
+        crate::rustmain::hw_init(!crate::rustmain::PROD, crate::rustmain::BLOCK_SIZE);
+        unsafe {
+            let my_num: *mut i32 = libc::malloc(mem::size_of::<i32>() as libc::size_t) as *mut i32;
+            if my_num.is_null() {
+                panic!("failed to allocate memory");
+            }
+            libc::free(my_num as *mut libc::c_void);
+        }
+    }
+    */
 }
 
 #[allow(dead_code)]
@@ -162,11 +296,16 @@ pub fn benchmark_patches() {
 pub fn main() {
     spew!("start of main");
 
-    //live_main();
+    rubin_main();
+    //rubin2_main();
+    //much_harm_main();
+    //gs_main();
+    //study_mem::study_mem();
     //all_tests();
     benchmark_patches();
     //oom_test();
     //benchmark_fft();
+    //do_fft_output_comparison();
 
     spew!("end of main");
 }

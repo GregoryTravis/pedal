@@ -1,5 +1,6 @@
 use alloc::boxed::Box;
 
+use core::any::Any;
 use crate::knob::Knobs;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
@@ -27,5 +28,9 @@ impl Patch for LowPassFilter {
             output_slice[i] = 5.0 * ((input_slice[i] + self.state) / 2.0);
             self.state = input_slice[i];
         }
+    }
+
+    fn into_any(self: Box<Self>) -> Box<dyn Any> {
+        self
     }
 }
