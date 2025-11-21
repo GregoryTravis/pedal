@@ -4,15 +4,15 @@ extern crate alloc;
 
 use alloc::rc::Rc;
 
-use shared::edsl::wad::node::{Node, compile};
+use shared::edsl::wad::node::*;
 
 fn build_edsl_nodey() {
-    let input = Rc::new(Node::Input);
-    let pt = Rc::new(Node::PassThru(input.clone()));
-    let add = Rc::new(Node::Add(input.clone(), pt.clone()));
-    let sf = Rc::new(Node::SumFilter(add.clone(), -1, 1));
-    let sf2 = Rc::new(Node::SumFilter(add.clone(), -3, 3));
-    let sfadd = Rc::new(Node::Add(sf.clone(), sf2.clone()));
+    let input = input();
+    let pt = pass_thru(&input);
+    let added = add(&input, &pt);
+    let sf = sum_filter(&added, -1, 1);
+    let sf2 = sum_filter(&added, -3, 3);
+    let sfadd = add(&sf, &sf2);
     let out = sfadd;
     compile(&out, "src/filter/edsl_nodey.rs", "EdslNodey");
 }

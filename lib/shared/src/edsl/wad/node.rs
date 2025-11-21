@@ -20,6 +20,30 @@ use crate::edsl::runtime::range::Range;
 
 const PATCH_LOGGING: bool = false;
 
+pub fn input() -> Rc<Node> {
+    Rc::new(Node::Input)
+}
+
+pub fn pass_thru(x: &Rc<Node>) -> Rc<Node> {
+    Rc::new(Node::PassThru(x.clone()))
+}
+
+pub fn add(a: &Rc<Node>, b: &Rc<Node>) -> Rc<Node> {
+    Rc::new(Node::Add(a.clone(), b.clone()))
+}
+
+pub fn sum_filter(x: &Rc<Node>, low: isize, high: isize) -> Rc<Node> {
+    Rc::new(Node::SumFilter(x.clone(), low, high))
+}
+
+pub fn high_pass(x: &Rc<Node>) -> Rc<Node> {
+    Rc::new(Node::HighPass(x.clone()))
+}
+
+pub fn low_pass(x: &Rc<Node>) -> Rc<Node> {
+    Rc::new(Node::LowPass(x.clone()))
+}
+
 #[derive(PartialEq, Eq, Hash, Debug)]
 pub enum Node {
     Input,
