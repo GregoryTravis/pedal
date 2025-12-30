@@ -460,6 +460,10 @@ impl Patch for {} {{
             {}
         }}
     }}
+
+    fn into_any(self: Box<Self>) -> Box<dyn Any> {{
+        self
+    }}
 }}
 
 pub const INPUT: &'static [f32] = &[
@@ -498,6 +502,7 @@ extern crate alloc;
 extern crate libm;
 
 use alloc::boxed::Box;
+use core::any::Any;
 
 #[allow(unused_imports)]
 use crate::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::{add, pass_thru, sum_filter, high_pass, low_pass}};
