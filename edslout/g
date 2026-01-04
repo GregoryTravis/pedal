@@ -1,5 +1,7 @@
 cargo run --features for_host --bin test 2>&1 | tee out
 exit
 
+#(pushd ../lib/shared && cargo run --bin edslbuild --features for_host && popd) 2>&1 | tee out
+
 (cargo run --features for_host --bin edslbuild && \
  cargo run --features for_host --bin test 2>&1 | tee out
