@@ -1,4 +1,6 @@
 
+#![allow(non_snake_case)]
+
 extern crate alloc;
 extern crate libm;
 
@@ -10,9 +12,14 @@ use shared::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::
 use shared::knob::Knobs;
 use shared::patch::Patch;
 use shared::playhead::Playhead;
-use shared::test::*;
 const MAX: usize = 10;
 pub struct EdslLowPass6 {
+    unitLowPass_5: LowPass,
+    unitLowPass_4: LowPass,
+    unitLowPass_3: LowPass,
+    unitLowPass_2: LowPass,
+    unitLowPass_1: LowPass,
+    unitLowPass_0: LowPass,
     signal0: Signal<f32>,
     signal1: Signal<f32>,
     signal2: Signal<f32>,
@@ -25,7 +32,13 @@ pub struct EdslLowPass6 {
             impl EdslLowPass6 {
                 pub fn new() -> EdslLowPass6 {
                     EdslLowPass6 {
-                            signal0: Signal::new(MAX),
+                            unitLowPass_5: LowPass::new(),
+    unitLowPass_4: LowPass::new(),
+    unitLowPass_3: LowPass::new(),
+    unitLowPass_2: LowPass::new(),
+    unitLowPass_1: LowPass::new(),
+    unitLowPass_0: LowPass::new(),
+    signal0: Signal::new(MAX),
     signal1: Signal::new(MAX),
     signal2: Signal::new(MAX),
     signal3: Signal::new(MAX),
@@ -50,22 +63,22 @@ impl Patch for EdslLowPass6 {
             self.signal6.write(input_slice[i]);
 
             let port5_0: Window<f32> = Window::new(&self.signal6, Range(-1, 0));
-LowPass.go(&port5_0, &mut self.signal5);
+self.unitLowPass_5.go(&port5_0, &mut self.signal5);
 
 let port4_0: Window<f32> = Window::new(&self.signal5, Range(-1, 0));
-LowPass.go(&port4_0, &mut self.signal4);
+self.unitLowPass_4.go(&port4_0, &mut self.signal4);
 
 let port3_0: Window<f32> = Window::new(&self.signal4, Range(-1, 0));
-LowPass.go(&port3_0, &mut self.signal3);
+self.unitLowPass_3.go(&port3_0, &mut self.signal3);
 
 let port2_0: Window<f32> = Window::new(&self.signal3, Range(-1, 0));
-LowPass.go(&port2_0, &mut self.signal2);
+self.unitLowPass_2.go(&port2_0, &mut self.signal2);
 
 let port1_0: Window<f32> = Window::new(&self.signal2, Range(-1, 0));
-LowPass.go(&port1_0, &mut self.signal1);
+self.unitLowPass_1.go(&port1_0, &mut self.signal1);
 
 let port0_0: Window<f32> = Window::new(&self.signal1, Range(-1, 0));
-LowPass.go(&port0_0, &mut self.signal0);
+self.unitLowPass_0.go(&port0_0, &mut self.signal0);
 
 
             output_slice[i] = self.signal0.read(0);
@@ -80,27 +93,3 @@ LowPass.go(&port0_0, &mut self.signal0);
     }
 }
 
-pub const INPUT: &'static [f32] = &[
-    0.0,
-    0.1,
-    0.2,
-    0.3,
-];
-
-pub const OUTPUT: &'static [f32] = &[
-    0.0,
-    0.4,
-    1.2,
-    2.4,
-];
-
-pub fn main() {
-    let patch = Box::new(EdslLowPass6::new());
-    let test_case = Box::new(TestCase {
-            name: "EdslLowPass6",
-            patch: patch,
-            canned_input: INPUT,
-            expected_output: OUTPUT,
-        });
-    test_patch(test_case.name, test_case.patch, test_case.canned_input, test_case.expected_output);
-}

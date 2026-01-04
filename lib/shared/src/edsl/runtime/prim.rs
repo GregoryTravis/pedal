@@ -8,14 +8,18 @@ use crate::edsl::runtime::{signal::Signal, window::Window};
 
 pub struct PassThru {}
 impl PassThru {
-    pub fn go<T: Default + Copy>(inn: &Window<T>, out: &mut Signal<T>) {
+    pub fn new() -> Self { Self {} }
+
+    pub fn go<T: Default + Copy>(&mut self, inn: &Window<T>, out: &mut Signal<T>) {
         out.write(inn.read(0));
     }
 }
 
 pub struct AddPrim {}
 impl AddPrim {
-    pub fn go<T: Add<Output = T> + Default + Copy + core::fmt::Display>(a: &Window<T>, b: &Window<T>, sum: &mut Signal<T>) {
+    pub fn new() -> Self { Self {} }
+
+    pub fn go<T: Add<Output = T> + Default + Copy + core::fmt::Display>(&mut self, a: &Window<T>, b: &Window<T>, sum: &mut Signal<T>) {
         //println!("add: {} {} {}", a.read(0), b.read(0), a.read(0) + b.read(0));
         sum.write(a.read(0) + b.read(0));
     }
@@ -23,15 +27,19 @@ impl AddPrim {
 
 pub struct HighPass {}
 impl HighPass {
-    pub fn go(inn: &Window<f32>, out: &mut Signal<f32>) {
+    pub fn new() -> Self { Self {} }
+
+    pub fn go(&mut self, inn: &Window<f32>, out: &mut Signal<f32>) {
         out.write(5.0 * ((inn.read(0) - inn.read(-1)) / 2.0));
     }
 }
 
 pub struct LowPass {}
 impl LowPass {
+    pub fn new() -> Self { Self {} }
+
     #[inline(always)]
-    pub fn go(inn: &Window<f32>, out: &mut Signal<f32>) {
+    pub fn go(&mut self, inn: &Window<f32>, out: &mut Signal<f32>) {
         out.write(5.0 * ((inn.read(0) + inn.read(-1)) / 2.0));
     }
 }
@@ -39,7 +47,9 @@ impl LowPass {
 // Dum filter that sums the entire input range.
 pub struct SumFilter {}
 impl SumFilter {
-    pub fn go<T: Add<Output = T> + AddAssign + Default + Copy>(inn: &Window<T>, out: &mut Signal<T>) {
+    pub fn new() -> Self { Self {} }
+
+    pub fn go<T: Add<Output = T> + AddAssign + Default + Copy>(&mut self, inn: &Window<T>, out: &mut Signal<T>) {
         let mut sum: T = Default::default();
         for i in inn.range().0..=inn.range().1 {
             sum += inn.read(i);

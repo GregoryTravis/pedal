@@ -59,7 +59,7 @@ impl Node {
         match self {
             Node::Input => "Input",
             Node::PassThru(_) => "PassThru",
-            Node::Add(_, _) => "Add",
+            Node::Add(_, _) => "AddPrim",
             Node::SumFilter(_, _, _) => "SumFilter",
             Node::HighPass(_) => "HighPass",
             Node::LowPass(_) => "LowPass",
@@ -81,7 +81,7 @@ impl Node {
         match self {
             Node::Input => "vwarlar",
             Node::PassThru(_) => "PassThru",
-            Node::Add(_, _) => "Add",
+            Node::Add(_, _) => "AddPrim",
             Node::SumFilter(_, _, _) => "SumFilter",
             Node::HighPass(_) => "HighPass",
             Node::LowPass(_) => "LowPass",
@@ -129,6 +129,8 @@ pub struct GNode {
     ports: Vec<Port>,
 }
 
+// Step: port, struct name, index
+// Port: index, range, type
 #[derive(Debug)]
 pub struct Step(Vec<(u32,Range,String)>,String,u32);
 
@@ -340,12 +342,20 @@ impl GNode {
         });
     }
 
-    fn generate_struct(&self, name: &str) -> String {
+    fn generate_struct(&self, name: &str, steps: &Vec<Step>) -> String {
         let mut acc: String = "".to_owned();
         acc.push_str(&format!("pub struct {} {{\n", name).to_owned());
+
+        // units
+        for Step(_, prim_struct_name, output_signal_index) in steps {
+            acc.push_str(&format!("    unit{}_{}: {},\n", prim_struct_name, output_signal_index, prim_struct_name));
+        }
+
+        // signals
         self.trav_mut(&mut |gn: &GNode| {
             acc.push_str(&format!("    signal{}: Signal<{}>,\n", gn.index, gn.node.type_name()).to_owned());
         });
+
         acc.push_str("}\n");
         acc
     }
@@ -360,10 +370,16 @@ impl GNode {
         acc
     }
 
-    fn generate_impl(&self, name: &str) -> String {
+    fn generate_impl(&self, name: &str, steps: &Vec<Step>) -> String {
         let mut acc: String = "".to_owned();
         let mut acc_lines: String = "".to_owned();
 
+        // units
+        for Step(_, prim_struct_name, output_signal_index) in steps {
+            acc_lines.push_str(&format!("    unit{}_{}: {}::new(),\n", prim_struct_name, output_signal_index, prim_struct_name));
+        }
+
+        // signals
         self.trav_mut(&mut |gn: &GNode| {
             acc_lines.push_str(&format!("    signal{}: Signal::new(MAX),\n", gn.index));
         });
@@ -424,7 +440,7 @@ impl GNode {
             }
             let signals: Vec<String> = port_numbers.iter().map(|port_index| format!("&port{}_{}", output_signal_index, port_index)).collect();
             let signals_joined: String = signals.join(", ");
-            acc.push_str(&format!("{}.go({}, &mut self.signal{});\n", prim_struct_name, signals_joined, output_signal_index));
+            acc.push_str(&format!("self.unit{}_{}.go({}, &mut self.signal{});\n", prim_struct_name, output_signal_index, signals_joined, output_signal_index));
             acc.push_str("\n");
         }
 
@@ -465,37 +481,15 @@ impl Patch for {} {{
     }}
 }}
 
-pub const INPUT: &'static [f32] = &[
-    0.0,
-    0.1,
-    0.2,
-    0.3,
-];
-
-pub const OUTPUT: &'static [f32] = &[
-    0.0,
-    0.4,
-    1.2,
-    2.4,
-];
-
-pub fn main() {{
-    let patch = Box::new({}::new());
-    let test_case = Box::new(TestCase {{
-            name: "{}",
-            patch: patch,
-            canned_input: INPUT,
-            expected_output: OUTPUT,
-        }});
-    test_patch(test_case.name, test_case.patch, test_case.canned_input, test_case.expected_output);
-}}
 "#,
-            name, input_signal, body, output_signal, per_loop_log, name, name));
+            name, input_signal, body, output_signal, per_loop_log));
         acc
     }
 
     pub fn generate_header(&self) -> String {
         r#"
+#![allow(non_snake_case)]
+
 extern crate alloc;
 extern crate libm;
 
@@ -507,7 +501,6 @@ use shared::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::
 use shared::knob::Knobs;
 use shared::patch::Patch;
 use shared::playhead::Playhead;
-use shared::test::*;
 const MAX: usize = 10;
 "#.to_string()
     }
@@ -516,8 +509,8 @@ const MAX: usize = 10;
         let steps = self.gather_steps();
         let mut acc: String = "".to_owned();
         acc.push_str(&self.generate_header());
-        acc.push_str(&self.generate_struct(name));
-        acc.push_str(&self.generate_impl(name));
+        acc.push_str(&self.generate_struct(name, &steps));
+        acc.push_str(&self.generate_impl(name, &steps));
         acc.push_str(&self.generate_patch_impl(name, &steps));
         acc
     }

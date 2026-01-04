@@ -1,4 +1,6 @@
 
+#![allow(non_snake_case)]
+
 extern crate alloc;
 extern crate libm;
 
@@ -10,9 +12,9 @@ use shared::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::
 use shared::knob::Knobs;
 use shared::patch::Patch;
 use shared::playhead::Playhead;
-use shared::test::*;
 const MAX: usize = 10;
 pub struct EdslLowPass {
+    unitLowPass_0: LowPass,
     signal0: Signal<f32>,
     signal1: Signal<f32>,
 }
@@ -20,7 +22,8 @@ pub struct EdslLowPass {
             impl EdslLowPass {
                 pub fn new() -> EdslLowPass {
                     EdslLowPass {
-                            signal0: Signal::new(MAX),
+                            unitLowPass_0: LowPass::new(),
+    signal0: Signal::new(MAX),
     signal1: Signal::new(MAX),
 
                     }
@@ -40,7 +43,7 @@ impl Patch for EdslLowPass {
             self.signal1.write(input_slice[i]);
 
             let port0_0: Window<f32> = Window::new(&self.signal1, Range(-1, 0));
-LowPass.go(&port0_0, &mut self.signal0);
+self.unitLowPass_0.go(&port0_0, &mut self.signal0);
 
 
             output_slice[i] = self.signal0.read(0);
@@ -55,27 +58,3 @@ LowPass.go(&port0_0, &mut self.signal0);
     }
 }
 
-pub const INPUT: &'static [f32] = &[
-    0.0,
-    0.1,
-    0.2,
-    0.3,
-];
-
-pub const OUTPUT: &'static [f32] = &[
-    0.0,
-    0.4,
-    1.2,
-    2.4,
-];
-
-pub fn main() {
-    let patch = Box::new(EdslLowPass::new());
-    let test_case = Box::new(TestCase {
-            name: "EdslLowPass",
-            patch: patch,
-            canned_input: INPUT,
-            expected_output: OUTPUT,
-        });
-    test_patch(test_case.name, test_case.patch, test_case.canned_input, test_case.expected_output);
-}

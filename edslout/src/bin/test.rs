@@ -1,16 +1,19 @@
 extern crate alloc;
 
 use alloc::boxed::Box;
-use alloc::sync::Arc;
 use alloc::vec::Vec;
 
-use crate::edsl_nodey::*;
-use crate::edsl_high_pass::*;
-use crate::edsl_low_pass::*;
-use crate::edsl_low_pass_6::*;
-use crate::edsl_pass_thru::*;
-use crate::testdata::*;
-use crate::test_cases::*;
+use edslout::edsl_nodey::*;
+use edslout::edsl_high_pass::*;
+use edslout::edsl_low_pass::*;
+use edslout::edsl_low_pass_6::*;
+use edslout::edsl_pass_thru::*;
+use edslout::testdata::*;
+
+use shared::constants::*;
+use shared::filter::low_pass::*;
+use shared::filter::seq::*;
+use shared::test::*;
 
 pub fn get_test_cases() -> Vec<Box<TestCase>> {
     let lp6 = {
@@ -71,7 +74,7 @@ pub fn get_test_cases() -> Vec<Box<TestCase>> {
  * Unit tests for patches.
  */
 
-pub fn test_direct() {
+pub fn main() {
     if DO_DUMP {
         local_test_dump_as_source("TEST_INPUT", &TEST_INPUT);
         local_test_dump_as_source("EDSL_NODEY_INPUT", EDSL_NODEY_INPUT);
