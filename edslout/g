@@ -1,4 +1,4 @@
-cargo run --features for_host --bin edslbuild 2>&1 | tee out
+cargo run --features for_host --bin test 2>&1 | tee out
 exit
 
 (cargo run --features for_host --bin edslbuild && \
