@@ -77,14 +77,14 @@ impl Node {
         }
     }
 
-    pub fn prim_name(&self) -> &str {
+    pub fn prim_struct_name(&self) -> &str {
         match self {
             Node::Input => "vwarlar",
-            Node::PassThru(_) => "pass_thru",
-            Node::Add(_, _) => "add",
-            Node::SumFilter(_, _, _) => "sum_filter",
-            Node::HighPass(_) => "high_pass",
-            Node::LowPass(_) => "low_pass",
+            Node::PassThru(_) => "PassThru",
+            Node::Add(_, _) => "Add",
+            Node::SumFilter(_, _, _) => "SumFilter",
+            Node::HighPass(_) => "HighPass",
+            Node::LowPass(_) => "LowPass",
         }
     }
 
@@ -393,7 +393,7 @@ impl GNode {
                 let ports:Vec<(u32,Range,String)> = gn.inputs.iter().zip(&gn.ports).map(|(input, port)| {
                     (input.borrow().index, port.range, input.borrow().node.type_name().to_string())
                 }).collect();
-                steps.push(Step(ports, gn.node.prim_name().to_string(), gn.index));
+                steps.push(Step(ports, gn.node.prim_struct_name().to_string(), gn.index));
             }
         });
         //steps.reverse();
@@ -410,9 +410,9 @@ impl GNode {
         }
         */
 
-        for Step(ports, prim_name, output_signal_index) in steps {
+        for Step(ports, prim_struct_name, output_signal_index) in steps {
             if PATCH_LOGGING {
-                acc.push_str(&format!("println!(\"{{}} {{}}\", {}, \"{}\");\n", output_signal_index, prim_name));
+                acc.push_str(&format!("println!(\"{{}} {{}}\", {}, \"{}\");\n", output_signal_index, prim_struct_name));
             }
             let mut port_serial: usize = 0;
             let mut port_numbers: Vec<usize> = Vec::new();
@@ -425,7 +425,7 @@ impl GNode {
             }
             let signals: Vec<String> = port_numbers.iter().map(|port_index| format!("&port{}_{}", output_signal_index, port_index)).collect();
             let signals_joined: String = signals.join(", ");
-            acc.push_str(&format!("{}({}, &mut self.signal{});\n", prim_name, signals_joined, output_signal_index));
+            acc.push_str(&format!("{}.go({}, &mut self.signal{});\n", prim_struct_name, signals_joined, output_signal_index));
             acc.push_str("\n");
         }
 
@@ -505,7 +505,7 @@ use alloc::boxed::Box;
 use core::any::Any;
 
 #[allow(unused_imports)]
-use crate::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::{add, pass_thru, sum_filter, high_pass, low_pass}};
+use crate::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::{AddPrim, PassThru, SumFilter, HighPass, LowPass}};
 use crate::knob::Knobs;
 use crate::patch::Patch;
 use crate::playhead::Playhead;

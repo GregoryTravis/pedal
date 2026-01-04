@@ -1,5 +1,5 @@
-./build-edsl-patches.sh 2>&1 | tee out
-exit
+#./build-edsl-patches.sh 2>&1 | tee out
+#exit
 
 (cargo run --bin edsltest --features for_host && \
  rustfmt src/bin/edslpatch.rs && \
