@@ -18,6 +18,7 @@ lto = "fat"
 for_host = ["shared"]
 
 [dependencies]
+libm = "0.2.8"
 shared = { path = "../lib/shared", optional = true, features = ["for_host"] }
 
 [[bin]]

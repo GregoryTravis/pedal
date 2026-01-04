@@ -505,11 +505,11 @@ use alloc::boxed::Box;
 use core::any::Any;
 
 #[allow(unused_imports)]
-use crate::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::{AddPrim, PassThru, SumFilter, HighPass, LowPass}};
-use crate::knob::Knobs;
-use crate::patch::Patch;
-use crate::playhead::Playhead;
-use crate::test::*;
+use shared::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::{AddPrim, PassThru, SumFilter, HighPass, LowPass}};
+use shared::knob::Knobs;
+use shared::patch::Patch;
+use shared::playhead::Playhead;
+use shared::test::*;
 const MAX: usize = 10;
 "#);
 
