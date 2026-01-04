@@ -14,25 +14,25 @@ fn build_edsl_nodey() {
     let sf2 = sum_filter(&added, -3, 3);
     let sfadd = add(&sf, &sf2);
     let out = sfadd;
-    compile(&out, "src/filter/edsl_nodey.rs", "EdslNodey");
+    compile(&out, "src/edsl_nodey.rs", "EdslNodey");
 }
 
 fn build_edsl_high_pass() {
     let input = Rc::new(Node::Input);
     let out = Rc::new(Node::HighPass(input.clone()));
-    compile(&out, "src/filter/edsl_high_pass.rs", "EdslHighPass");
+    compile(&out, "src/edsl_high_pass.rs", "EdslHighPass");
 }
 
 fn build_edsl_low_pass() {
     let input = Rc::new(Node::Input);
     let out = Rc::new(Node::LowPass(input.clone()));
-    compile(&out, "src/filter/edsl_low_pass.rs", "EdslLowPass");
+    compile(&out, "src/edsl_low_pass.rs", "EdslLowPass");
 }
 
 fn build_edsl_pass_thru() {
     let input = Rc::new(Node::Input);
     let out = Rc::new(Node::PassThru(input.clone()));
-    compile(&out, "src/filter/edsl_pass_thru.rs", "EdslPassThru");
+    compile(&out, "src/edsl_pass_thru.rs", "EdslPassThru");
 }
 
 fn build_edsl_low_pass_6() {
@@ -41,7 +41,7 @@ fn build_edsl_low_pass_6() {
     for _ in 0..6 {
         n = Rc::new(Node::LowPass(n));
     }
-    compile(&n, "src/filter/edsl_low_pass_6.rs", "EdslLowPass6");
+    compile(&n, "src/edsl_low_pass_6.rs", "EdslLowPass6");
 }
 
 fn main() {

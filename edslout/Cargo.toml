@@ -1,0 +1,27 @@
+[package]
+name = "edslout"
+version = "0.1.0"
+edition = "2024"
+
+# [lib]
+# name = "edslout"
+# # This is required because this is linked into the final board binary by lib/shim/Makefile.
+# crate-type = ["staticlib"]
+
+[profile.release]
+debug = true
+lto = "fat"
+
+[features]
+# Any crates that require std cannot be built for the board, and must be listed
+# here; they must also be configured as optional dependencies.
+for_host = ["shared"]
+
+[dependencies]
+shared = { path = "../lib/shared", optional = true, features = ["for_host"] }
+
+[[bin]]
+name = "edslbuild"
+
+[[bin]]
+name = "test"

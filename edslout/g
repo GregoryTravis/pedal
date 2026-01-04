@@ -1,0 +1,1 @@
+cargo run --features for_host --bin edslbuild 2>&1 | tee out

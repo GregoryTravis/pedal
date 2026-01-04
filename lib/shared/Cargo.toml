@@ -37,6 +37,3 @@ required-features = ["hound"]
 [[bin]]
 name = "dump"
 required-features = ["hound"]
-
-[[bin]]
-name = "edsltest"
