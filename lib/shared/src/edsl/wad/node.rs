@@ -400,9 +400,8 @@ impl GNode {
         steps
     }
 
-    fn generate_patch_routing(&self) -> String {
+    fn generate_patch_routing(&self, steps: &Vec<Step>) -> String {
         let mut acc: String = "".to_owned();
-        let steps = self.gather_steps();
         /*
         println!("Steps:");
         for step in &steps {
@@ -416,7 +415,7 @@ impl GNode {
             }
             let mut port_serial: usize = 0;
             let mut port_numbers: Vec<usize> = Vec::new();
-            for (port_index, range, type_name) in &ports {
+            for (port_index, range, type_name) in ports {
                 let next = port_serial;
                 port_serial += 1;
                 port_numbers.push(next);
@@ -432,12 +431,12 @@ impl GNode {
         acc
     }
 
-    fn generate_patch_impl(&self, name: &str) -> String {
+    fn generate_patch_impl(&self, name: &str, steps: &Vec<Step>) -> String {
         let mut acc: String = "".to_owned();
 
         let input_signal = format!("signal{}", self.get_input_slice_index());
         let output_signal = format!("signal{}", self.index);
-        let body = self.generate_patch_routing();
+        let body = self.generate_patch_routing(steps);
 
         let per_loop_log = if PATCH_LOGGING { "self.per_loop_log();\n" } else { "" };
 
@@ -514,11 +513,12 @@ const MAX: usize = 10;
     }
 
     pub fn generate(&self, name: &str) -> String {
+        let steps = self.gather_steps();
         let mut acc: String = "".to_owned();
         acc.push_str(&self.generate_header());
         acc.push_str(&self.generate_struct(name));
         acc.push_str(&self.generate_impl(name));
-        acc.push_str(&self.generate_patch_impl(name));
+        acc.push_str(&self.generate_patch_impl(name, &steps));
         acc
     }
 }
