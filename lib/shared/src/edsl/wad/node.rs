@@ -495,9 +495,8 @@ pub fn main() {{
         acc
     }
 
-    pub fn generate(&self, name: &str) -> String {
-        let mut acc: String = "".to_owned();
-        acc.push_str(r#"
+    pub fn generate_header(&self) -> String {
+        r#"
 extern crate alloc;
 extern crate libm;
 
@@ -511,9 +510,12 @@ use shared::patch::Patch;
 use shared::playhead::Playhead;
 use shared::test::*;
 const MAX: usize = 10;
-"#);
+"#.to_string()
+    }
 
-// Generate this; rename it.
+    pub fn generate(&self, name: &str) -> String {
+        let mut acc: String = "".to_owned();
+        acc.push_str(&self.generate_header());
         acc.push_str(&self.generate_struct(name));
         acc.push_str(&self.generate_impl(name));
         acc.push_str(&self.generate_patch_impl(name));
