@@ -4,6 +4,7 @@ use alloc::boxed::Box;
 use alloc::vec::Vec;
 
 use edslout::edsl_nodey::*;
+use edslout::edsl_const::*;
 use edslout::edsl_high_pass::*;
 use edslout::edsl_low_pass::*;
 use edslout::edsl_low_pass_6::*;
@@ -66,6 +67,12 @@ pub fn get_test_cases() -> Vec<Box<TestCase>> {
             patch: Box::new(EdslLowPass6::new()),
             canned_input: TEST_INPUT,
             expected_output: EDSL_LOW_PASS_6_OUTPUT,
+        }),
+        Box::new(TestCase {
+            name: "const",
+            patch: Box::new(EdslConst::new()),
+            canned_input: CONST_TEST_INPUT,
+            expected_output: CONST_TEST_OUTPUT,
         }),
         ]
 }

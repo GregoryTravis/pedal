@@ -2620,3 +2620,15 @@ pub const EDSL_LOW_PASS_6_OUTPUT: &'static [f32] = &[
     -11305.805,
     -10669.464,
 ];
+pub const CONST_TEST_INPUT: &'static [f32] = &[
+    0f32,
+    0f32,
+    0f32,
+    0f32,
+];
+pub const CONST_TEST_OUTPUT: &'static [f32] = &[
+    13f32,
+    13f32,
+    13f32,
+    13f32,
+];

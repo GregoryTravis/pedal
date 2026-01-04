@@ -2,9 +2,21 @@
 //extern crate std;
 use core::default::Default;
 use core::ops::{Add, AddAssign};
+use ordered_float::OrderedFloat;
 //use std::println;
 
 use crate::edsl::runtime::{signal::Signal, window::Window};
+
+pub struct Const {
+    k: OrderedFloat<f32>
+}
+impl Const {
+    pub fn new(k: f32) -> Self { Self { k: OrderedFloat(k) } }
+
+    pub fn go(&mut self, out: &mut Signal<f32>) {
+        out.write(self.k.0);
+    }
+}
 
 pub struct PassThru {}
 impl PassThru {

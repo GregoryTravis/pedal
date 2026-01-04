@@ -8,7 +8,7 @@ use alloc::boxed::Box;
 use core::any::Any;
 
 #[allow(unused_imports)]
-use shared::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::{AddPrim, PassThru, SumFilter, HighPass, LowPass}};
+use shared::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::{AddPrim, Const, PassThru, SumFilter, HighPass, LowPass}};
 use shared::knob::Knobs;
 use shared::patch::Patch;
 use shared::playhead::Playhead;
@@ -57,6 +57,7 @@ impl Patch for EdslNodey {
     ) {
         for i in 0..input_slice.len() {
             self.signal3.write(input_slice[i]);
+
 
             let port4_0: Window<f32> = Window::new(&self.signal3, Range(0, 0));
 self.unitPassThru_4.go(&port4_0, &mut self.signal4);

@@ -7,6 +7,7 @@ use alloc::rc::Rc;
 use alloc::string::String;
 use alloc::string::ToString;
 use alloc::vec::Vec;
+use ordered_float::OrderedFloat;
 use core::cmp::{Eq, PartialEq};
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
@@ -47,6 +48,7 @@ pub fn low_pass(x: &Rc<Node>) -> Rc<Node> {
 #[derive(PartialEq, Eq, Hash, Debug)]
 pub enum Node {
     Input,
+    Const(OrderedFloat<f32>),
     PassThru(Rc<Node>),
     Add(Rc<Node>, Rc<Node>),
     SumFilter(Rc<Node>, isize, isize),
@@ -58,6 +60,7 @@ impl Node {
     pub fn name(&self) -> &str {
         match self {
             Node::Input => "Input",
+            Node::Const(_) => "Const",
             Node::PassThru(_) => "PassThru",
             Node::Add(_, _) => "AddPrim",
             Node::SumFilter(_, _, _) => "SumFilter",
@@ -69,6 +72,7 @@ impl Node {
     pub fn shew(&self) -> String {
         match self {
             Node::Input => "Input".to_string(),
+            Node::Const(k) => format!("Const({})", k),
             Node::PassThru(inn) => format!("PassThru({})", inn.name()),
             Node::Add(a, b) => format!("Add({}, {})", a.name(), b.name()),
             Node::SumFilter(inn, low, high) => format!("SumFilter({}, {}, {})", inn.name(), low, high),
@@ -80,6 +84,7 @@ impl Node {
     pub fn prim_struct_name(&self) -> &str {
         match self {
             Node::Input => "vwarlar",
+            Node::Const(_) => "Const",
             Node::PassThru(_) => "PassThru",
             Node::Add(_, _) => "AddPrim",
             Node::SumFilter(_, _, _) => "SumFilter",
@@ -91,6 +96,7 @@ impl Node {
     pub fn type_name(&self) -> &'static str {
         match self {
             Node::Input => "f32",
+            Node::Const(_) => "f32",
             Node::PassThru(inn) => inn.type_name(),
             Node::Add(a, b) => same_type(a.type_name(), b.type_name()),
             Node::SumFilter(inn, _, _) => inn.type_name(),
@@ -125,14 +131,15 @@ impl Port {
 pub struct GNode {
     pub index: u32,
     pub node: Rc<Node>,
+    ctor_args: Vec<String>,
     inputs: Vec<Rc<RefCell<GNode>>>,
     ports: Vec<Port>,
 }
 
-// Step: port, struct name, index
+// Step: ports, ctor args, struct name, index
 // Port: index, range, type
 #[derive(Debug)]
-pub struct Step(Vec<(u32,Range,String)>,String,u32);
+pub struct Step(Vec<(u32,Range,String)>,Vec<String>,String,u32);
 
 impl GNode {
     pub fn trav<F>(&self, f: &F)
@@ -290,7 +297,7 @@ impl GNode {
     */
 
     // TODO doing this because find is hard
-    pub fn get_input_slice_index(&self) -> u32 {
+    pub fn get_input_slice_index(&self) -> Option<u32> {
         let mut index: Option<u32> = None;
         self.trav_mut(&mut |gn: &GNode| {
             match *gn.node {
@@ -301,7 +308,7 @@ impl GNode {
                 _ => {}
             }
         });
-        index.unwrap()
+        index
     }
 
     fn make_causal_me(&mut self) {
@@ -347,7 +354,7 @@ impl GNode {
         acc.push_str(&format!("pub struct {} {{\n", name).to_owned());
 
         // units
-        for Step(_, prim_struct_name, output_signal_index) in steps {
+        for Step(_, _, prim_struct_name, output_signal_index) in steps {
             acc.push_str(&format!("    unit{}_{}: {},\n", prim_struct_name, output_signal_index, prim_struct_name));
         }
 
@@ -375,8 +382,9 @@ impl GNode {
         let mut acc_lines: String = "".to_owned();
 
         // units
-        for Step(_, prim_struct_name, output_signal_index) in steps {
-            acc_lines.push_str(&format!("    unit{}_{}: {}::new(),\n", prim_struct_name, output_signal_index, prim_struct_name));
+        for Step(_, ctor_args, prim_struct_name, output_signal_index) in steps {
+            let ctor_arglist: String = ctor_args.join(", ");
+            acc_lines.push_str(&format!("    unit{}_{}: {}::new({}),\n", prim_struct_name, output_signal_index, prim_struct_name, ctor_arglist));
         }
 
         // signals
@@ -409,7 +417,7 @@ impl GNode {
                 let ports:Vec<(u32,Range,String)> = gn.inputs.iter().zip(&gn.ports).map(|(input, port)| {
                     (input.borrow().index, port.range, input.borrow().node.type_name().to_string())
                 }).collect();
-                steps.push(Step(ports, gn.node.prim_struct_name().to_string(), gn.index));
+                steps.push(Step(ports, gn.ctor_args.clone(), gn.node.prim_struct_name().to_string(), gn.index));
             }
         });
         //steps.reverse();
@@ -425,7 +433,7 @@ impl GNode {
         }
         */
 
-        for Step(ports, prim_struct_name, output_signal_index) in steps {
+        for Step(ports, _, prim_struct_name, output_signal_index) in steps {
             if PATCH_LOGGING {
                 acc.push_str(&format!("println!(\"{{}} {{}}\", {}, \"{}\");\n", output_signal_index, prim_struct_name));
             }
@@ -439,8 +447,8 @@ impl GNode {
                     output_signal_index, next, type_name, port_index, range.0, range.1));
             }
             let signals: Vec<String> = port_numbers.iter().map(|port_index| format!("&port{}_{}", output_signal_index, port_index)).collect();
-            let signals_joined: String = signals.join(", ");
-            acc.push_str(&format!("self.unit{}_{}.go({}, &mut self.signal{});\n", prim_struct_name, output_signal_index, signals_joined, output_signal_index));
+            let signals_joined: String = format!("{}{}", signals.join(", "), if signals.len() == 0 { "" } else { ", " });
+            acc.push_str(&format!("self.unit{}_{}.go({}&mut self.signal{});\n", prim_struct_name, output_signal_index, signals_joined, output_signal_index));
             acc.push_str("\n");
         }
 
@@ -450,7 +458,11 @@ impl GNode {
     fn generate_patch_impl(&self, name: &str, steps: &Vec<Step>) -> String {
         let mut acc: String = "".to_owned();
 
-        let input_signal = format!("signal{}", self.get_input_slice_index());
+        let input_signal_write = match self.get_input_slice_index() {
+            Some(index) => format!("self.signal{}.write(input_slice[i]);\n", index),
+            None => "".to_string(),
+        };
+
         let output_signal = format!("signal{}", self.index);
         let body = self.generate_patch_routing(steps);
 
@@ -466,7 +478,7 @@ impl Patch for {} {{
         mut playhead: Playhead,
     ) {{
         for i in 0..input_slice.len() {{
-            self.{}.write(input_slice[i]);
+            {}
 
             {}
             output_slice[i] = self.{}.read(0);
@@ -482,7 +494,7 @@ impl Patch for {} {{
 }}
 
 "#,
-            name, input_signal, body, output_signal, per_loop_log));
+            name, input_signal_write, body, output_signal, per_loop_log));
         acc
     }
 
@@ -497,7 +509,7 @@ use alloc::boxed::Box;
 use core::any::Any;
 
 #[allow(unused_imports)]
-use shared::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::{AddPrim, PassThru, SumFilter, HighPass, LowPass}};
+use shared::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::{AddPrim, Const, PassThru, SumFilter, HighPass, LowPass}};
 use shared::knob::Knobs;
 use shared::patch::Patch;
 use shared::playhead::Playhead;
@@ -529,12 +541,14 @@ pub fn genericize1(node: &Rc<Node>, hm: &mut HashMap<Rc<Node>, Rc<RefCell<GNode>
             Node::Input => GNode {
                 index: 0,
                 node: (*node).clone(),
+                ctor_args: vec![],
                 inputs: vec![],
                 ports: vec![],
             },
             Node::PassThru(inn) => GNode {
                 index: 0,
                 node: (*node).clone(),
+                ctor_args: vec![],
                 inputs: vec![
                     genericize1(&inn, hm),
                 ],
@@ -548,6 +562,7 @@ pub fn genericize1(node: &Rc<Node>, hm: &mut HashMap<Rc<Node>, Rc<RefCell<GNode>
             Node::Add(a, b) => GNode {
                 index: 0,
                 node: (*node).clone(),
+                ctor_args: vec![],
                 inputs: vec![
                     genericize1(&a, hm),
                     genericize1(&b, hm),
@@ -566,6 +581,7 @@ pub fn genericize1(node: &Rc<Node>, hm: &mut HashMap<Rc<Node>, Rc<RefCell<GNode>
             Node::SumFilter(inn, low, high) => GNode {
                 index: 0,
                 node: (*node).clone(),
+                ctor_args: vec![],
                 inputs: vec![
                     genericize1(&inn, hm),
                 ],
@@ -579,6 +595,7 @@ pub fn genericize1(node: &Rc<Node>, hm: &mut HashMap<Rc<Node>, Rc<RefCell<GNode>
             Node::HighPass(inn) => GNode {
                 index: 0,
                 node: (*node).clone(),
+                ctor_args: vec![],
                 inputs: vec![
                     genericize1(&inn, hm),
                 ],
@@ -592,12 +609,25 @@ pub fn genericize1(node: &Rc<Node>, hm: &mut HashMap<Rc<Node>, Rc<RefCell<GNode>
             Node::LowPass(inn) => GNode {
                 index: 0,
                 node: (*node).clone(),
+                ctor_args: vec![],
                 inputs: vec![
                     genericize1(&inn, hm),
                 ],
                 ports: vec![
                     Port {
                         range: Range(-1, 0),
+                        main_sample: 0,
+                    },
+                ]
+            },
+            Node::Const(k) => GNode {
+                index: 0,
+                node: (*node).clone(),
+                ctor_args: vec![format!("{}f32", k)],
+                inputs: vec![],
+                ports: vec![
+                    Port {
+                        range: Range(0, 0),
                         main_sample: 0,
                     },
                 ]

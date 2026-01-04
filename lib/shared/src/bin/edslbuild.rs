@@ -3,6 +3,7 @@
 extern crate alloc;
 
 use alloc::rc::Rc;
+use ordered_float::OrderedFloat;
 
 use shared::edsl::wad::node::*;
 
@@ -44,11 +45,17 @@ fn build_edsl_low_pass_6() {
     compile(&n, "../../edslout/src/edsl_low_pass_6.rs", "EdslLowPass6");
 }
 
+fn build_edsl_const() {
+    let out = Rc::new(Node::Const(OrderedFloat(13f32)));
+    compile(&out, "../../edslout/src/edsl_const.rs", "EdslConst");
+}
+
 fn main() {
     build_edsl_nodey();
     build_edsl_high_pass();
     build_edsl_low_pass();
     build_edsl_pass_thru();
     build_edsl_low_pass_6();
+    build_edsl_const();
     println!("hi edsl");
 }
