@@ -8,6 +8,7 @@ use ordered_float::OrderedFloat;
 //use std::println;
 
 use crate::filter::sine_table::*;
+//use crate::spew::*;
 
 use crate::edsl::runtime::{signal::Signal, window::Window};
 
@@ -68,6 +69,7 @@ impl SumFilter {
     pub fn go<T: Add<Output = T> + AddAssign + Default + Copy>(&mut self, inn: &Window<T>, out: &mut Signal<T>) {
         let mut sum: T = Default::default();
         for i in inn.range().0..=inn.range().1 {
+            //spew!("sum", i, inn.range().0, inn.range().1);
             sum += inn.read(i);
         }
         out.write(sum);
@@ -92,6 +94,7 @@ impl LinearVibrato {
         let fph_floor = libm::floorf(fph) as usize;
         let fph_ceiling = fph_floor + 1;
         let alpha = fph - (fph_floor as f32);
+        //spew!("oy", vibrato_deviation, self.now_index, -(fph_floor as isize));
         let low_sample = inn.read(-(fph_floor as isize));
         let high_sample = inn.read(-(fph_ceiling as isize));
         let interped = (low_sample * (1.0 - alpha)) + (high_sample * alpha);

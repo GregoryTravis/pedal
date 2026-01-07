@@ -12,7 +12,7 @@ use shared::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::
 use shared::knob::Knobs;
 use shared::patch::Patch;
 use shared::playhead::Playhead;
-const MAX: usize = 10;
+const MAX: usize = 100;
 pub struct EdslLowPass6 {
     unitLowPass_5: LowPass,
     unitLowPass_4: LowPass,

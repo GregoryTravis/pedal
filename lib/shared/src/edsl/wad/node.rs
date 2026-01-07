@@ -18,6 +18,7 @@ use std::hash::Hash;
 use std::println;
 
 use crate::edsl::runtime::range::Range;
+//use crate::spew::*;
 
 const PATCH_LOGGING: bool = false;
 
@@ -519,7 +520,7 @@ use shared::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::
 use shared::knob::Knobs;
 use shared::patch::Patch;
 use shared::playhead::Playhead;
-const MAX: usize = 10;
+const MAX: usize = 100;
 "#.to_string()
     }
 
@@ -652,6 +653,7 @@ pub fn genericize1(node: &Rc<Node>, hm: &mut HashMap<Rc<Node>, Rc<RefCell<GNode>
 
                 let buffer_length: usize = 2 * (max_sample_deviation + NUM_SINC_TAPS_ONE_SIDE + GUARD_SAMPLES) + 1;
                 let now_index: usize = max_sample_deviation + NUM_SINC_TAPS_ONE_SIDE + GUARD_SAMPLES;
+                //spew!("BUF LEN", buffer_length);
 
                 GNode {
                     index: 0,
