@@ -34,6 +34,10 @@ pub fn add(a: &Rc<Node>, b: &Rc<Node>) -> Rc<Node> {
     Rc::new(Node::Add(a.clone(), b.clone()))
 }
 
+pub fn div(a: &Rc<Node>, b: &Rc<Node>) -> Rc<Node> {
+    Rc::new(Node::Div(a.clone(), b.clone()))
+}
+
 pub fn sum_filter(x: &Rc<Node>, low: isize, high: isize) -> Rc<Node> {
     Rc::new(Node::SumFilter(x.clone(), low, high))
 }
@@ -52,6 +56,7 @@ pub enum Node {
     Const(OrderedFloat<f32>),
     PassThru(Rc<Node>),
     Add(Rc<Node>, Rc<Node>),
+    Div(Rc<Node>, Rc<Node>),
     SumFilter(Rc<Node>, isize, isize),
     HighPass(Rc<Node>),
     LowPass(Rc<Node>),
@@ -66,6 +71,7 @@ impl Node {
             Node::Const(_) => "Const",
             Node::PassThru(_) => "PassThru",
             Node::Add(_, _) => "AddPrim",
+            Node::Div(_, _) => "DivPrim",
             Node::SumFilter(_, _, _) => "SumFilter",
             Node::HighPass(_) => "HighPass",
             Node::LowPass(_) => "LowPass",
@@ -79,6 +85,7 @@ impl Node {
             Node::Const(k) => format!("Const({})", k),
             Node::PassThru(inn) => format!("PassThru({})", inn.name()),
             Node::Add(a, b) => format!("Add({}, {})", a.name(), b.name()),
+            Node::Div(a, b) => format!("Div({}, {})", a.name(), b.name()),
             Node::SumFilter(inn, low, high) => format!("SumFilter({}, {}, {})", inn.name(), low, high),
             Node::HighPass(inn) => format!("HighPass({})", inn.name()),
             Node::LowPass(inn) => format!("LowPass({})", inn.name()),
@@ -92,6 +99,7 @@ impl Node {
             Node::Const(_) => "Const",
             Node::PassThru(_) => "PassThru",
             Node::Add(_, _) => "AddPrim",
+            Node::Div(_, _) => "DivPrim",
             Node::SumFilter(_, _, _) => "SumFilter",
             Node::HighPass(_) => "HighPass",
             Node::LowPass(_) => "LowPass",
@@ -105,6 +113,7 @@ impl Node {
             Node::Const(_) => "f32",
             Node::PassThru(inn) => inn.type_name(),
             Node::Add(a, b) => same_type(a.type_name(), b.type_name()),
+            Node::Div(a, b) => same_type(a.type_name(), b.type_name()),
             Node::SumFilter(inn, _, _) => inn.type_name(),
             Node::HighPass(inn) => inn.type_name(),
             Node::LowPass(inn) => inn.type_name(),
@@ -516,7 +525,7 @@ use alloc::boxed::Box;
 use core::any::Any;
 
 #[allow(unused_imports)]
-use shared::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::{AddPrim, Const, PassThru, SumFilter, HighPass, LowPass, LinearVibrato}};
+use shared::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::{AddPrim, DivPrim, Const, PassThru, SumFilter, HighPass, LowPass, LinearVibrato}};
 use shared::knob::Knobs;
 use shared::patch::Patch;
 use shared::playhead::Playhead;
@@ -567,6 +576,25 @@ pub fn genericize1(node: &Rc<Node>, hm: &mut HashMap<Rc<Node>, Rc<RefCell<GNode>
                 ]
             },
             Node::Add(a, b) => GNode {
+                index: 0,
+                node: (*node).clone(),
+                ctor_args: vec![],
+                inputs: vec![
+                    genericize1(&a, hm),
+                    genericize1(&b, hm),
+                ],
+                ports: vec![
+                    Port {
+                        range: Range::empty(),
+                        main_sample: 0,
+                    },
+                    Port {
+                        range: Range::empty(),
+                        main_sample: 0,
+                    },
+                ]
+            },
+            Node::Div(a, b) => GNode {
                 index: 0,
                 node: (*node).clone(),
                 ctor_args: vec![],

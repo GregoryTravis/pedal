@@ -3,7 +3,7 @@ extern crate libm;
 
 use core::default::Default;
 use core::f32::consts::PI;
-use core::ops::{Add, AddAssign};
+use core::ops::{Add, AddAssign, Div};
 use ordered_float::OrderedFloat;
 //use std::println;
 
@@ -40,6 +40,16 @@ impl AddPrim {
     pub fn go<T: Add<Output = T> + Default + Copy + core::fmt::Display>(&mut self, _playhead: Playhead, a: &Window<T>, b: &Window<T>, sum: &mut Signal<T>) {
         //println!("add: {} {} {}", a.read(0), b.read(0), a.read(0) + b.read(0));
         sum.write(a.read(0) + b.read(0));
+    }
+}
+
+pub struct DivPrim {}
+impl DivPrim {
+    pub fn new() -> Self { Self {} }
+
+    pub fn go<T: Div<Output = T> + Default + Copy + core::fmt::Display>(&mut self, _playhead: Playhead, a: &Window<T>, b: &Window<T>, sum: &mut Signal<T>) {
+        //println!("add: {} {} {}", a.read(0), b.read(0), a.read(0) + b.read(0));
+        sum.write(a.read(0) / b.read(0));
     }
 }
 
