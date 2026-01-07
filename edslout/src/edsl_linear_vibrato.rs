@@ -24,8 +24,8 @@ pub struct EdslLinearVibrato {
             impl EdslLinearVibrato {
                 pub fn new() -> EdslLinearVibrato {
                     EdslLinearVibrato {
-                            unitConst_1: Const::new(2.7f32),
-    unitLinearVibrato_0: LinearVibrato::new(20usize, 24usize),
+                            unitConst_1: Const::new(1f32),
+    unitLinearVibrato_0: LinearVibrato::new(10usize, 14usize),
     signal0: Signal::new(MAX),
     signal1: Signal::new(MAX),
     signal2: Signal::new(MAX),
@@ -50,7 +50,7 @@ impl Patch for EdslLinearVibrato {
             self.unitConst_1.go(playhead, &mut self.signal1);
 
 let port0_0: Window<f32> = Window::new(&self.signal1, Range(0, 0));
-let port0_1: Window<f32> = Window::new(&self.signal2, Range(-49, 0));
+let port0_1: Window<f32> = Window::new(&self.signal2, Range(-29, 0));
 self.unitLinearVibrato_0.go(playhead, &port0_0, &port0_1, &mut self.signal0);
 
 
