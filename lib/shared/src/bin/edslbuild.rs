@@ -57,6 +57,21 @@ fn build_edsl_linear_vibrato() {
     compile(&out, "../../edslout/src/edsl_linear_vibrato.rs", "EdslLinearVibrato");
 }
 
+fn build_edsl_chorus() {
+    let input = Rc::new(Node::Input);
+
+    let n: f32 = 3.0;
+    let d: f32 = 0.3;
+
+    let lv0 = Rc::new(Node::LinearVibrato(20, Rc::new(Node::Const(OrderedFloat(n-d))), input.clone()));
+    let lv1 = Rc::new(Node::LinearVibrato(22, Rc::new(Node::Const(OrderedFloat(n))), input.clone()));
+    let lv2 = Rc::new(Node::LinearVibrato(18, Rc::new(Node::Const(OrderedFloat(n+d))), input.clone()));
+
+    let out = add(&lv0, &add(&lv1, &lv2));
+
+    compile(&out, "../../edslout/src/edsl_chorus.rs", "EdslChorus");
+}
+
 fn main() {
     build_edsl_nodey();
     build_edsl_high_pass();
@@ -65,5 +80,6 @@ fn main() {
     build_edsl_low_pass_6();
     build_edsl_const();
     build_edsl_linear_vibrato();
+    build_edsl_chorus();
     println!("hi edsl");
 }
