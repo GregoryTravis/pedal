@@ -50,6 +50,15 @@ fn build_edsl_const() {
     compile(&out, "../../edslout/src/edsl_const.rs", "EdslConst");
 }
 
+fn build_edsl_linear_vibrato() {
+    let n: f32 = 3.0;
+    let d: f32 = 0.3;
+    let input = Rc::new(Node::Input);
+    let vibrato_frequency = Rc::new(Node::Const(OrderedFloat(n-d)));
+    let out = Rc::new(Node::LinearVibrato(20, vibrato_frequency.clone(), input.clone()));
+    compile(&out, "../../edslout/src/edsl_linear_vibrato.rs", "EdslLinearVibrato");
+}
+
 fn main() {
     build_edsl_nodey();
     build_edsl_high_pass();
@@ -57,5 +66,6 @@ fn main() {
     build_edsl_pass_thru();
     build_edsl_low_pass_6();
     build_edsl_const();
+    build_edsl_linear_vibrato();
     println!("hi edsl");
 }

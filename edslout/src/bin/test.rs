@@ -9,6 +9,7 @@ use edslout::edsl_high_pass::*;
 use edslout::edsl_low_pass::*;
 use edslout::edsl_low_pass_6::*;
 use edslout::edsl_pass_thru::*;
+use edslout::edsl_linear_vibrato::*;
 use edslout::testdata::*;
 
 use shared::constants::*;
@@ -73,6 +74,12 @@ pub fn get_test_cases() -> Vec<Box<TestCase>> {
             patch: Box::new(EdslConst::new()),
             canned_input: CONST_TEST_INPUT,
             expected_output: CONST_TEST_OUTPUT,
+        }),
+        Box::new(TestCase {
+            name: "linear_vibrato",
+            patch: Box::new(EdslLinearVibrato::new()),
+            canned_input: TEST_INPUT,
+            expected_output: LINEAR_VIBRATO_OUTPUT,
         }),
         ]
 }

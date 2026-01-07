@@ -54,6 +54,8 @@ pub enum Node {
     SumFilter(Rc<Node>, isize, isize),
     HighPass(Rc<Node>),
     LowPass(Rc<Node>),
+    // max_sample_deviation, vibrato_frequency, input
+    LinearVibrato(usize, Rc<Node>, Rc<Node>),
 }
 
 impl Node {
@@ -66,6 +68,7 @@ impl Node {
             Node::SumFilter(_, _, _) => "SumFilter",
             Node::HighPass(_) => "HighPass",
             Node::LowPass(_) => "LowPass",
+            Node::LinearVibrato(_, _, _) => "LinearVibrato",
         }
     }
 
@@ -78,6 +81,7 @@ impl Node {
             Node::SumFilter(inn, low, high) => format!("SumFilter({}, {}, {})", inn.name(), low, high),
             Node::HighPass(inn) => format!("HighPass({})", inn.name()),
             Node::LowPass(inn) => format!("LowPass({})", inn.name()),
+            Node::LinearVibrato(max_sample_deviation, vibrato_frequency, inn) => format!("LinearVibrato({}, {}, {})", max_sample_deviation, vibrato_frequency.name(), inn.name()),
         }
     }
 
@@ -90,6 +94,7 @@ impl Node {
             Node::SumFilter(_, _, _) => "SumFilter",
             Node::HighPass(_) => "HighPass",
             Node::LowPass(_) => "LowPass",
+            Node::LinearVibrato(_, _, _) => "LinearVibrato",
         }
     }
 
@@ -102,6 +107,7 @@ impl Node {
             Node::SumFilter(inn, _, _) => inn.type_name(),
             Node::HighPass(inn) => inn.type_name(),
             Node::LowPass(inn) => inn.type_name(),
+            Node::LinearVibrato(_, _, inn) => inn.type_name(),
         }
     }
 }
@@ -509,7 +515,7 @@ use alloc::boxed::Box;
 use core::any::Any;
 
 #[allow(unused_imports)]
-use shared::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::{AddPrim, Const, PassThru, SumFilter, HighPass, LowPass}};
+use shared::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::{AddPrim, Const, PassThru, SumFilter, HighPass, LowPass, LinearVibrato}};
 use shared::knob::Knobs;
 use shared::patch::Patch;
 use shared::playhead::Playhead;
@@ -631,6 +637,41 @@ pub fn genericize1(node: &Rc<Node>, hm: &mut HashMap<Rc<Node>, Rc<RefCell<GNode>
                         main_sample: 0,
                     },
                 ]
+            },
+            Node::LinearVibrato(max_sample_deviation, vibrato_frequency, inn) => {
+                // All the setup here is copied from the original non-edsl implementation.
+                // The sinc taps aren't used (nor are they in the original) and the guard samples
+                // shouldn't be necessary. But just replicating it to get the same results.
+
+                // The sinc convolution window is twice this.
+                const NUM_SINC_TAPS_ONE_SIDE: usize = 3;
+
+                // Add this many samples on either side to prevent under/overruns in production. Should
+                // pass rigorous testing with this set to 0, though.
+                const GUARD_SAMPLES: usize = 1;
+
+                let buffer_length: usize = 2 * (max_sample_deviation + NUM_SINC_TAPS_ONE_SIDE + GUARD_SAMPLES) + 1;
+                let now_index: usize = max_sample_deviation + NUM_SINC_TAPS_ONE_SIDE + GUARD_SAMPLES;
+
+                GNode {
+                    index: 0,
+                    node: (*node).clone(),
+                    ctor_args: vec![format!("{}usize", max_sample_deviation), format!("{}usize", now_index)],
+                    inputs: vec![
+                        genericize1(&vibrato_frequency, hm),
+                        genericize1(&inn, hm),
+                    ],
+                    ports: vec![
+                        Port {
+                            range: Range(0, 0),
+                            main_sample: 0,
+                        },
+                        Port {
+                            range: Range(-(buffer_length as isize), 0),
+                            main_sample: 0,
+                        },
+                    ]
+                }
             },
         };
         let gnrc = Rc::new(RefCell::new(gn));
