@@ -654,11 +654,12 @@ pub fn genericize1(node: &Rc<Node>, hm: &mut HashMap<Rc<Node>, Rc<RefCell<GNode>
                 let buffer_length: usize = 2 * (max_sample_deviation + NUM_SINC_TAPS_ONE_SIDE + GUARD_SAMPLES) + 1;
                 let now_index: usize = max_sample_deviation + NUM_SINC_TAPS_ONE_SIDE + GUARD_SAMPLES;
                 //spew!("BUF LEN", buffer_length);
+                let hacked_now_index = (now_index as isize) - ((buffer_length-1) as isize);
 
                 GNode {
                     index: 0,
                     node: (*node).clone(),
-                    ctor_args: vec![format!("{}usize", max_sample_deviation), format!("{}usize", now_index)],
+                    ctor_args: vec![format!("{}usize", max_sample_deviation), format!("{}isize", hacked_now_index)],
                     inputs: vec![
                         genericize1(&vibrato_frequency, hm),
                         genericize1(&inn, hm),

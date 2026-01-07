@@ -77,9 +77,9 @@ impl SumFilter {
     }
 }
 
-pub struct LinearVibrato { max_sample_deviation: usize, now_index: usize }
+pub struct LinearVibrato { max_sample_deviation: usize, now_index: isize }
 impl LinearVibrato {
-    pub fn new(max_sample_deviation: usize, now_index: usize) -> Self {
+    pub fn new(max_sample_deviation: usize, now_index: isize) -> Self {
         Self { max_sample_deviation, now_index }
     }
 
@@ -92,12 +92,11 @@ impl LinearVibrato {
             tis * vibrato_frequency.read(0) as f32 * 2.0 * PI as f32) * deviation;
         // Fractional playhead
         let fph = (self.now_index as f32) + vibrato_deviation as f32;
-        let fph_floor = libm::floorf(fph) as usize;
+        let fph_floor = libm::floorf(fph) as isize;
         let fph_ceiling = fph_floor + 1;
         let alpha = fph - (fph_floor as f32);
-        let buffer_size = 29; // computed in node.rs
-        let low_sample = inn.read((fph_floor as isize)-(buffer_size-1));
-        let high_sample = inn.read((fph_ceiling as isize)-(buffer_size-1));
+        let low_sample = inn.read(fph_floor as isize);
+        let high_sample = inn.read(fph_ceiling as isize);
         //spew!("LV", playhead.time_in_samples(), vibrato_deviation, fph, fph_floor, fph_ceiling, alpha, low_sample, high_sample);
         let interped = (low_sample * (1.0 - alpha)) + (high_sample * alpha);
         out.write(interped);

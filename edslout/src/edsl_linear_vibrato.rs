@@ -25,7 +25,7 @@ pub struct EdslLinearVibrato {
                 pub fn new() -> EdslLinearVibrato {
                     EdslLinearVibrato {
                             unitConst_1: Const::new(1f32),
-    unitLinearVibrato_0: LinearVibrato::new(10usize, 14usize),
+    unitLinearVibrato_0: LinearVibrato::new(10usize, -14isize),
     signal0: Signal::new(MAX),
     signal1: Signal::new(MAX),
     signal2: Signal::new(MAX),
