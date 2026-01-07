@@ -67,7 +67,7 @@ fn build_edsl_chorus() {
     let lv1 = Rc::new(Node::LinearVibrato(22, Rc::new(Node::Const(OrderedFloat(n))), input.clone()));
     let lv2 = Rc::new(Node::LinearVibrato(18, Rc::new(Node::Const(OrderedFloat(n+d))), input.clone()));
 
-    let sum = add(&lv0, &add(&lv1, &lv2));
+    let sum = add(&add(&lv0, &lv1), &lv2);
     let out = div(&sum, &Rc::new(Node::Const(OrderedFloat(3.0))));
 
     compile(&out, "../../edslout/src/edsl_chorus.rs", "EdslChorus");
