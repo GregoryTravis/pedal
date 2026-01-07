@@ -67,7 +67,6 @@ impl Patch for LinearVibrato {
             //let vibrato_deviation = libm::sinf(
             let vibrato_deviation = table_sin(
                 tis * self.vibrato_frequency as f32 * 2.0 * PI as f32) * deviation;
-            spew!("LV", playhead.time_in_samples(), vibrato_deviation);
             // Fractional playhead
             let fph = (self.now_index as f32) + vibrato_deviation as f32;
             let fph_floor = libm::floorf(fph) as usize;
@@ -75,6 +74,7 @@ impl Patch for LinearVibrato {
             let alpha = fph - (fph_floor as f32);
             let low_sample = self.cbuf.get(fph_floor);
             let high_sample = self.cbuf.get(fph_ceiling);
+            spew!("LV", playhead.time_in_samples(), vibrato_deviation, fph, fph_floor, fph_ceiling, alpha, low_sample, high_sample);
             let interped = (low_sample * (1.0 - alpha)) + (high_sample * alpha);
             output_slice[i] = interped;
             playhead.inc();
