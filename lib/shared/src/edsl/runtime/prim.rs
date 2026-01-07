@@ -8,6 +8,7 @@ use ordered_float::OrderedFloat;
 //use std::println;
 
 use crate::filter::sine_table::*;
+use crate::playhead::Playhead;
 //use crate::spew::*;
 
 use crate::edsl::runtime::{signal::Signal, window::Window};
@@ -18,7 +19,7 @@ pub struct Const {
 impl Const {
     pub fn new(k: f32) -> Self { Self { k: OrderedFloat(k) } }
 
-    pub fn go(&mut self, out: &mut Signal<f32>) {
+    pub fn go(&mut self, _playhead: Playhead, out: &mut Signal<f32>) {
         out.write(self.k.0);
     }
 }
@@ -27,7 +28,7 @@ pub struct PassThru {}
 impl PassThru {
     pub fn new() -> Self { Self {} }
 
-    pub fn go<T: Default + Copy>(&mut self, inn: &Window<T>, out: &mut Signal<T>) {
+    pub fn go<T: Default + Copy>(&mut self, _playhead: Playhead, inn: &Window<T>, out: &mut Signal<T>) {
         out.write(inn.read(0));
     }
 }
@@ -36,7 +37,7 @@ pub struct AddPrim {}
 impl AddPrim {
     pub fn new() -> Self { Self {} }
 
-    pub fn go<T: Add<Output = T> + Default + Copy + core::fmt::Display>(&mut self, a: &Window<T>, b: &Window<T>, sum: &mut Signal<T>) {
+    pub fn go<T: Add<Output = T> + Default + Copy + core::fmt::Display>(&mut self, _playhead: Playhead, a: &Window<T>, b: &Window<T>, sum: &mut Signal<T>) {
         //println!("add: {} {} {}", a.read(0), b.read(0), a.read(0) + b.read(0));
         sum.write(a.read(0) + b.read(0));
     }
@@ -46,7 +47,7 @@ pub struct HighPass {}
 impl HighPass {
     pub fn new() -> Self { Self {} }
 
-    pub fn go(&mut self, inn: &Window<f32>, out: &mut Signal<f32>) {
+    pub fn go(&mut self, _playhead: Playhead, inn: &Window<f32>, out: &mut Signal<f32>) {
         out.write(5.0 * ((inn.read(0) - inn.read(-1)) / 2.0));
     }
 }
@@ -56,7 +57,7 @@ impl LowPass {
     pub fn new() -> Self { Self {} }
 
     #[inline(always)]
-    pub fn go(&mut self, inn: &Window<f32>, out: &mut Signal<f32>) {
+    pub fn go(&mut self, _playhead: Playhead, inn: &Window<f32>, out: &mut Signal<f32>) {
         out.write(5.0 * ((inn.read(0) + inn.read(-1)) / 2.0));
     }
 }
@@ -66,7 +67,7 @@ pub struct SumFilter {}
 impl SumFilter {
     pub fn new() -> Self { Self {} }
 
-    pub fn go<T: Add<Output = T> + AddAssign + Default + Copy>(&mut self, inn: &Window<T>, out: &mut Signal<T>) {
+    pub fn go<T: Add<Output = T> + AddAssign + Default + Copy>(&mut self, _playhead: Playhead, inn: &Window<T>, out: &mut Signal<T>) {
         let mut sum: T = Default::default();
         for i in inn.range().0..=inn.range().1 {
             //spew!("sum", i, inn.range().0, inn.range().1);
@@ -82,8 +83,8 @@ impl LinearVibrato {
         Self { max_sample_deviation, now_index }
     }
 
-    pub fn go(&mut self, vibrato_frequency: &Window<f32>, inn: &Window<f32>, out: &mut Signal<f32>) {
-        let tis = 0.0; // playhead.time_in_seconds();
+    pub fn go(&mut self, playhead: Playhead, vibrato_frequency: &Window<f32>, inn: &Window<f32>, out: &mut Signal<f32>) {
+        let tis = playhead.time_in_seconds();
         let knob_value = 1.0; // knobs.read(self.deviation_knob_id)
         let deviation = knob_value * (self.max_sample_deviation as f32);
         //let vibrato_deviation = libm::sinf(

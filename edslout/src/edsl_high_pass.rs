@@ -44,7 +44,7 @@ impl Patch for EdslHighPass {
 
 
             let port0_0: Window<f32> = Window::new(&self.signal1, Range(-1, 0));
-self.unitHighPass_0.go(&port0_0, &mut self.signal0);
+self.unitHighPass_0.go(playhead, &port0_0, &mut self.signal0);
 
 
             output_slice[i] = self.signal0.read(0);

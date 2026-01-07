@@ -455,7 +455,7 @@ impl GNode {
             }
             let signals: Vec<String> = port_numbers.iter().map(|port_index| format!("&port{}_{}", output_signal_index, port_index)).collect();
             let signals_joined: String = format!("{}{}", signals.join(", "), if signals.len() == 0 { "" } else { ", " });
-            acc.push_str(&format!("self.unit{}_{}.go({}&mut self.signal{});\n", prim_struct_name, output_signal_index, signals_joined, output_signal_index));
+            acc.push_str(&format!("self.unit{}_{}.go(playhead, {}&mut self.signal{});\n", prim_struct_name, output_signal_index, signals_joined, output_signal_index));
             acc.push_str("\n");
         }
 

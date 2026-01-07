@@ -60,21 +60,21 @@ impl Patch for EdslNodey {
 
 
             let port4_0: Window<f32> = Window::new(&self.signal3, Range(0, 0));
-self.unitPassThru_4.go(&port4_0, &mut self.signal4);
+self.unitPassThru_4.go(playhead, &port4_0, &mut self.signal4);
 
 let port2_0: Window<f32> = Window::new(&self.signal3, Range(0, 0));
 let port2_1: Window<f32> = Window::new(&self.signal4, Range(0, 0));
-self.unitAddPrim_2.go(&port2_0, &port2_1, &mut self.signal2);
+self.unitAddPrim_2.go(playhead, &port2_0, &port2_1, &mut self.signal2);
 
 let port1_0: Window<f32> = Window::new(&self.signal2, Range(-2, 0));
-self.unitSumFilter_1.go(&port1_0, &mut self.signal1);
+self.unitSumFilter_1.go(playhead, &port1_0, &mut self.signal1);
 
 let port5_0: Window<f32> = Window::new(&self.signal2, Range(-6, 0));
-self.unitSumFilter_5.go(&port5_0, &mut self.signal5);
+self.unitSumFilter_5.go(playhead, &port5_0, &mut self.signal5);
 
 let port0_0: Window<f32> = Window::new(&self.signal1, Range(0, 0));
 let port0_1: Window<f32> = Window::new(&self.signal5, Range(0, 0));
-self.unitAddPrim_0.go(&port0_0, &port0_1, &mut self.signal0);
+self.unitAddPrim_0.go(playhead, &port0_0, &port0_1, &mut self.signal0);
 
 
             output_slice[i] = self.signal0.read(0);

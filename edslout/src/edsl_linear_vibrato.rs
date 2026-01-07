@@ -47,11 +47,11 @@ impl Patch for EdslLinearVibrato {
             self.signal2.write(input_slice[i]);
 
 
-            self.unitConst_1.go(&mut self.signal1);
+            self.unitConst_1.go(playhead, &mut self.signal1);
 
 let port0_0: Window<f32> = Window::new(&self.signal1, Range(0, 0));
 let port0_1: Window<f32> = Window::new(&self.signal2, Range(-49, 0));
-self.unitLinearVibrato_0.go(&port0_0, &port0_1, &mut self.signal0);
+self.unitLinearVibrato_0.go(playhead, &port0_0, &port0_1, &mut self.signal0);
 
 
             output_slice[i] = self.signal0.read(0);

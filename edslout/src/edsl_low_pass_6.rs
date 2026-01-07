@@ -64,22 +64,22 @@ impl Patch for EdslLowPass6 {
 
 
             let port5_0: Window<f32> = Window::new(&self.signal6, Range(-1, 0));
-self.unitLowPass_5.go(&port5_0, &mut self.signal5);
+self.unitLowPass_5.go(playhead, &port5_0, &mut self.signal5);
 
 let port4_0: Window<f32> = Window::new(&self.signal5, Range(-1, 0));
-self.unitLowPass_4.go(&port4_0, &mut self.signal4);
+self.unitLowPass_4.go(playhead, &port4_0, &mut self.signal4);
 
 let port3_0: Window<f32> = Window::new(&self.signal4, Range(-1, 0));
-self.unitLowPass_3.go(&port3_0, &mut self.signal3);
+self.unitLowPass_3.go(playhead, &port3_0, &mut self.signal3);
 
 let port2_0: Window<f32> = Window::new(&self.signal3, Range(-1, 0));
-self.unitLowPass_2.go(&port2_0, &mut self.signal2);
+self.unitLowPass_2.go(playhead, &port2_0, &mut self.signal2);
 
 let port1_0: Window<f32> = Window::new(&self.signal2, Range(-1, 0));
-self.unitLowPass_1.go(&port1_0, &mut self.signal1);
+self.unitLowPass_1.go(playhead, &port1_0, &mut self.signal1);
 
 let port0_0: Window<f32> = Window::new(&self.signal1, Range(-1, 0));
-self.unitLowPass_0.go(&port0_0, &mut self.signal0);
+self.unitLowPass_0.go(playhead, &port0_0, &mut self.signal0);
 
 
             output_slice[i] = self.signal0.read(0);

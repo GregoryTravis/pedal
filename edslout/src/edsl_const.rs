@@ -40,7 +40,7 @@ impl Patch for EdslConst {
         for i in 0..input_slice.len() {
             
 
-            self.unitConst_0.go(&mut self.signal0);
+            self.unitConst_0.go(playhead, &mut self.signal0);
 
 
             output_slice[i] = self.signal0.read(0);

@@ -44,7 +44,7 @@ impl Patch for EdslPassThru {
 
 
             let port0_0: Window<f32> = Window::new(&self.signal1, Range(0, 0));
-self.unitPassThru_0.go(&port0_0, &mut self.signal0);
+self.unitPassThru_0.go(playhead, &port0_0, &mut self.signal0);
 
 
             output_slice[i] = self.signal0.read(0);
