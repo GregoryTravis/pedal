@@ -12,7 +12,7 @@ use crate::filter::sine_table::*;
 use crate::knob::Knobs;
 use crate::patch::Patch;
 use crate::playhead::Playhead;
-use crate::spew::*;
+//use crate::spew::*;
 
 //#[cfg(feature = "for_host")]
 //use std::println;
@@ -74,7 +74,7 @@ impl Patch for LinearVibrato {
             let alpha = fph - (fph_floor as f32);
             let low_sample = self.cbuf.get(fph_floor);
             let high_sample = self.cbuf.get(fph_ceiling);
-            spew!("LV", playhead.time_in_samples(), vibrato_deviation, fph, fph_floor, fph_ceiling, alpha, low_sample, high_sample);
+            //spew!("LV", playhead.time_in_samples(), vibrato_deviation, fph, fph_floor, fph_ceiling, alpha, low_sample, high_sample);
             let interped = (low_sample * (1.0 - alpha)) + (high_sample * alpha);
             output_slice[i] = interped;
             playhead.inc();
