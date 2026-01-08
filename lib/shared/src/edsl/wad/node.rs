@@ -66,6 +66,8 @@ pub enum Node {
     LowPass(Rc<Node>),
     // max_sample_deviation, vibrato_frequency, input
     LinearVibrato(usize, Rc<Node>, Rc<Node>),
+    // max_sample_deviation, deviation, input
+    VariSpeed(usize, Rc<Node>, Rc<Node>),
     // f, a, ph
     Sine(Rc<Node>, Rc<Node>, Rc<Node>),
 }
@@ -82,6 +84,7 @@ impl Node {
             Node::HighPass(_) => "HighPass",
             Node::LowPass(_) => "LowPass",
             Node::LinearVibrato(_, _, _) => "LinearVibrato",
+            Node::VariSpeed(_, _, _) => "VariSpeed",
             Node::Sine(_, _, _) => "Sine",
         }
     }
@@ -97,6 +100,7 @@ impl Node {
             Node::HighPass(inn) => format!("HighPass({})", inn.name()),
             Node::LowPass(inn) => format!("LowPass({})", inn.name()),
             Node::LinearVibrato(max_sample_deviation, vibrato_frequency, inn) => format!("LinearVibrato({}, {}, {})", max_sample_deviation, vibrato_frequency.name(), inn.name()),
+            Node::VariSpeed(max_sample_deviation, deviation, inn) => format!("VariSpeed({}, {}, {})", max_sample_deviation, deviation.name(), inn.name()),
             Node::Sine(frequency, amplitude, phase) => format!("Sine({}, {}, {})", frequency.name(), amplitude.name(), phase.name()),
         }
     }
@@ -112,6 +116,7 @@ impl Node {
             Node::HighPass(_) => "HighPass",
             Node::LowPass(_) => "LowPass",
             Node::LinearVibrato(_, _, _) => "LinearVibrato",
+            Node::VariSpeed(_, _, _) => "VariSpeed",
             Node::Sine(_, _, _) => "Sine",
         }
     }
@@ -127,6 +132,7 @@ impl Node {
             Node::HighPass(inn) => inn.type_name(),
             Node::LowPass(inn) => inn.type_name(),
             Node::LinearVibrato(_, _, inn) => inn.type_name(),
+            Node::VariSpeed(_, _, inn) => inn.type_name(),
             Node::Sine(_, _, _) => "f32",
         }
     }
@@ -535,7 +541,7 @@ use alloc::boxed::Box;
 use core::any::Any;
 
 #[allow(unused_imports)]
-use shared::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::{AddPrim, DivPrim, Const, PassThru, SumFilter, HighPass, LowPass, LinearVibrato, SinePrim}};
+use shared::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::{AddPrim, DivPrim, Const, PassThru, SumFilter, HighPass, LowPass, LinearVibrato, SinePrim, VariSpeed}};
 use shared::knob::Knobs;
 use shared::patch::Patch;
 use shared::playhead::Playhead;
@@ -700,6 +706,43 @@ pub fn genericize1(node: &Rc<Node>, hm: &mut HashMap<Rc<Node>, Rc<RefCell<GNode>
                     ctor_args: vec![format!("{}usize", max_sample_deviation), format!("{}isize", hacked_now_index)],
                     inputs: vec![
                         genericize1(&vibrato_frequency, hm),
+                        genericize1(&inn, hm),
+                    ],
+                    ports: vec![
+                        Port {
+                            range: Range(0, 0),
+                            main_sample: 0,
+                        },
+                        Port {
+                            range: Range(-(buffer_length as isize), 0),
+                            main_sample: 0,
+                        },
+                    ],
+                }
+            },
+            Node::VariSpeed(max_sample_deviation, deviation, inn) => {
+                // All the setup here is copied from the original non-edsl implementation.
+                // The sinc taps aren't used (nor are they in the original) and the guard samples
+                // shouldn't be necessary. But just replicating it to get the same results.
+
+                // The sinc convolution window is twice this.
+                const NUM_SINC_TAPS_ONE_SIDE: usize = 3;
+
+                // Add this many samples on either side to prevent under/overruns in production. Should
+                // pass rigorous testing with this set to 0, though.
+                const GUARD_SAMPLES: usize = 1;
+
+                let buffer_length: usize = 2 * (max_sample_deviation + NUM_SINC_TAPS_ONE_SIDE + GUARD_SAMPLES) + 1;
+                let now_index: usize = max_sample_deviation + NUM_SINC_TAPS_ONE_SIDE + GUARD_SAMPLES;
+                //spew!("BUF LEN", buffer_length);
+                let hacked_now_index = (now_index as isize) - ((buffer_length-1) as isize);
+
+                GNode {
+                    index: 0,
+                    node: (*node).clone(),
+                    ctor_args: vec![format!("{}isize", hacked_now_index)],
+                    inputs: vec![
+                        genericize1(&deviation, hm),
                         genericize1(&inn, hm),
                     ],
                     ports: vec![

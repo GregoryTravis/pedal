@@ -113,6 +113,25 @@ impl LinearVibrato {
     }
 }
 
+pub struct VariSpeed { now_index: isize }
+impl VariSpeed {
+    pub fn new(now_index: isize) -> Self {
+        Self { now_index }
+    }
+
+    pub fn go(&mut self, _playhead: Playhead, deviation: &Window<f32>, inn: &Window<f32>, out: &mut Signal<f32>) {
+        // Fractional playhead
+        let fph = (self.now_index as f32) + deviation.read(0);
+        let fph_floor = libm::floorf(fph) as isize;
+        let fph_ceiling = fph_floor + 1;
+        let alpha = fph - (fph_floor as f32);
+        let low_sample = inn.read(fph_floor as isize);
+        let high_sample = inn.read(fph_ceiling as isize);
+        let interped = (low_sample * (1.0 - alpha)) + (high_sample * alpha);
+        out.write(interped);
+    }
+}
+
 pub struct SinePrim {}
 impl SinePrim {
     pub fn new() -> Self { Self {} }
