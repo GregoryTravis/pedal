@@ -112,3 +112,14 @@ impl LinearVibrato {
         out.write(interped);
     }
 }
+
+pub struct SinePrim {}
+impl SinePrim {
+    pub fn new() -> Self { Self {} }
+
+    pub fn go(&mut self, playhead: Playhead, frequency: &Window<f32>, amplitude: &Window<f32>, phase: &Window<f32>, out: &mut Signal<f32>) {
+        let tis = playhead.time_in_seconds();
+        let x = table_sin((tis * frequency.read(0) * 2.0 * PI) + phase.read(0)) * amplitude.read(0);
+        out.write(x);
+    }
+}

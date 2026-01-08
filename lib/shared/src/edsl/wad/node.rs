@@ -50,6 +50,10 @@ pub fn low_pass(x: &Rc<Node>) -> Rc<Node> {
     Rc::new(Node::LowPass(x.clone()))
 }
 
+pub fn sine(frequency: &Rc<Node>, amplitude: &Rc<Node>, phase: &Rc<Node>) -> Rc<Node> {
+    Rc::new(Node::Sine(frequency.clone(), amplitude.clone(), phase.clone()))
+}
+
 #[derive(PartialEq, Eq, Hash, Debug)]
 pub enum Node {
     Input,
@@ -62,6 +66,8 @@ pub enum Node {
     LowPass(Rc<Node>),
     // max_sample_deviation, vibrato_frequency, input
     LinearVibrato(usize, Rc<Node>, Rc<Node>),
+    // f, a, ph
+    Sine(Rc<Node>, Rc<Node>, Rc<Node>),
 }
 
 impl Node {
@@ -76,6 +82,7 @@ impl Node {
             Node::HighPass(_) => "HighPass",
             Node::LowPass(_) => "LowPass",
             Node::LinearVibrato(_, _, _) => "LinearVibrato",
+            Node::Sine(_, _, _) => "Sine",
         }
     }
 
@@ -90,6 +97,7 @@ impl Node {
             Node::HighPass(inn) => format!("HighPass({})", inn.name()),
             Node::LowPass(inn) => format!("LowPass({})", inn.name()),
             Node::LinearVibrato(max_sample_deviation, vibrato_frequency, inn) => format!("LinearVibrato({}, {}, {})", max_sample_deviation, vibrato_frequency.name(), inn.name()),
+            Node::Sine(frequency, amplitude, phase) => format!("Sine({}, {}, {})", frequency.name(), amplitude.name(), phase.name()),
         }
     }
 
@@ -104,6 +112,7 @@ impl Node {
             Node::HighPass(_) => "HighPass",
             Node::LowPass(_) => "LowPass",
             Node::LinearVibrato(_, _, _) => "LinearVibrato",
+            Node::Sine(_, _, _) => "Sine",
         }
     }
 
@@ -118,6 +127,7 @@ impl Node {
             Node::HighPass(inn) => inn.type_name(),
             Node::LowPass(inn) => inn.type_name(),
             Node::LinearVibrato(_, _, inn) => inn.type_name(),
+            Node::Sine(_, _, _) => "f32",
         }
     }
 }
@@ -525,7 +535,7 @@ use alloc::boxed::Box;
 use core::any::Any;
 
 #[allow(unused_imports)]
-use shared::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::{AddPrim, DivPrim, Const, PassThru, SumFilter, HighPass, LowPass, LinearVibrato}};
+use shared::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::{AddPrim, DivPrim, Const, PassThru, SumFilter, HighPass, LowPass, LinearVibrato, SinePrim}};
 use shared::knob::Knobs;
 use shared::patch::Patch;
 use shared::playhead::Playhead;
@@ -573,7 +583,7 @@ pub fn genericize1(node: &Rc<Node>, hm: &mut HashMap<Rc<Node>, Rc<RefCell<GNode>
                         range: Range::empty(),
                         main_sample: 0,
                     },
-                ]
+                ],
             },
             Node::Add(a, b) => GNode {
                 index: 0,
@@ -592,7 +602,7 @@ pub fn genericize1(node: &Rc<Node>, hm: &mut HashMap<Rc<Node>, Rc<RefCell<GNode>
                         range: Range::empty(),
                         main_sample: 0,
                     },
-                ]
+                ],
             },
             Node::Div(a, b) => GNode {
                 index: 0,
@@ -611,7 +621,7 @@ pub fn genericize1(node: &Rc<Node>, hm: &mut HashMap<Rc<Node>, Rc<RefCell<GNode>
                         range: Range::empty(),
                         main_sample: 0,
                     },
-                ]
+                ],
             },
             Node::SumFilter(inn, low, high) => GNode {
                 index: 0,
@@ -625,7 +635,7 @@ pub fn genericize1(node: &Rc<Node>, hm: &mut HashMap<Rc<Node>, Rc<RefCell<GNode>
                         range: Range(*low, *high),
                         main_sample: 0,
                     },
-                ]
+                ],
             },
             Node::HighPass(inn) => GNode {
                 index: 0,
@@ -639,7 +649,7 @@ pub fn genericize1(node: &Rc<Node>, hm: &mut HashMap<Rc<Node>, Rc<RefCell<GNode>
                         range: Range(-1, 0),
                         main_sample: 0,
                     },
-                ]
+                ],
             },
             Node::LowPass(inn) => GNode {
                 index: 0,
@@ -653,7 +663,7 @@ pub fn genericize1(node: &Rc<Node>, hm: &mut HashMap<Rc<Node>, Rc<RefCell<GNode>
                         range: Range(-1, 0),
                         main_sample: 0,
                     },
-                ]
+                ],
             },
             Node::Const(k) => GNode {
                 index: 0,
@@ -665,7 +675,7 @@ pub fn genericize1(node: &Rc<Node>, hm: &mut HashMap<Rc<Node>, Rc<RefCell<GNode>
                         range: Range(0, 0),
                         main_sample: 0,
                     },
-                ]
+                ],
             },
             Node::LinearVibrato(max_sample_deviation, vibrato_frequency, inn) => {
                 // All the setup here is copied from the original non-edsl implementation.
@@ -701,8 +711,23 @@ pub fn genericize1(node: &Rc<Node>, hm: &mut HashMap<Rc<Node>, Rc<RefCell<GNode>
                             range: Range(-(buffer_length as isize), 0),
                             main_sample: 0,
                         },
-                    ]
+                    ],
                 }
+            },
+            Node::Sine(frequency, amplitude, phase) => GNode {
+                index: 0,
+                node: (*node).clone(),
+                ctor_args: vec![],
+                inputs: vec![
+                    genericize1(frequency, hm),
+                    genericize1(amplitude, hm),
+                    genericize1(phase, hm),
+                ],
+                ports: vec![
+                    Port { range: Range(0, 0), main_sample: 0, },
+                    Port { range: Range(0, 0), main_sample: 0, },
+                    Port { range: Range(0, 0), main_sample: 0, },
+                ],
             },
         };
         let gnrc = Rc::new(RefCell::new(gn));
