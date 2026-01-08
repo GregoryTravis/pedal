@@ -11,6 +11,7 @@ use edslout::edsl_low_pass_6::*;
 use edslout::edsl_pass_thru::*;
 use edslout::edsl_linear_vibrato::*;
 use edslout::edsl_chorus::*;
+use edslout::edsl_chorus2::*;
 use edslout::testdata::*;
 
 use shared::constants::*;
@@ -85,6 +86,12 @@ pub fn get_test_cases() -> Vec<Box<TestCase>> {
         Box::new(TestCase {
             name: "chorus",
             patch: Box::new(EdslChorus::new()),
+            canned_input: TEST_INPUT,
+            expected_output: CHORUS_OUTPUT,
+        }),
+        Box::new(TestCase {
+            name: "chorus2",
+            patch: Box::new(EdslChorus2::new()),
             canned_input: TEST_INPUT,
             expected_output: CHORUS_OUTPUT,
         }),

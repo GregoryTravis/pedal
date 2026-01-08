@@ -54,6 +54,14 @@ pub fn sine(frequency: &Rc<Node>, amplitude: &Rc<Node>, phase: &Rc<Node>) -> Rc<
     Rc::new(Node::Sine(frequency.clone(), amplitude.clone(), phase.clone()))
 }
 
+pub fn varispeed(max_sample_deviation: usize, deviation: &Rc<Node>, inn: &Rc<Node>) -> Rc<Node> {
+    Rc::new(Node::VariSpeed(max_sample_deviation, deviation.clone(), inn.clone()))
+}
+
+pub fn konst(x: f32) -> Rc<Node> {
+    Rc::new(Node::Const(OrderedFloat(x)))
+}
+
 #[derive(PartialEq, Eq, Hash, Debug)]
 pub enum Node {
     Input,
@@ -117,7 +125,7 @@ impl Node {
             Node::LowPass(_) => "LowPass",
             Node::LinearVibrato(_, _, _) => "LinearVibrato",
             Node::VariSpeed(_, _, _) => "VariSpeed",
-            Node::Sine(_, _, _) => "Sine",
+            Node::Sine(_, _, _) => "SinePrim",
         }
     }
 
