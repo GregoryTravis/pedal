@@ -95,6 +95,22 @@ fn build_edsl_chorus2() {
     compile(&out, "../../edslout/src/edsl_chorus2.rs", "EdslChorus2");
 }
 
+fn build_mod_lv() {
+    let max_sample_deviation = 22;
+
+    let input = Rc::new(Node::Input);
+    let msn = sine(&konst(892.7), &konst(1.0), &konst(0.0));
+    let sn = sine(&msn, &konst(max_sample_deviation as f32), &konst(0.0));
+    let vs = varispeed(max_sample_deviation, &sn, &input);
+    let lp = Rc::new(Node::LowPass(vs.clone()));
+    let mix = add(&input, &lp);
+    let half = div(&mix, &Rc::new(Node::Const(OrderedFloat(2.0))));
+
+    let out = vs;
+
+    compile(&out, "../../edslout/src/edsl_mod_lv.rs", "EdslModLV");
+}
+
 fn main() {
     build_edsl_nodey();
     build_edsl_high_pass();
@@ -105,5 +121,6 @@ fn main() {
     build_edsl_linear_vibrato();
     build_edsl_chorus();
     build_edsl_chorus2();
+    build_mod_lv();
     println!("hi edsl");
 }

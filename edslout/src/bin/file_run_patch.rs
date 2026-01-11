@@ -5,7 +5,7 @@ use alloc::boxed::Box;
 
 use shared::sim::*;
 
-use edslout::edsl_chorus2::*;
+use edslout::edsl_mod_lv::*;
 
 pub fn main() {
     let args: Vec<String> = env::args().collect();
@@ -13,7 +13,7 @@ pub fn main() {
     let input_file = &args[1];
     let output_file = &args[2];
 
-    let patch = EdslChorus2::new();
+    let patch = EdslModLV::new();
 
     sim_main(input_file, output_file, Box::new(patch));
 }

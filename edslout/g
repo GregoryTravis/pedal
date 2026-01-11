@@ -1,8 +1,9 @@
-cargo run --features for_host --bin file_run_patch -- simin.wav simout.wav 2>&1 | tee out
-exit
+#rm -f simout.wav && cargo run --features for_host --bin file_run_patch -- simin.wav simout.wav 2>&1 | tee out
+#exit
 
 (pushd ../lib/shared && \
  cargo run --bin edslbuild --features for_host && \
  popd && \
  cargo run --features for_host --bin test) 2>&1 | tee out
+rm -f simout.wav && cargo run --features for_host --bin file_run_patch -- simin.wav simout.wav 2>&1 | tee out
 exit
