@@ -1,3 +1,7 @@
+#![cfg_attr(not(feature = "for_host"), no_std)]
+
+extern crate shared;
+
 pub mod edsl_nodey;
 pub mod edsl_const;
 pub mod edsl_high_pass;

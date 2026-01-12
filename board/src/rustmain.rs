@@ -10,6 +10,8 @@ use shared::bench::benchmark;
 #[allow(unused_imports)]
 use shared::benchmark_test::benchmark_direct;
 #[allow(unused_imports)]
+use edslout::edsl_mod_lv::*;
+#[allow(unused_imports)]
 use shared::fft_bench::*;
 #[allow(unused_imports)]
 use shared::filter::chorus::*;
@@ -292,11 +294,43 @@ pub fn benchmark_patches() {
     benchmark_direct();
 }
 
+pub fn edsl_main() {
+    hw_init(!PROD, BLOCK_SIZE);
+    spew!("hi");
+    load_init();
+
+    let knobs = Box::new(BoardKnobs { });
+    let switches = Box::new(BoardSwitches { });
+    let toggle = Toggle::new(switches, 0);
+
+    rig_install_callback();
+
+    let patch = EdslModLV::new();
+
+    rig_install_patch(Box::new(patch), knobs, toggle);
+
+    // TODO don't duplicate this.
+    // let knobs2 = Box::new(BoardKnobs { });
+    // let switches2 = Box::new(BoardSwitches { });
+    // let mut toggle2 = Toggle::new(switches2, 0);
+    loop {
+        load_spew();
+        /*
+        rig_log();
+        knobs2.spew();
+        toggle2.process();
+        toggle2.spew();
+        */
+        hw_delay(500);
+    }
+}
+
 #[no_mangle]
 pub fn main() {
     spew!("start of main");
 
-    rubin_main();
+    //rubin_main();
+    edsl_main();
     //rubin2_main();
     //much_harm_main();
     //gs_main();
