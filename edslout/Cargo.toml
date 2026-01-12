@@ -15,11 +15,11 @@ lto = "fat"
 [features]
 # Any crates that require std cannot be built for the board, and must be listed
 # here; they must also be configured as optional dependencies.
-for_host = ["shared"]
+for_host = ["shared/for_host"]
 
 [dependencies]
 libm = "0.2.8"
-shared = { path = "../lib/shared", optional = true, features = ["for_host"] }
+shared = { path = "../lib/shared", features = [] }
 
 [[bin]]
 name = "test"

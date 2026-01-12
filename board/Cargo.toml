@@ -23,6 +23,6 @@ cortex-m = "0.7.7"
 emballoc = "0.2.0"
 libc = "0.2"
 edslout = { path = "../edslout", features = [] }
-shared = { path = "../lib/shared", features = [] }
+shared = { path = "../lib/shared", default-features = false, features = [] }
 #host = { path = "../lib/host", optional = true, features = ["for_host"] }
 pedalhost = { path = "../host" } # , optional = true, features = ["for_host"] }
