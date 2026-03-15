@@ -111,6 +111,11 @@ fn build_mod_lv() {
     compile(&out, "../../edslout/src/edsl_mod_lv.rs", "EdslModLV");
 }
 
+fn build_easy_tweak() {
+    let sn = sine(&konst(vibrato_frequency), &konst(max_sample_deviation as f32), &konst(0.0));
+    let lv = Rc::new(Node::LinearVibrato(18, Rc::new(sn), input.clone()));
+}
+
 fn main() {
     build_edsl_nodey();
     build_edsl_high_pass();
