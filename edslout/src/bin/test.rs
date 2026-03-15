@@ -12,6 +12,7 @@ use edslout::edsl_pass_thru::*;
 use edslout::edsl_linear_vibrato::*;
 use edslout::edsl_chorus::*;
 use edslout::edsl_chorus2::*;
+use edslout::edsl_harmoneer_wrapper::*;
 use edslout::testdata::*;
 
 use shared::constants::*;
@@ -94,6 +95,12 @@ pub fn get_test_cases() -> Vec<Box<TestCase>> {
             patch: Box::new(EdslChorus2::new()),
             canned_input: TEST_INPUT,
             expected_output: CHORUS_OUTPUT,
+        }),
+        Box::new(TestCase {
+            name: "harmoneer_wrapper",
+            patch: Box::new(EdslHarmoneerWrapper::new()),
+            canned_input: TEST_INPUT,
+            expected_output: HARMONEER_OUTPUT,
         }),
         ]
 }

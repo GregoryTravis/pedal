@@ -125,7 +125,7 @@ fn build_harmoneer_wrapper() {
     let input = Rc::new(Node::Input);
     let harm = Rc::new(Node::Patch(input, "crate::filter::harmoneer::Harmoneer(2.0, sdram)".to_string()));
     let out = harm;
-    compile(&out, "../../edslout/src/edsl_easy_tweak.rs", "EdslEasyTweak");
+    compile(&out, "../../edslout/src/edsl_harmoneer_wrapper.rs", "EdslHarmoneerWrapper");
 }
 
 fn main() {

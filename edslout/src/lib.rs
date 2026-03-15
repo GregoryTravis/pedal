@@ -8,4 +8,6 @@ pub mod edsl_low_pass;
 pub mod edsl_low_pass_6;
 pub mod edsl_pass_thru;
 pub mod edsl_mod_lv;
+pub mod edsl_easy_tweak;
+pub mod edsl_harmoneer_wrapper;
 pub mod testdata;
