@@ -559,6 +559,8 @@ use shared::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::
 use shared::knob::Knobs;
 use shared::patch::Patch;
 use shared::playhead::Playhead;
+#[allow(unused)]
+use shared::sdram::*;
 const MAX: usize = 100;
 "#.to_string()
     }

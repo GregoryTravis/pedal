@@ -123,7 +123,7 @@ fn build_easy_tweak() {
 
 fn build_harmoneer_wrapper() {
     let input = Rc::new(Node::Input);
-    let harm = Rc::new(Node::Patch(input, "Box::new(shared::filter::harmoneer::Harmoneer::new(2.0, sdram))".to_string()));
+    let harm = Rc::new(Node::Patch(input, "Box::new(shared::filter::harmoneer::Harmoneer::new(2.0, &mut SDRAM::new()))".to_string()));
     let out = harm;
     compile(&out, "../../edslout/src/edsl_harmoneer_wrapper.rs", "EdslHarmoneerWrapper");
 }

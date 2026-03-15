@@ -12,6 +12,8 @@ use shared::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::
 use shared::knob::Knobs;
 use shared::patch::Patch;
 use shared::playhead::Playhead;
+#[allow(unused)]
+use shared::sdram::*;
 const MAX: usize = 100;
 pub struct EdslHarmoneerWrapper {
     unitPatchPrim_0: PatchPrim,
@@ -22,7 +24,7 @@ pub struct EdslHarmoneerWrapper {
             impl EdslHarmoneerWrapper {
                 pub fn new() -> EdslHarmoneerWrapper {
                     EdslHarmoneerWrapper {
-                            unitPatchPrim_0: PatchPrim::new(Box::new(shared::filter::harmoneer::Harmoneer::new(2.0, sdram))),
+                            unitPatchPrim_0: PatchPrim::new(Box::new(shared::filter::harmoneer::Harmoneer::new(2.0, &mut SDRAM::new()))),
     signal0: Signal::new(MAX),
     signal1: Signal::new(MAX),
 
