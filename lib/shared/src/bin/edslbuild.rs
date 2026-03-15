@@ -112,8 +112,11 @@ fn build_mod_lv() {
 }
 
 fn build_easy_tweak() {
-    let sn = sine(&konst(vibrato_frequency), &konst(max_sample_deviation as f32), &konst(0.0));
-    let lv = Rc::new(Node::LinearVibrato(18, Rc::new(sn), input.clone()));
+    let input = Rc::new(Node::Input);
+    let vibrato_frequency = Rc::new(Node::Const(OrderedFloat(1.0)));
+    let max_sample_deviation = 22;
+    let sn = sine(&vibrato_frequency, &konst(max_sample_deviation as f32), &konst(0.0));
+    let lv = Rc::new(Node::LinearVibrato(18, sn, input.clone()));
 }
 
 fn main() {
