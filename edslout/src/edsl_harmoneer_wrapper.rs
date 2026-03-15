@@ -1,0 +1,61 @@
+
+#![allow(non_snake_case)]
+
+extern crate alloc;
+extern crate libm;
+
+use alloc::boxed::Box;
+use core::any::Any;
+
+#[allow(unused_imports)]
+use shared::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::{AddPrim, DivPrim, Const, PassThru, SumFilter, HighPass, LowPass, LinearVibrato, SinePrim, VariSpeed}};
+use shared::knob::Knobs;
+use shared::patch::Patch;
+use shared::playhead::Playhead;
+const MAX: usize = 100;
+pub struct EdslHarmoneerWrapper {
+    unitPatchPrim_0: PatchPrim,
+    signal0: Signal<f32>,
+    signal1: Signal<f32>,
+}
+
+            impl EdslHarmoneerWrapper {
+                pub fn new() -> EdslHarmoneerWrapper {
+                    EdslHarmoneerWrapper {
+                            unitPatchPrim_0: PatchPrim::new(crate::filter::harmoneer::Harmoneer(2.0, sdram)),
+    signal0: Signal::new(MAX),
+    signal1: Signal::new(MAX),
+
+                    }
+                }
+                
+            }
+            
+impl Patch for EdslHarmoneerWrapper {
+    fn rust_process_audio(
+        &mut self,
+        input_slice: &[f32],
+        output_slice: &mut [f32],
+        _knobs: &Box<dyn Knobs>,
+        mut playhead: Playhead,
+    ) {
+        for i in 0..input_slice.len() {
+            self.signal1.write(input_slice[i]);
+
+
+            let port0_0: Window<f32> = Window::new(&self.signal1, Range(0, 0));
+self.unitPatchPrim_0.go(playhead, &port0_0, &mut self.signal0);
+
+
+            output_slice[i] = self.signal0.read(0);
+
+            playhead.inc();
+            
+        }
+    }
+
+    fn into_any(self: Box<Self>) -> Box<dyn Any> {
+        self
+    }
+}
+
