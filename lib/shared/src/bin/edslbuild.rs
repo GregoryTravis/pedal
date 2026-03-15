@@ -121,6 +121,13 @@ fn build_easy_tweak() {
     compile(&out, "../../edslout/src/edsl_easy_tweak.rs", "EdslEasyTweak");
 }
 
+fn build_harmoneer_wrapper() {
+    let input = Rc::new(Node::Input);
+    let harm = Rc::new(Node::Patch(input, "crate::filter::harmoneer::Harmoneer(2.0, sdram)".to_string()));
+    let out = harm;
+    compile(&out, "../../edslout/src/edsl_easy_tweak.rs", "EdslEasyTweak");
+}
+
 fn main() {
     build_edsl_nodey();
     build_edsl_high_pass();
@@ -133,5 +140,6 @@ fn main() {
     build_edsl_chorus2();
     build_mod_lv();
     build_easy_tweak();
+    build_harmoneer_wrapper();
     println!("hi edsl");
 }

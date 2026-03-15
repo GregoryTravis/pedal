@@ -78,6 +78,8 @@ pub enum Node {
     VariSpeed(usize, Rc<Node>, Rc<Node>),
     // f, a, ph
     Sine(Rc<Node>, Rc<Node>, Rc<Node>),
+    // Patch wrapper, duh
+    Patch(Rc<Node>, String),
 }
 
 impl Node {
@@ -94,6 +96,7 @@ impl Node {
             Node::LinearVibrato(_, _, _) => "LinearVibrato",
             Node::VariSpeed(_, _, _) => "VariSpeed",
             Node::Sine(_, _, _) => "Sine",
+            Node::Patch(_, _) => "Patch",
         }
     }
 
@@ -110,6 +113,7 @@ impl Node {
             Node::LinearVibrato(max_sample_deviation, vibrato_frequency, inn) => format!("LinearVibrato({}, {}, {})", max_sample_deviation, vibrato_frequency.name(), inn.name()),
             Node::VariSpeed(max_sample_deviation, deviation, inn) => format!("VariSpeed({}, {}, {})", max_sample_deviation, deviation.name(), inn.name()),
             Node::Sine(frequency, amplitude, phase) => format!("Sine({}, {}, {})", frequency.name(), amplitude.name(), phase.name()),
+            Node::Patch(inn, cton_string) => format!("Patch({}, {})", inn.name(), cton_string),
         }
     }
 
@@ -126,6 +130,7 @@ impl Node {
             Node::LinearVibrato(_, _, _) => "LinearVibrato",
             Node::VariSpeed(_, _, _) => "VariSpeed",
             Node::Sine(_, _, _) => "SinePrim",
+            Node::Patch(_, _) => "PatchPrim",
         }
     }
 
@@ -142,6 +147,7 @@ impl Node {
             Node::LinearVibrato(_, _, inn) => inn.type_name(),
             Node::VariSpeed(_, _, inn) => inn.type_name(),
             Node::Sine(_, _, _) => "f32",
+            Node::Patch(_, _) => "f32",
         }
     }
 }
@@ -777,6 +783,17 @@ pub fn genericize1(node: &Rc<Node>, hm: &mut HashMap<Rc<Node>, Rc<RefCell<GNode>
                 ports: vec![
                     Port { range: Range(0, 0), main_sample: 0, },
                     Port { range: Range(0, 0), main_sample: 0, },
+                    Port { range: Range(0, 0), main_sample: 0, },
+                ],
+            },
+            Node::Patch(inn, cton_string) => GNode {
+                index: 0,
+                node: (*node).clone(),
+                ctor_args: vec![cton_string.to_string()],
+                inputs: vec![
+                    genericize1(inn, hm),
+                ],
+                ports: vec![
                     Port { range: Range(0, 0), main_sample: 0, },
                 ],
             },
