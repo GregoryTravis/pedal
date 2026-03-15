@@ -555,7 +555,7 @@ use alloc::boxed::Box;
 use core::any::Any;
 
 #[allow(unused_imports)]
-use shared::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::{AddPrim, DivPrim, Const, PassThru, SumFilter, HighPass, LowPass, LinearVibrato, SinePrim, VariSpeed}};
+use shared::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::{AddPrim, DivPrim, Const, PassThru, SumFilter, HighPass, LowPass, LinearVibrato, SinePrim, VariSpeed, PatchPrim}};
 use shared::knob::Knobs;
 use shared::patch::Patch;
 use shared::playhead::Playhead;

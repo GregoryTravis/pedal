@@ -8,7 +8,7 @@ use alloc::boxed::Box;
 use core::any::Any;
 
 #[allow(unused_imports)]
-use shared::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::{AddPrim, DivPrim, Const, PassThru, SumFilter, HighPass, LowPass, LinearVibrato, SinePrim, VariSpeed}};
+use shared::edsl::runtime::{signal::Signal, window::Window, range::Range, prim::{AddPrim, DivPrim, Const, PassThru, SumFilter, HighPass, LowPass, LinearVibrato, SinePrim, VariSpeed, PatchPrim}};
 use shared::knob::Knobs;
 use shared::patch::Patch;
 use shared::playhead::Playhead;
@@ -22,7 +22,7 @@ pub struct EdslHarmoneerWrapper {
             impl EdslHarmoneerWrapper {
                 pub fn new() -> EdslHarmoneerWrapper {
                     EdslHarmoneerWrapper {
-                            unitPatchPrim_0: PatchPrim::new(crate::filter::harmoneer::Harmoneer(2.0, sdram)),
+                            unitPatchPrim_0: PatchPrim::new(Box::new(shared::filter::harmoneer::Harmoneer::new(2.0, sdram))),
     signal0: Signal::new(MAX),
     signal1: Signal::new(MAX),
 

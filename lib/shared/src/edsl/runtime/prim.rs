@@ -4,6 +4,9 @@ extern crate libm;
 use core::default::Default;
 use core::f32::consts::PI;
 use core::ops::{Add, AddAssign, Div};
+use crate::knob::Knobs;
+use crate::knob_dummy::DummyKnobs;
+use crate::patch::Patch;
 use ordered_float::OrderedFloat;
 //use std::println;
 
@@ -142,3 +145,20 @@ impl SinePrim {
         out.write(x);
     }
 }
+
+pub struct PatchPrim { patch: Box<dyn Patch> }
+impl PatchPrim {
+    pub fn new(patch: Box<dyn Patch>) -> Self {
+        Self { patch }
+    }
+
+    pub fn go(&mut self, playhead: Playhead, inn: &Window<f32>, out: &mut Signal<f32>) {
+        // TODO this is insanely wasteful, right?
+        let inn_for_patch: [f32; 1] = [inn.read(0)];
+        let mut out_for_patch: [f32; 1] = [0.0];
+        let knobs: Box<dyn Knobs> = Box::new(DummyKnobs { });
+        self.patch.rust_process_audio(&inn_for_patch, &mut out_for_patch, &knobs, playhead);
+        out.write(out_for_patch[0]);
+    }
+}
+
