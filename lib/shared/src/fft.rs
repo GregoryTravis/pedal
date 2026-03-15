@@ -29,9 +29,9 @@ pub fn fft_to_magnitudes(fft_in: &[f32; FFT_SIZE], mag_out: &mut [f32; FFT_SIZE/
 fn quake_rsqrt(number: f32) -> f32 {
     let mut y: f32 = number;
     unsafe {
-        let mut i: i32 = core::mem::transmute::<f32, i32>(y);
+        let mut i: i32 = f32::to_bits(y).cast_signed();
         i = 0x5F375A86 - (i >> 1);
-        y = core::mem::transmute::<i32, f32>(i);
+        y = f32::from_bits(i32::cast_unsigned(i));
     }
     y * (1.5 - (number * 0.5 * y * y))
 }

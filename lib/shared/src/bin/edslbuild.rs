@@ -104,7 +104,7 @@ fn build_mod_lv() {
     let vs = varispeed(max_sample_deviation, &sn, &input);
     let lp = Rc::new(Node::LowPass(vs.clone()));
     let mix = add(&input, &lp);
-    let half = div(&mix, &Rc::new(Node::Const(OrderedFloat(2.0))));
+    let _half = div(&mix, &Rc::new(Node::Const(OrderedFloat(2.0))));
 
     let out = vs;
 
@@ -117,6 +117,8 @@ fn build_easy_tweak() {
     let max_sample_deviation = 22;
     let sn = sine(&vibrato_frequency, &konst(max_sample_deviation as f32), &konst(0.0));
     let lv = Rc::new(Node::LinearVibrato(18, sn, input.clone()));
+    let out = lv;
+    compile(&out, "../../edslout/src/edsl_easy_tweak.rs", "EdslEasyTweak");
 }
 
 fn main() {
@@ -130,5 +132,6 @@ fn main() {
     build_edsl_chorus();
     build_edsl_chorus2();
     build_mod_lv();
+    build_easy_tweak();
     println!("hi edsl");
 }
